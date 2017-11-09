@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
 @section('title')
-    Networks
+    Social Networks
 @endsection
 
 @section('page-header')
-    Networks
+    Social Networks
 @endsection
 
 @section('page-content')
@@ -30,23 +30,23 @@
                 </div>
                 <div class="panel-body">
                     <p>Here will be list of connected accounts {{ Auth::user()->name }}</p>
-                    <ul class="">
+                    <ul>
                         @foreach($userAccounts as $item)
                             @if(isset($item['userId']))
                                 <li class="list-group-item">
                                     <div class="media">
-                                        <img class="pull-left hidden-xs b2s-img-network" alt="{{ $item['provider'] }}" src="/soc_img/{{ $item['icon'] }}">
+                                        <img class="pull-left hidden-xs b2s-img-network" alt="{{$item['provider']}}" src="/soc_img/{{$item['icon']}}">
                                         <div class="media-body network">
-                                            <h4>{{ $item['provider'] }}
-                                                <span class="b2s-network-auth-count count_{{ $item['userId'] }}">(Connections <span class="">1</span>/1)</span>
-                                                <span class="pull-right"><a href="#">+ Profile</a></span>
+                                            <h4>{{$item['provider']}}
+                                                <span class="b2s-network-auth-count count_{{$item['userId']}}">(Connections <span class="">1</span>/1)</span>
+                                                <span class="pull-right"><a href="{{url($item["provider"].'/login')}}">+ Profile</a></span>
                                             </h4>
                                             <ul class="user_detalis_provider_{{ $item['userId'] }}">
-                                                <li>Profile: {{ $item['first_name'] }} {{ $item['last_name'] }} <span class="">(My profile)</span>
-                                                    <a href="/{{ $item['provider'] }}/login" class="update_povider">
+                                                <li>Profile: {{$item['first_name']}} {{$item['last_name']}} <span>(My profile)</span>
+                                                    <a href="{{url($item["provider"].'/login')}}" class="update_povider">
                                                         <span class="glyphicon  glyphicon-refresh glyphicon-grey"></span>
                                                     </a>
-                                                    <a class="deleteAccount" data-id="{{ $item['userId'] }}" href="#">
+                                                    <a class="deleteAccount" data-id="{{$item['userId']}}" href="#">
                                                         <span class="glyphicon  glyphicon-trash glyphicon-grey"></span>
                                                     </a>
                                                 </li>
@@ -59,9 +59,9 @@
                                     <div class="media">
                                         <img class="pull-left hidden-xs b2s-img-network" alt="{{ $item['provider'] }}" src="/soc_img/{{ $item['icon'] }}">
                                         <div class="media-body network">
-                                            <h4>{{ $item['provider'] }}
+                                            <h4>{{$item['provider']}}
                                                 <span class="b2s-network-auth-count">(Connections <span class="">0</span>/1)</span>
-                                                <span class="pull-right"><a href="/{{ $item['provider'] }}/login">+ Profile</a></span>
+                                                <span class="pull-right"><a href="{{url($item["provider"].'/login')}}">+ Profile</a></span>
                                             </h4>
                                         </div>
                                     </div>

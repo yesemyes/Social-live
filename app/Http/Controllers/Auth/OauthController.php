@@ -37,7 +37,6 @@ class OauthController extends Controller
 	public function loginWithFacebook(Request $request)
 	{
 		$code = $request->get('code');
-
 		if( $this->userAuth == null ){
 			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
 			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
@@ -55,8 +54,12 @@ class OauthController extends Controller
 			}
 		}
 		else{
-			$url = $fb->getAuthorizationUri();
-			return redirect((string)$url);
+			if( isset($_GET['error']) && $_GET['error'] == "access_denied" ){
+				return redirect('/networks');
+			}else{
+				$url = $fb->getAuthorizationUri();
+				return redirect((string)$url);
+			}
 		}
 	}
 
@@ -124,9 +127,13 @@ class OauthController extends Controller
 			$result['last_name'] = '';
 			if( isset($result['access_token']) ) return $this->regApi( $result, 'twitter' );
 		}else{
-			$reqToken = $tw->requestRequestToken();
-			$url = $tw->getAuthorizationUri(['oauth_token' => $reqToken->getRequestToken()]);
-			return redirect((string)$url);
+			if( isset($_GET['denied']) && $_GET['denied'] != null ){
+				return redirect('/networks');
+			}else{
+				$reqToken = $tw->requestRequestToken();
+				$url = $tw->getAuthorizationUri(['oauth_token' => $reqToken->getRequestToken()]);
+				return redirect((string)$url);
+			}
 		}
 	}
 
@@ -152,8 +159,12 @@ class OauthController extends Controller
 				return $this->regApi( $result, 'linkedin' );
 			}
 		}else{
-			$url = $linkedinService->getAuthorizationUri(['state'=>'DCEEFWF45453sdffef424']);
-			return redirect((string)$url);
+			if( isset($_GET['error']) && $_GET['error'] == "access_denied" ){
+				return redirect('/networks');
+			}else{
+				$url = $linkedinService->getAuthorizationUri(['state'=>'DCEEFWF45453sdffef424']);
+				return redirect((string)$url);
+			}
 		}
 	}
 
@@ -223,8 +234,12 @@ class OauthController extends Controller
 			$result['last_name'] = '';
 			if( isset($result['access_token']) ) return $this->regApi( $result,'reddit' );
 		}else{
-			$url = $reddit->getAuthorizationUri();
-			return redirect((string)$url);
+			if (strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false) {
+				return redirect('/networks');
+			}else{
+				$url = $reddit->getAuthorizationUri();
+				return redirect((string)$url);
+			}
 		}
 	}
 
@@ -261,9 +276,18 @@ class OauthController extends Controller
 			$result['id'] = $result['data']['id'];
 			if( isset($result['access_token']) ) return $this->regApi( $result,'pinterest' );
 		}else{
-			$url = $pinterestService->getAuthorizationUri();
-			return redirect((string)$url);
+			if (strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false) {
+				return redirect('/networks');
+			}else{
+				$url = $pinterestService->getAuthorizationUri();
+				return redirect((string)$url);
+			}
 		}
+	}
+
+	public function cancelWithSocials()
+	{
+		return redirect()->back();
 	}
 
 	/*protected function _register($data,$provider,$wp = null)

@@ -46,6 +46,8 @@ Route::get('instagram/login/{wp?}', 'Auth\OauthController@loginWithInstagram');
 Route::get('reddit/login/{wp?}',    'Auth\OauthController@loginWithReddit');
 Route::get('pinterest/login/{wp?}', 'Auth\OauthController@loginWithPinterest');
 
+Route::get('cancel', 'Auth\OauthController@cancelWithSocials');
+
 
 /* API */
 Route::group(['middleware' => 'api', 'prefix' => 'api'], function () {

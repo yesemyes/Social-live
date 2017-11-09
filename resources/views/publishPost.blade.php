@@ -8,7 +8,7 @@
 @section('page-content')
     @if( Session::has('message') )
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-9">
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <p>{{ Session::get('message') }}</p>
@@ -48,20 +48,35 @@
                                             <div class="clearfix"></div>
                                             @if( $value['provider'] == "reddit" )
                                             <div class="form-group">
-                                                @if( isset($subreddits) && count($subreddits) > 0 && $subreddits != null )
-                                                <select class="form-control b2s-select valid" name="subreddits">
+                                                @if( isset($subreddits) && count($subreddits->data->children) > 0 && $subreddits != null )
+                                                <select class="form-control b2s-select valid" name="subreddits_id">
                                                 @foreach($subreddits->data->children as $key => $item)
-                                                    <option value="<?=$item->data->display_name?>"><?=$item->data->display_name?></option>
+                                                    <option value="{{$item->data->display_name}}">{{$item->data->display_name}}</option>
                                                 @endforeach
                                                 </select>
-                                                @elseif( count($subreddits) == 0 && $subreddits != null && $value['provider'] == "reddit" )
+                                                @elseif( isset($subreddits) && count($subreddits->data->children) == 0 && $subreddits != null && $value['provider'] == "reddit" )
                                                     <div class="clearfix"></div>
-                                                    <p style="color:red">You are not subscribed</p>
+                                                    <p style="color:red">Warning! You don't have any subscriptions</p>
                                                 @else
                                                     <div class="clearfix"></div>
-                                                    <p style="color:red">You are not authorized....</p>
+                                                    <p style="color:red">You are not authorized <a href="{{url($value['provider'].'/login')}}">reAuthorized</a></p>
                                                 @endif
                                             </div>
+                                            @endif
+
+                                            @if( $value['provider'] == "pinterest" )
+                                                <div class="form-group">
+                                                    @if( isset($boards) && count($boards) > 0 && $boards != null )
+                                                        <select class="form-control b2s-select valid" name="boards_id">
+                                                            @foreach($boards as $key => $item)
+                                                                <option value="{{$item->id}}">{{ $item->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @else
+                                                        <div class="clearfix"></div>
+                                                        <p style="color:red">Warning! You have no boards</p>
+                                                    @endif
+                                                </div>
                                             @endif
 
 

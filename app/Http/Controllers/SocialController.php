@@ -45,7 +45,7 @@ class SocialController extends Controller
 			$linkData = [
 				'link' => $request->link,
 				'message' => $request->message,
-				'source' => $request->img_upload_link,
+				'source' => $this->fb->fileToUpload($request->img_upload_link),
 			];
 		}
 		elseif($request->img_link != null){
@@ -53,7 +53,7 @@ class SocialController extends Controller
 			$linkData = [
 				'link' => $request->link,
 				'message' => $request->message,
-				'source' => $request->img_link,
+				'source' => $this->fb->fileToUpload($request->img_link),
 			];
 		}
 		else{
@@ -64,7 +64,10 @@ class SocialController extends Controller
 		}
 
 		try {
-			$response = $this->fb->post('/me/feed', $linkData, $request->token_soc);
+			if( $request->img_link != null || $request->img_upload_link != null )
+				$response = $this->fb->post('/me/photos', $linkData, $request->token_soc);
+			else
+				$response = $this->fb->post('/me/feed', $linkData, $request->token_soc);
 		} catch(FacebookResponseException $e) {
 			echo 'Graph returned an error: ' . $e->getMessage();
 			exit;
@@ -165,11 +168,6 @@ class SocialController extends Controller
 		}
 	}
 
-	public function google(Request $request) // not working
-	{
-		return 'google plus API';
-	}
-
 	public function linkedin(Request $request)
 	{
 		$this->li = new LinkedIn(
@@ -242,7 +240,8 @@ class SocialController extends Controller
 			$response = $apiResponse;
 		}
 		curl_close($ch);
-		return response()->json(['result'=>$response->success]);
+		if( isset($response->success) && $response->success == false ) return response()->json(['result'=>'error']);
+		else return response()->json(['result'=>'success']);
 	}
 
 	public function get_subreddits(Request $request)
@@ -319,23 +318,6 @@ class SocialController extends Controller
 		}
 		curl_close($ch);
 		return $response;
-		return ($response->data->children);
-	}
-
-	public function instagram(Request $request)
-	{
-		$upload_image_filename = 'download.jpg'; // TODO; Link to your image from here
-		$image_caption = 'My example image caption #InstagramImageAPI'; // TODO; Add your image caption here
-
-		$ig = new instagram_post();
-
-		if ($ig->doPostImage($upload_image_filename, $image_caption)) {
-			echo "<pre>";
-			var_dump($ig);
-			echo "</pre>";
-		} else {
-			return response(['instagram'=>'error']);
-		}
 	}
 
 	public function pinterest(Request $request)
@@ -348,9 +330,9 @@ class SocialController extends Controller
 		// Load an image from a url.
 		$image = pinIMG::url('http://lorempixel.com/g/400/200/cats/');
 		if( $request->img_upload_link != null ){
-			$pathToFile = $request->img_upload_link;
+			$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
 		}else{
-			$pathToFile = $request->img_link;
+			$pathToFile = str_replace('https://', 'http://', $request->img_link );
 		}
 		$image = pinIMG::file($pathToFile);
 		$data = file_get_contents($pathToFile);
@@ -369,6 +351,7 @@ class SocialController extends Controller
 
 	public function get_boards(Request $request)
 	{
+
 		$client = new Buzz;
 		$auth = Pin::onlyAccessToken($client, $request->token_soc);
 		$api = new API($auth);
@@ -394,7 +377,28 @@ class SocialController extends Controller
 		}else{
 			$boards = null;
 		}
-		return response()->json(['result'=>$boards]);
+		return $boards;
+	}
+
+	public function instagram(Request $request) // not working
+	{
+		$upload_image_filename = 'download.jpg'; // TODO; Link to your image from here
+		$image_caption = 'My example image caption #InstagramImageAPI'; // TODO; Add your image caption here
+
+		$ig = new instagram_post();
+
+		if ($ig->doPostImage($upload_image_filename, $image_caption)) {
+			echo "<pre>";
+			var_dump($ig);
+			echo "</pre>";
+		} else {
+			return response(['instagram'=>'error']);
+		}
+	}
+
+	public function google(Request $request) // not working
+	{
+		return 'google plus API';
 	}
 
 }

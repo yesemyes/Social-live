@@ -99,8 +99,13 @@ class HomeController extends Controller
 			                              ->where('oauth.user_id',$user->id)
 			                              ->get()->keyBy('social_id');
 			$userAccounts = array();
-			foreach($socials as $key => $item){
-				if( isset($userConnectedAccounts[$item->id]) ){
+			$socialClass = new SocialController();
+			$subreddits = "";
+			$boards = "";
+			foreach($socials as $key => $item)
+			{
+				if( isset($userConnectedAccounts[$item->id]) )
+				{
 					$userAccounts[$key] = [
 						'provider'           => $item->provider,
 						'userId'             => $userConnectedAccounts[$item->id]->id,
@@ -111,44 +116,61 @@ class HomeController extends Controller
 						'first_name'         => $userConnectedAccounts[$item->id]->first_name,
 						'last_name'          => $userConnectedAccounts[$item->id]->last_name,
 					];
-				}else{
-					$userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
-				}
+					if( isset($userConnectedAccounts[$item->id]->access_token) && $userConnectedAccounts[$item->id]->access_token != "" ) $token = $userConnectedAccounts[$item->id]->access_token;
+					else $token = null;
+					if( isset($item->provider) && $item->provider == "reddit" ){
+						$get_subreddits = $socialClass->get_subreddits_web($token);
+						if( isset($get_subreddits->message) && $get_subreddits->message == "Unauthorized" ) $subreddits = null;
+						else $subreddits = $socialClass->get_subreddits_web($token);
+					}
+					if( isset($item->provider) && $item->provider == "pinterest" ){
+						$get_boards = $socialClass->get_boards_web($token);
+						if($get_boards == []) $boards = null;
+						else $boards = $socialClass->get_boards_web($token);
+					}
+				}else $userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
 			}
-			$socialClass = new SocialController();
 
-			foreach( $userAccounts as $key => $val ){
-				if( isset($val['access_token']) && $val['access_token'] != "" ){
-					$token = $val['access_token'];
-				}
-				if( isset($val['provider']) && $val['provider'] == "reddit" ){
-					$get_subreddits = $socialClass->get_subreddits_web($token);
-					if( isset($get_subreddits->message) && $get_subreddits->message == "Unauthorized" ) $subreddits = null;
-					else $subreddits = $socialClass->get_subreddits_web($token);
-				}
-				/*if( isset($val['provider']) && $val['provider'] == "pinterest" ){
-					//$get_boards = $socialClass->get_boards_web($token);
-				}*/
-			}
-			//dd( $subreddits->data->children[0]->data->display_name );
-
-			return view('publishPost',['userAccounts' => $userAccounts, 'user' => $user, 'post' => $post, 'subreddits'=>$subreddits]);
-		} else{
-			return redirect('/login');
-		}
+			return view('publishPost',[
+				'userAccounts' => $userAccounts,
+            'user'         => $user,
+				'post'         => $post,
+				'subreddits'   => $subreddits,
+				'boards'       => $boards
+			]);
+		}else return redirect('/login');
 	}
 
 	public function publishPostsAction(Request $request)
 	{
 		$connected = $request->connected;
-		if( isset($connected) ){
+		if( isset($connected) )
+		{
 			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
 			else $request->img_link = null;
+			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
+			else $request->boards = null;
+			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
+			else $request->subreddits = null;
 			$socialClass = new SocialController();
 			$user = Auth::user();
 			$connected 	= $request->connected;
 			foreach($connected as $key => $item)
 			{
+				if( $item == "pinterest" || $item == "reddit" ){
+					if( $request->boards == null && $request->subreddits != null ){
+						Session::flash('message', 'Warning! You have no boards in the (pinterest)');
+						return redirect()->back();
+					}
+					elseif( $request->subreddits == null && $request->boards != null ){
+						Session::flash('message', 'Warning! You don\'t have any subscriptions in (reddit)');
+						return redirect()->back();
+					}
+					elseif( $request->subreddits == null && $request->boards == null ){
+						Session::flash('message', 'Warning! You have no boards in the (pinterest) and You don\'t have any subscriptions in (reddit)');
+						return redirect()->back();
+					}
+				}
 				if( isset($request->access_token[$key]) && $request->access_token[$key] != "" ) $request->token_soc = $request->access_token[$key];
 				else $request->token_soc = null;
 				if( isset($request->access_token_secret[$key]) && $request->access_token_secret[$key] != "" ) $request->token_soc_sec = $request->access_token_secret[$key];
@@ -165,11 +187,7 @@ class HomeController extends Controller
 					$request->img_upload_link  = $img;
 				}else$request->img_upload_link = null;
 				$socials = $socialClass->$item($request);
-				/*
-				'boards'			   => $boards,
-	         */
 			}
-			//dd( $socials );
 			if( $socials->getData('result')['result'] == "success" ){
 				Session::flash('message', 'Your post(s) successful created!');
 				return redirect()->back();

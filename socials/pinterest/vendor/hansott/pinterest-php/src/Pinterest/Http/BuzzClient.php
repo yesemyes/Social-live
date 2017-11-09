@@ -67,10 +67,13 @@ class BuzzClient implements ClientInterface
                 continue;
             }
 
-            list($key, $value) = explode(': ', $header);
+	        $headers = explode(': ', $header);
+	        //dd($header);
+	        //list($key, $value) = explode(': ', $header);
 
-            $headers[$key] = $value;
+            //$headers[$key] = $value;
         }
+
 
         return new Response($request, $statusCode, $rawBody, $headers);
     }
