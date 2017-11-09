@@ -1,0 +1,5 @@
+{
+    "require": {
+        "hansott/pinterest-php": "^3.0"
+    }
+}

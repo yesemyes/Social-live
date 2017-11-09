@@ -1,0 +1,21 @@
+{
+    "body": {
+        "data": null
+    },
+    "statusCode": 200,
+    "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Age": "0",
+        "Cache-Control": "private",
+        "Content-Type": "application\/json",
+        "Pinterest-Version": "4540e61",
+        "X-Content-Type-Options": "nosniff",
+        "X-Pinterest-RID": "442033703690",
+        "X-Ratelimit-Limit": "200",
+        "X-Ratelimit-Remaining": "144",
+        "Content-Length": "14",
+        "Date": "Tue, 15 Aug 2017 14:48:14 GMT",
+        "Connection": "keep-alive",
+        "Pinterest-Generated-By": "devplatform-devapi-prod-0a012b44"
+    }
+}

@@ -1,0 +1,11 @@
+/vendor
+composer.phar
+.php_cs.cache
+.DS_Store
+Thumbs.db
+pinterest.sublime-workspace
+.env
+test.php
+
+# PHPStorm
+.idea

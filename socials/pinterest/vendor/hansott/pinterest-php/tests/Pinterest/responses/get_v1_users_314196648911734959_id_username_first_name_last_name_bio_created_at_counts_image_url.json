@@ -1,0 +1,42 @@
+{
+    "body": {
+        "data": {
+            "username": "hanso1",
+            "bio": "",
+            "first_name": "H",
+            "last_name": "O",
+            "url": "https:\/\/www.pinterest.com\/hanso1\/",
+            "created_at": "2014-08-31T12:45:22",
+            "image": {
+                "60x60": {
+                    "url": "https:\/\/s-media-cache-ak0.pinimg.com\/avatars\/otthans_1409489123_60.jpg",
+                    "width": 60,
+                    "height": 60
+                }
+            },
+            "counts": {
+                "pins": 3,
+                "following": 1,
+                "followers": 24,
+                "boards": 2
+            },
+            "id": "314196648911734959"
+        }
+    },
+    "statusCode": 200,
+    "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Age": "0",
+        "Cache-Control": "private",
+        "Content-Type": "application\/json",
+        "Pinterest-Version": "4540e61",
+        "X-Content-Type-Options": "nosniff",
+        "X-Pinterest-RID": "263941992287",
+        "X-Ratelimit-Limit": "200",
+        "X-Ratelimit-Remaining": "157",
+        "Content-Length": "388",
+        "Date": "Tue, 15 Aug 2017 14:48:10 GMT",
+        "Connection": "keep-alive",
+        "Pinterest-Generated-By": "devplatform-devapi-prod-0a012305"
+    }
+}
