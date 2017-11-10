@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Http\Controllers\SocialController;
 use App\User;
 use App\Social;
 use App\Oauth;
@@ -13,17 +13,6 @@ use App;
 use App\Post;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
-
-use App\Http\Controllers\SocialController;
-
-/*require_once( base_path('socials/pinterest/vendor/autoload.php') );
-
-use Pinterest\Authentication as Pin;
-use Pinterest\Http\BuzzClient as Buzz;
-use Pinterest\App\Scope;
-use Pinterest\Api as API;
-use Pinterest\Image as pinIMG*/;
-
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -83,7 +72,8 @@ class HomeController extends Controller
 	{
 		$user = Auth::user();
 		$posts = Post::where('user_id',$user->id)->get();
-		return view('posts',['posts'=>$posts,'user'=>$user]);
+		if( count($posts) > 0 ) return view('posts',['posts'=>$posts,'user'=>$user]);
+		else return redirect('/create-post');
 	}
 
 	public function publishPost($postID)
@@ -130,7 +120,6 @@ class HomeController extends Controller
 					}
 				}else $userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
 			}
-
 			return view('publishPost',[
 				'userAccounts' => $userAccounts,
             'user'         => $user,
@@ -146,31 +135,47 @@ class HomeController extends Controller
 		$connected = $request->connected;
 		if( isset($connected) )
 		{
+			$socialClass = new SocialController();
+			$user = Auth::user();
+			$connected 	= $request->connected;
+
 			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
 			else $request->img_link = null;
 			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
 			else $request->boards = null;
 			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
 			else $request->subreddits = null;
-			$socialClass = new SocialController();
-			$user = Auth::user();
-			$connected 	= $request->connected;
+
 			foreach($connected as $key => $item)
 			{
-				if( $item == "pinterest" || $item == "reddit" ){
-					if( $request->boards == null && $request->subreddits != null ){
+				if( $item == "pinterest" || $item == "reddit" || $item == "linkedin" )
+				{
+					if( $item == "pinterest" && $request->boards == null && $request->subreddits != null ){
 						Session::flash('message', 'Warning! You have no boards in the (pinterest)');
 						return redirect()->back();
 					}
-					elseif( $request->subreddits == null && $request->boards != null ){
+					if( $item == "reddit" && $request->subreddits == null && $request->boards != null ){
 						Session::flash('message', 'Warning! You don\'t have any subscriptions in (reddit)');
 						return redirect()->back();
 					}
-					elseif( $request->subreddits == null && $request->boards == null ){
+					if( $item == "pinterest" && $request->img_link == null && $request->images[$key] == null ){
+						Session::flash('message', 'Warning! Your post in the (pinterest) not IMAGE');
+						return redirect()->back();
+					}
+					if( $item == "reddit" && $request->url[$key] == null ){
+						Session::flash('message', 'Warning! URL is required in (reddit)');
+						return redirect()->back();
+					}
+					if( $item == "linkedin" && $request->url[$key] == null ){
+						Session::flash('message', 'Warning! URL is required in (linkedin)');
+						return redirect()->back();
+					}
+					if( $request->subreddits == null && $request->boards == null ){
 						Session::flash('message', 'Warning! You have no boards in the (pinterest) and You don\'t have any subscriptions in (reddit)');
 						return redirect()->back();
 					}
 				}
+
 				if( isset($request->access_token[$key]) && $request->access_token[$key] != "" ) $request->token_soc = $request->access_token[$key];
 				else $request->token_soc = null;
 				if( isset($request->access_token_secret[$key]) && $request->access_token_secret[$key] != "" ) $request->token_soc_sec = $request->access_token_secret[$key];
@@ -187,7 +192,7 @@ class HomeController extends Controller
 					$request->img_upload_link  = $img;
 				}else$request->img_upload_link = null;
 				$socials = $socialClass->$item($request);
-			}
+			} // end foreach
 			if( $socials->getData('result')['result'] == "success" ){
 				Session::flash('message', 'Your post(s) successful created!');
 				return redirect()->back();
@@ -247,7 +252,6 @@ class HomeController extends Controller
 			Session::flash('message', 'Post not updated!');
 			return redirect()->back();
 		}
-
 	}
 
 	public function deletePost($id)
@@ -277,35 +281,15 @@ class HomeController extends Controller
 	{
 		$user = Auth::user();
 		$socials = Social::get();
-		/*$userConnectedAccounts = $user->connectedAccounts()->get()->keyBy('social_id');
-
-		$userAccounts = array();
-		foreach($socials as $key => $item) {
-
-			if( isset($userConnectedAccounts[$item->id]) ){
-				$userID = $userConnectedAccounts[$item->id]->id;
-				$provUserID = $userConnectedAccounts[$item->id]->provider_user_id;
-				$access_token = $userConnectedAccounts[$item->id]->access_token;
-				$userAccounts[$key] = [
-					'provider' => $item->provider,
-					'userId' => $userID,
-					'provUserId' => $provUserID,
-					'icon' => $item['icon'],
-					'access_token' => $access_token
-				];
-			}else{
-				$userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
-			}
-		}*/
 		$userConnectedAccounts = Oauth::select('oauth.*')
 		                              ->leftJoin('users','users.id','=','oauth.user_id')
 		                              ->where('oauth.user_name',$user->name)
 		                              ->where('oauth.user_id',$user->id)
 		                              ->get()->keyBy('social_id');
-
 		$userAccounts = array();
-		foreach($socials as $key => $item) {
-			if( isset($userConnectedAccounts[$item->id]) ){
+		foreach($socials as $key => $item)
+		{
+			if( isset($userConnectedAccounts[$item->id]) ) {
 				$userAccounts[$key] = [
 					'provider'           => $item->provider,
 					'userId'             => $userConnectedAccounts[$item->id]->id,
@@ -316,8 +300,7 @@ class HomeController extends Controller
 					'first_name'         => $userConnectedAccounts[$item->id]->first_name,
 					'last_name'          => $userConnectedAccounts[$item->id]->last_name,
 				];
-			}
-			else{
+			} else {
 				$userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
 			}
 		}

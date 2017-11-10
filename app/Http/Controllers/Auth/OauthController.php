@@ -2,14 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-require_once( base_path('socials/pinterest/vendor/autoload.php') );
-
-use Pinterest\Authentication as Pin;
-use Pinterest\Http\BuzzClient as Buzz;
-use Pinterest\App\Scope;
-use Pinterest\Api as API;
-use Pinterest\Image as pinIMG;
-
 use App\User;
 use App\Social;
 use App\Oauth;
@@ -38,8 +30,10 @@ class OauthController extends Controller
 	{
 		$code = $request->get('code');
 		if( $this->userAuth == null ){
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
 		$fb = \OAuth::consumer('Facebook', 'https://ipisocial.iimagine.one/facebook/login');
 
@@ -48,15 +42,18 @@ class OauthController extends Controller
 			$result = json_decode($fb->request('/me?fields=id,first_name,last_name,name,email,gender,locale,picture'), true);
 			$result['access_token'] = $token->getAccessToken();
 			$result['access_token_secret'] = '';
-
-			if( isset($result['access_token']) ){
-				return $this->regApi($result,'facebook');
-			}
+			if( isset($result['access_token']) ) return $this->regApi($result,'facebook');
 		}
 		else{
-			if( isset($_GET['error']) && $_GET['error'] == "access_denied" ){
-				return redirect('/networks');
-			}else{
+			$error = $request->get('error');
+			if( isset($error) && $error == "access_denied" && $this->userAuth != null ) return redirect('/networks');
+			elseif( isset($error) && $error == "access_denied" && $this->userAuth == null ){
+				if( Session::has('api_user_id') ){
+					$api_user_id = Session::get('api_user_id');
+					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();
+					return redirect($api_user_url->user_url.'/wp-admin/admin.php?page=iio4social-network');
+				}
+			}else {
 				$url = $fb->getAuthorizationUri();
 				return redirect((string)$url);
 			}
@@ -113,8 +110,10 @@ class OauthController extends Controller
 		$token  = $request->get('oauth_token');
 		$verify = $request->get('oauth_verifier');
 		if( $this->userAuth == null ){
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
 		$tw = \OAuth::consumer('Twitter', 'https://ipisocial.iimagine.one/twitter/login');
 
@@ -127,8 +126,14 @@ class OauthController extends Controller
 			$result['last_name'] = '';
 			if( isset($result['access_token']) ) return $this->regApi( $result, 'twitter' );
 		}else{
-			if( isset($_GET['denied']) && $_GET['denied'] != null ){
-				return redirect('/networks');
+			$error = $request->get('denied');
+			if( isset($error) && $error != null && $this->userAuth != null ) return redirect('/networks');
+			elseif( isset($error) && $error != null && $this->userAuth == null ){
+				if( Session::has('api_user_id') ){
+					$api_user_id = Session::get('api_user_id');
+					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();
+					return redirect($api_user_url->user_url.'/wp-admin/admin.php?page=iio4social-network');
+				}
 			}else{
 				$reqToken = $tw->requestRequestToken();
 				$url = $tw->getAuthorizationUri(['oauth_token' => $reqToken->getRequestToken()]);
@@ -142,8 +147,10 @@ class OauthController extends Controller
 		$userAuth = Auth::user();
 		$code = $request->get('code');
 		if( $userAuth == null ){
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
 		$linkedinService = \OAuth::consumer('Linkedin','https://ipisocial.iimagine.one/linkedin/login');
 
@@ -155,13 +162,17 @@ class OauthController extends Controller
 			$result['first_name'] = $result['firstName'];
 			$result['last_name'] = $result['lastName'];
 
-			if( isset($result['access_token']) ){
-				return $this->regApi( $result, 'linkedin' );
-			}
+			if( isset($result['access_token']) ) return $this->regApi( $result, 'linkedin' );
 		}else{
-			if( isset($_GET['error']) && $_GET['error'] == "access_denied" ){
-				return redirect('/networks');
-			}else{
+			$error = $request->get('error');
+			if( isset($error) && $error == "access_denied" && $this->userAuth != null ) return redirect('/networks');
+			elseif( isset($error) && $error == "access_denied" && $this->userAuth == null ){
+				if( Session::has('api_user_id') ){
+					$api_user_id = Session::get('api_user_id');
+					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();
+					return redirect($api_user_url->user_url.'/wp-admin/admin.php?page=iio4social-network');
+				}
+			} else {
 				$url = $linkedinService->getAuthorizationUri(['state'=>'DCEEFWF45453sdffef424']);
 				return redirect((string)$url);
 			}
@@ -219,8 +230,10 @@ class OauthController extends Controller
 	{
 		$code = $request->get('code');
 		if( $this->userAuth == null ){
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
 		$reddit = \OAuth::consumer('Reddit','https://ipisocial.iimagine.one/reddit/login');
 
@@ -234,9 +247,15 @@ class OauthController extends Controller
 			$result['last_name'] = '';
 			if( isset($result['access_token']) ) return $this->regApi( $result,'reddit' );
 		}else{
-			if (strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false) {
-				return redirect('/networks');
-			}else{
+			if (strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false && $this->userAuth != null) return redirect('/networks');
+			elseif( strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false && $this->userAuth == null ){
+				if( Session::has('api_user_id') ){
+					$api_user_id = Session::get('api_user_id');
+					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();
+					return redirect($api_user_url->user_url.'/wp-admin/admin.php?page=iio4social-network');
+				}
+			}
+			else {
 				$url = $reddit->getAuthorizationUri();
 				return redirect((string)$url);
 			}
@@ -247,8 +266,10 @@ class OauthController extends Controller
 	{
 		$code = $request->get('code');
 		if( $this->userAuth == null ){
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
 		$pinterestService = \OAuth::consumer('Pinterest','https://ipisocial.iimagine.one/pinterest/login');
 
@@ -258,229 +279,25 @@ class OauthController extends Controller
 			$result = json_decode($pinterestService->request('v1/me/'), true);
 			$result['access_token'] = $token->getAccessToken();
 			$result['access_token_secret'] = '';
-			/* get boards ids */
-			/*$client = new Buzz;
-			$auth = Pin::onlyAccessToken($client, $result['access_token']);
-			$api = new API($auth);
-			$response = $api->getUserBoards();
-			if ($response->ok()){
-				$pagedList = $response->result();
-				$boards = $pagedList->items();
-			}else{
-				$boards = null;
-			}
-			$result['boards'] = $boards;*/
-			/* end boards ids */
 			$result['first_name'] = $result['data']['first_name'];
 			$result['last_name'] = $result['data']['last_name'];
 			$result['id'] = $result['data']['id'];
 			if( isset($result['access_token']) ) return $this->regApi( $result,'pinterest' );
 		}else{
-			if (strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false) {
-				return redirect('/networks');
-			}else{
+			if (strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false && $this->userAuth != null) return redirect('/networks');
+			elseif( strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false && $this->userAuth == null ){
+				if( Session::has('api_user_id') ){
+					$api_user_id = Session::get('api_user_id');
+					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();
+					return redirect($api_user_url->user_url.'/wp-admin/admin.php?page=iio4social-network');
+				}
+			}
+			else{
 				$url = $pinterestService->getAuthorizationUri();
 				return redirect((string)$url);
 			}
 		}
 	}
-
-	public function cancelWithSocials()
-	{
-		return redirect()->back();
-	}
-
-	/*protected function _register($data,$provider,$wp = null)
-	{
-		$member = Auth::user();
-
-		$currentDate = date("Y-m-d H:i:s");
-		$get_social_id = Social::where('provider',$provider)->first();
-
-		if( isset($data['email']) && $data['email'] != null ) {
-			$check_user_by_email = User::where('email',$data['email'])->first(); // fb, google
-		}
-		else {
-			$data['email'] = $data['id'];
-			$check_user_by_email = null;
-		}
-
-		if( isset($check_user_by_email) && $check_user_by_email != null ) {
-			$check_oauth_by_userIdAndProvider = Oauth::leftJoin('users', 'oauth.user_id', '=', 'users.id')
-						->where('oauth.user_id',$check_user_by_email->id)
-						->where('oauth.provider',$provider)
-						->first();
-		}else {
-			$check_oauth_by_userIdAndProvider = Oauth::leftJoin('users', 'oauth.user_id', '=', 'users.id')
-			                                      ->where('oauth.provider_user_id',$data['id'])
-			                                      ->where('oauth.provider',$provider)
-			                                      ->first();
-		}
-	// CHECKS ALL VARIANTS
-		if( $check_user_by_email == null && $member == null && $check_oauth_by_userIdAndProvider == null )
-		{
-			$ins_user = User::insertGetId(
-			[
-				'name'            => $data['name'],
-				'email'           => $data['email'],
-				'password'        => '',
-				'remember_token'  => '',
-				'created_at'      => $currentDate,
-				'updated_at'      => $currentDate,
-			]);
-			if($ins_user != 0) {
-				$get_last_user = User::where('id',$ins_user)->first();
-				DB::table('oauth')->insert(
-					[
-						'user_id'         => $ins_user,
-						'provider_user_id'=> $data['id'],
-						'provider'        => $provider,
-						'access_token'    => isset($data['access_token']) ? $data['access_token'] : '',
-						'created_at'      => $currentDate,
-						'updated_at'      => $currentDate,
-						'social_id'       =>  $get_social_id->id,
-					]);
-				if( $wp == 'true' ) {
-					Auth::login($get_last_user);
-					//$result = @$data['name'].'&email='.@$data['email'].'&id='.$data['id'];
-					return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-				}else {
-					Auth::login($get_last_user);
-					return redirect('/home');
-				}
-			}
-		}
-		elseif( $check_user_by_email != null && $member == null )
-		{
-			//return response(['asd'=>$check_user_by_email]);
-			if( $check_oauth_by_userIdAndProvider == null ) {
-				Oauth::insert(
-				[
-					'user_id'            => $check_user_by_email->id,
-					'provider_user_id'   => $data['id'],
-					'provider'           => $provider,
-					'access_token'       => isset($data['access_token']) ? $data['access_token'] : '',
-					'created_at'         => $currentDate,
-					'updated_at'         => $currentDate,
-					'social_id'          => $get_social_id->id,
-				]);
-				if( $wp == 'true' ) {
-					Auth::login($check_user_by_email);
-					//$result = @$data['name'].'&email='.@$data['email'].'&id='.$data['id'];
-					return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-				}else {
-					Auth::login($check_user_by_email);
-					return redirect('/home');
-				}
-			}
-			else {
-				$updexistsOauth = Oauth::
-											where('user_id',$check_user_by_email->id)
-				   	               ->where('provider',$provider)
-											->where('provider_user_id',$data['id'])
-											->update([
-												'access_token' => $data['access_token'],
-												'updated_at' => $currentDate,
-											]);
-				if( $updexistsOauth == 1 ) {
-					if( $wp == 'true' ) {
-						Auth::login($check_user_by_email);
-						//$result = @$data['name'].'&email='.@$data['email'].'&id='.$data['id'];
-						return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-					}else {
-						Auth::login($check_user_by_email);
-						return redirect('/home');
-					}
-				}
-			}
-		}
-		elseif( $check_oauth_by_userIdAndProvider != null && $member == null )
-		{
-			$get_user_by_oauth = User::select('users.*')
-												->leftJoin('oauth', 'users.id', '=', 'oauth.user_id')
-												->where('users.id',$check_oauth_by_userIdAndProvider->id)
-												->first();
-			$updexistsOauth = Oauth::
-										where('user_id',$get_user_by_oauth->id)
-						            ->where('provider',$provider)
-										->where('provider_user_id',$data['id'])
-										->update([
-												'access_token' => $data['access_token'],
-												'updated_at' => $currentDate,
-										]);
-
-			if( $updexistsOauth == 1 ) {
-				if( $wp == 'true' ) {
-					Auth::login($get_user_by_oauth);
-					$result = $data['name'].'&email='.$data['email'].'&id='.$data['id'];
-					return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-				}else {
-					Auth::login($get_user_by_oauth);
-					return redirect('/home');
-				}
-			}
-		}
-		elseif( $member != null )
-		{
-			if( $check_oauth_by_userIdAndProvider == null ) {
-				//Session::flash('message', 'this account '.$provider.' already exists please add your '.$provider.' in dashboard');
-				Oauth::insert(
-				[
-					'user_id'          => $member->id,
-					'provider_user_id' => $data['id'],
-					'provider'         => $provider,
-					'access_token'     => isset($data['access_token']) ? $data['access_token'] : '',
-					'created_at'       => $currentDate,
-					'updated_at'       => $currentDate,
-					'social_id'        =>  $get_social_id->id,
-				]);
-				if( $wp == 'true' ) {
-					Auth::login($member);
-					$result = $data['name'].'&email='.$data['email'].'&id='.$data['id'];
-					return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-				}else{
-					Auth::login($member);
-					return redirect('/home');
-				}
-
-			}else {
-				$updexistsOauth = Oauth::
-											where('user_id',$member->id)
-				   	               ->where('provider',$provider)
-											->where('provider_user_id',$data['id'])
-											->update([
-												'access_token' => $data['access_token'],
-												'updated_at' => $currentDate,
-											]);
-
-				if( $updexistsOauth == 1 ) {
-					if( $wp == 'true' ) {
-						Auth::login($member);
-
-						//$result = @$data['name'].'&email='.@$data['email'].'&id='.$data['id'];
-						return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-					}else {
-						Auth::login($member);
-						return redirect('/home');
-					}
-				}
-			}
-		}
-		else
-		{
-			Session::flash('message', 'undefined error!');
-			if( $wp == 'true' ) {
-				//$result = @$data['name'].'&email='.@$data['email'].'&id='.$data['id'];
-				return redirect('http://localhost/blog-to-social/wp-admin/admin.php?page=iio4social-network');
-			}else{
-				return redirect('/home');
-			}
-		}
-
-
-
-	// END
-	}*/
 
 	protected function regApi($data,$provider)
 	{

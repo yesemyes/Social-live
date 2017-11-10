@@ -26,8 +26,10 @@
                 @endif
                 <div class="b2s-post-area col-md-9 del-padding-left">
                     <div class="b2s-post-list">
+                        <?php $checkConnected = [];?>
                         @foreach($userAccounts as $key => $value)
                             @if( isset($value['userId']) )
+                                <?php array_push($checkConnected,$value['userId']);?>
                             <div class="b2s-post-item" data-network-name="{{ $value['provider'] }}">
                                 <input type="hidden" data-soc="{{ $value['provider'] }}" name="access_token[]" value="{{ $value['access_token'] }}">
                                 <input type="hidden" data-soc-sec="{{ $value['provider'] }}" name="access_token_secret[]" value="{{ $value['access_token_secret'] }}">
@@ -99,7 +101,6 @@
                             </div>
                             @endif
                         @endforeach
-
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -111,9 +112,13 @@
                         @endif
                     @endforeach
                 </div>
+                @if(isset($checkConnected[0]))
                 <div class="b2s-publish-area">
                     <button class="btn btn-success pull-right btn-lg b2s-submit-btn">Share</button>
                 </div>
+                @else
+                    <div>You don't have connected any <a href="{{url('/networks')}}">social account</a></div>
+                @endif
             </form>
         </div>
     </div>
