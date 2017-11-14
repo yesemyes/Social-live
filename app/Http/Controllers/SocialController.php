@@ -178,16 +178,44 @@ class SocialController extends Controller
 			)
 		);
 		$this->li->setAccessToken($request->token_soc);
-		$postParams = array(
-			"content" => array(
-				"title" 		=> $request->message,
-				"description" 	=> $request->content_text,
-				"submitted-url" => $request->link,
-			),
-			"visibility" => array(
-				"code" => "anyone"
-			)
-		);
+		if($request->img_upload_link != null){
+			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
+			$postParams = array(
+				"content" => array(
+					"title" 		=> $request->message,
+					"description" 	=> $request->content_text,
+					"submitted-url" => $request->link,
+					"submitted-image-url" => $request->img_upload_link,
+				),
+				"visibility" => array(
+					"code" => "anyone"
+				)
+			);
+		}elseif($request->img_link != null){
+			$request->img_link = str_replace('https://', 'http://', $request->img_link );
+			$postParams = array(
+				"content" => array(
+					"title" 		=> $request->message,
+					"description" 	=> $request->content_text,
+					"submitted-url" => $request->link,
+					"submitted-image-url" => $request->img_link,
+				),
+				"visibility" => array(
+					"code" => "anyone"
+				)
+			);
+		}else{
+			$postParams = array(
+				"content" => array(
+					"title" 		=> $request->message,
+					"description" 	=> $request->content_text,
+					"submitted-url" => $request->link,
+				),
+				"visibility" => array(
+					"code" => "anyone"
+				)
+			);
+		}
 		$response = $this->li->post('/people/~/shares?format=json', $postParams);
 		if( $response != null ){
 			return response()->json(['result'=>'success']);

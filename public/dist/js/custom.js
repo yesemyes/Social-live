@@ -88,6 +88,7 @@ jQuery(document).ready(function($)
         return false;
 
     });
+
     var block = $("#sharePost").find(".b2s-post-item");
     $(document).on("click", ".noconnected", function()
     {
@@ -101,9 +102,19 @@ jQuery(document).ready(function($)
             $("input[data-soc-sec='"+noconnected+"']").attr("name", "token_soc_sec[]");
             $("input[data-img='"+noconnected+"']").attr("name", "images[]");
             $("input[data-link='"+noconnected+"']").attr("name", "url[]");
-            $("input[data-link='"+noconnected+"']").attr('required', true);
+            if( noconnected == "linkedin" || noconnected == "reddit" ){
+                $("input[data-link='"+noconnected+"']").attr('required', true);
+            }
             $("div[data-network-name='"+noconnected+"']").css({"display":"block"});
         });
+        var connected_check = $("#sharePost").find(".connected");
+        if( connected_check.length == 0 ){
+            $(".error-result").html('<span class="alert alert-danger text-danger"> Please choose social network </span>');
+            $(".share-button").fadeOut();
+        }else{
+            $(".error-result").html('');
+            $(".share-button").fadeIn();
+        }
     });
     $(document).on("click", ".connected", function()
     {
@@ -117,8 +128,23 @@ jQuery(document).ready(function($)
             $("input[data-soc-sec='"+connected+"']").attr("name", "asd[]");
             $("input[data-img='"+connected+"']").attr("name", "asd[]");
             $("input[data-link='"+connected+"']").attr("name", "asd[]");
-            $("input[data-link='"+connected+"']").attr('required', false);
+            if( connected == "linkedin" || connected == "reddit" ){
+                $("input[data-link='"+connected+"']").attr('required', false);
+            }
             $("div[data-network-name='"+connected+"']").css({"display":"none"});
         });
+        var connected_check = $("#sharePost").find(".connected");
+        if( connected_check.length == 0 ){
+            $(".error-result").html('<span class="alert alert-danger text-danger"> Please choose social network </span>');
+            $(".share-button").fadeOut();
+        }
+    });
+    $(document).on("click", ".share-button", function()
+    {
+        var connected_check = $("#sharePost").find(".connected");
+        if( connected_check.length == 0 ){
+            $(".error-result").html('<span class="alert alert-danger text-danger"> Please choose social network </span>');
+            return false;
+        }
     });
 });

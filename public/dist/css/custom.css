@@ -41,3 +41,6 @@ b, strong {
 .del-post,.del-post-img{
     cursor: pointer;
 }
+.choose-soc label{
+    cursor: pointer;
+}

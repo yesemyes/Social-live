@@ -34,8 +34,8 @@ return [
 			// No scope - oauth1 doesn't need scope
 		],
 		'Linkedin' => [
-		    'client_id'     => '77bxo3m22s83c2',
-		    'client_secret' => 'POVE4Giqvd4DlTnU',
+		    'client_id'     => '77bxo3m22s83c2', //  Ks0UKEgWWRW5xPRS
+		    'client_secret' => 'POVE4Giqvd4DlTnU', //  Ks0UKEgWWRW5xPRS
 		],
 		'Instagram' => [
 			'client_id'     => '7502c314346d4f2fac1d02cbe9074c71',

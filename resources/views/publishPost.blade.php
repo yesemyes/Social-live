@@ -25,6 +25,7 @@
                     <input type="hidden" name="postImage" value="{{ Storage::url($post['img']) }}">
                 @endif
                 <div class="b2s-post-area col-md-9 del-padding-left">
+                    <span class="error-result"></span>
                     <div class="b2s-post-list">
                         <?php $checkConnected = [];?>
                         @foreach($userAccounts as $key => $value)
@@ -93,7 +94,7 @@
                                             <div class="form-group">
                                                 <label>Content</label>
                                                 <textarea data-post-title="{{ $value['provider'] }}" class="form-control tw-textarea-input" placeholder="Write something about your post..." name="postTitle[]" required="required">{{ $post->title }}</textarea>
-                                                <input type="text" class="mt10 form-control" data-post-content="{{ $value['provider'] }}" style="width: 100%;" readonly name="postContent[]" value="{{ $post->text }}">
+                                                <input type="text" class="mt10 form-control" data-post-content="{{ $value['provider'] }}" style="width: 100%;" name="postContent[]" value="{{ $post->text }}">
                                             </div>
                                         </div>
                                     </div>
@@ -106,15 +107,16 @@
                 <div class="col-md-3">
                     @foreach($userAccounts as $value)
                         @if( isset($value['userId']) )
-                            <div>{{ $value['provider'] }}
-                                <input type="checkbox" name="connected[]" value="{{ $value['provider'] }}" checked="checked" class="connected"></div>
+                        <div class="choose-soc">
+                            <label for="{{ $value['provider'] }}">{{ $value['provider'] }} <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" checked="checked" class="connected"></label>
+                        </div>
                             <hr>
                         @endif
                     @endforeach
                 </div>
                 @if(isset($checkConnected[0]))
                 <div class="b2s-publish-area">
-                    <button class="btn btn-success pull-right btn-lg b2s-submit-btn">Share</button>
+                    <button class="btn btn-success pull-right btn-lg b2s-submit-btn share-button">Share</button>
                 </div>
                 @else
                     <div>You don't have connected any <a href="{{url('/networks')}}">social account</a></div>

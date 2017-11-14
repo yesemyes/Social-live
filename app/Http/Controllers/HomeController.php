@@ -148,7 +148,7 @@ class HomeController extends Controller
 
 			foreach($connected as $key => $item)
 			{
-				if( $item == "pinterest" || $item == "reddit" || $item == "linkedin" )
+				if( $item == "pinterest" || $item == "reddit" )
 				{
 					if( $item == "pinterest" && $request->boards == null && $request->subreddits != null ){
 						Session::flash('message', 'Warning! You have no boards in the (pinterest)');
@@ -166,14 +166,15 @@ class HomeController extends Controller
 						Session::flash('message', 'Warning! URL is required in (reddit)');
 						return redirect()->back();
 					}
-					if( $item == "linkedin" && $request->url[$key] == null ){
-						Session::flash('message', 'Warning! URL is required in (linkedin)');
-						return redirect()->back();
-					}
+
 					if( $request->subreddits == null && $request->boards == null ){
 						Session::flash('message', 'Warning! You have no boards in the (pinterest) and You don\'t have any subscriptions in (reddit)');
 						return redirect()->back();
 					}
+				}
+				if( $item == "linkedin" && $request->url[$key] == null ){
+					Session::flash('message', 'Warning! URL is required in (linkedin)');
+					return redirect()->back();
 				}
 
 				if( isset($request->access_token[$key]) && $request->access_token[$key] != "" ) $request->token_soc = $request->access_token[$key];
@@ -283,7 +284,7 @@ class HomeController extends Controller
 		$socials = Social::get();
 		$userConnectedAccounts = Oauth::select('oauth.*')
 		                              ->leftJoin('users','users.id','=','oauth.user_id')
-		                              ->where('oauth.user_name',$user->name)
+		                              //->where('oauth.user_name',$user->name)
 		                              ->where('oauth.user_id',$user->id)
 		                              ->get()->keyBy('social_id');
 		$userAccounts = array();
