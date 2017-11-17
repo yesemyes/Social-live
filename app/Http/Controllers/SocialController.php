@@ -9,6 +9,8 @@ require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
 require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
 require_once( base_path('socials/instagram/instagram_post.php') );
+//require_once( base_path('socials/googleplus/vendor/autoload.php') );
+require_once( base_path('socials/google/vendor/autoload.php') );
 
 use Facebook\Facebook;
 use Facebook\Exceptions\FacebookResponseException;
@@ -22,6 +24,12 @@ use Pinterest\Http\BuzzClient as Buzz;
 use Pinterest\App\Scope;
 use Pinterest\Api as API;
 use Pinterest\Image as pinIMG;
+
+use Google_Client;
+use Google_Service_Plus;
+use Aws\S3\S3Client;
+
+
 
 use Illuminate\Http\Request;
 
@@ -426,7 +434,66 @@ class SocialController extends Controller
 
 	public function google(Request $request) // not working
 	{
-		return 'google plus API';
+		$client = new Google_Client();
+		$client->setClientId("114777295493-rlp2c28pr2l2dpmpi4spec663fjrf5si.apps.googleusercontent.com");
+		$client->setClientSecret("iUIqdh9Hf9-Tbm8iOVLV3x3L");
+		$client->setRedirectUri("https://ipisocial.iimagine.one/google/login");
+		$client->setAccessType("offline");
+		$client->setScopes(array(
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/plus.me',
+			'https://www.googleapis.com/auth/plus.stream.write'
+		));
+		$client->setAccessToken($request->token_soc);
+		$_SESSION['upload_token'] = $request->token_soc;
+		if( $client->getAccessToken() ){
+			$t = $client->getAccessToken();
+
+			$accesstoken = $t['access_token'];
+
+			$user_id = '110045277843807427377';
+			$url = 'https://www.googleapis.com/plusDomains/v1/people/' . $user_id . '/activities';
+			$headers = array(
+				'Authorization : Bearer ' . $accesstoken,
+				'Content-Type : application/json',
+
+			);
+
+			/*$body = [
+				"object" => [
+					"originalContent" => "We\'re putting new coversheets on all the TPS reports before they go out now."
+				],
+				"access" => [
+					"items" => [
+						["type" => "domain"]
+					],
+					"domainRestricted" => true
+				]
+			];*/
+			//$request = new \GuzzleHttp\Psr7\Request('POST', $url, $headers, json_encode($body));
+			//$response = $http->send($request);
+
+
+			$post_data = array("object" => array("originalContent" => $request->message),
+			                   "access" => array("items" => array(array("type" => "domain")), "domainRestricted" => true));
+
+			$data_string = json_encode($post_data);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_URL, $url);
+			$file_result = curl_exec($ch);
+			curl_close($ch);
+			dd($file_result);
+			//exit;
+
+		}
+
 	}
 
 }

@@ -62,45 +62,25 @@ class OauthController extends Controller
 
 	public function loginWithGoogle(Request $request)
 	{
-		// get data from request
 		$code = $request->get('code');
-		// get google service
-		if( isset($_GET['wp']) ) {
-			$wp = $_GET['wp'];
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
-			$googleService = \OAuth::consumer('Google','https://ipisocial.iimagine.one/google/login/?wp=true');
-		}else{
-			$wp = null;
-			$googleService = \OAuth::consumer('Google','https://ipisocial.iimagine.one/google/login');
+		if( $this->userAuth == null ){
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
-		// check if code is valid
-
-		// if code is provided get user data and sign in
-		if ( ! is_null($code))
-		{
-			// This was a callback request from google, get the token
+		$googleService = \OAuth::consumer('Google','https://ipisocial.iimagine.one/google/login');
+		if ( ! is_null($code)) {
 			$token = $googleService->requestAccessToken($code);
-			// Send a request with it
 			$result = json_decode($googleService->request('https://www.googleapis.com/oauth2/v1/userinfo'), true);
 			$result['access_token'] = $token->getAccessToken();
 			$result['access_token_secret'] = '';
-
-			if(isset($result['access_token'])) {
-				$result['first_name'] = $result['given_name'];
-				$result['last_name'] = $result['family_name'];
-				return $this->regApi($result,'google', $wp);
-			}
-			/*if( $result['verified_email'] == true ) {
-				return $this->_register($result,'google');
-			}*/
+			$result['first_name'] = $result['given_name'];
+			$result['last_name'] = $result['family_name'];
+			if(isset($result['access_token'])) return $this->regApi($result,'google');
 		}
-		// if not ask for permission first
-		else
-		{
-			// get googleService authorization
+		else {
 			$url = $googleService->getAuthorizationUri();
-			// return to google login url
 			return redirect((string)$url);
 		}
 	}
@@ -181,47 +161,29 @@ class OauthController extends Controller
 
 	public function loginWithInstagram(Request $request)
 	{
-		// get data from request
 		$code = $request->get('code');
-		if( isset($_GET['wp']) ) {
-			$wp = $_GET['wp'];
-			if( isset($_GET['user_id']) ) Session::put('api_user_id', $_GET['user_id']);
-			if( isset($_GET['user_name']) ) Session::put('api_user_name', $_GET['user_name']);
-			$instagramService = \OAuth::consumer('Instagram','https://ipisocial.iimagine.one/instagram/login/?wp=true');
-		}else{
-			$instagramService = \OAuth::consumer('Instagram','https://ipisocial.iimagine.one/instagram/login');
+		if( $this->userAuth == null ){
+			$user_id = $request->get('user_id');
+			$user_name = $request->get('user_name');
+			if( isset($user_id) ) Session::put('api_user_id', $user_id);
+			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
+		$instagramService = \OAuth::consumer('Instagram','https://ipisocial.iimagine.one/instagram/login');
 		if ( ! is_null($code))
 		{
 			$state = isset($_GET['state']) ? $_GET['state'] : null;
-			// This was a callback request from Instagram, get the token
-
 			$token = $instagramService->requestAccessToken($code, $state);
-
-			// Send a request with it. Please note that XML is the default format.
 			$result = json_decode($instagramService->request('users/self'), true);
-
 			$result['access_token'] = $token->getAccessToken();
-
 			$result['access_token_secret'] = '';
-
-			if(isset($_GET['wp'])) {
-				$result['id'] = $result['data']['id'];
-				$result['first_name'] = $result['data']['username'];
-				$result['last_name'] = '';
-				return $this->regApi($result,'instagram', $wp);
-			}
-			if( isset($result['access_token']) ) {
-				return $this->_register($result,'instagram');
-			}
+			$result['id'] = $result['data']['id'];
+			$result['first_name'] = $result['data']['username'];
+			$result['last_name'] = '';
+			if(isset($result['access_token'])) return $this->regApi($result,'instagram');
 		}
-		// if not ask for permission first
 		else
 		{
-			// get instagramService authorization
 			$url = $instagramService->getAuthorizationUri();
-
-			// return to instagram login url
 			return redirect((string)$url);
 		}
 	}

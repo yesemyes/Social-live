@@ -65,18 +65,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api'], function () {
     });
 });
 
-/*Route::get('public/{filename}', function($filename){
-	$path = url('/public/'.$filename);
-	if (!File::exists($path)) {
-		abort(404);
-	}
-	$file = File::get($path);
-	$type = File::mimeType($path);
-	$response = Response::make($file, 200);
-	$response->header("Content-Type", $type);
-	return $response;
-});*/
-
 Route::get('storage/app/{postImage}/{filename}', function ($postImage, $filename)
 {
 	$path = storage_path('app/'.$postImage.'/' . $filename);

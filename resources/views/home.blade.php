@@ -20,7 +20,7 @@
 
     <div class="row">
         <div class="col-lg-6">
-            <h1>Welcome {{ Auth::user()->name }}</h1>
+            <h3>Welcome {{ Auth::user()->name }}</h3>
         </div>
     </div>
 @endsection

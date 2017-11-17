@@ -26,7 +26,7 @@ return [
 		'Google' => [
 			'client_id'     => '114777295493-rlp2c28pr2l2dpmpi4spec663fjrf5si.apps.googleusercontent.com',
 			'client_secret' => 'iUIqdh9Hf9-Tbm8iOVLV3x3L',
-			'scope'         => ['userinfo_email', 'userinfo_profile'],
+			'scope'         => ['userinfo_email', 'userinfo_profile', 'https://www.googleapis.com/auth/plus.me', 'https://www.googleapis.com/auth/plus.stream.write'],
 		],
 		'Twitter' => [
 			'client_id'     => 'jc07IXLaF7F8rs7yQFYQ9SYHD',
