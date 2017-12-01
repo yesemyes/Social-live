@@ -1,12 +1,10 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 
 @section('title')
     Create New Post
 @endsection
 
-@section('page-header')
-    Create New Post
-@endsection
+
 
 @section('page-content')
 
@@ -21,6 +19,9 @@
             </div>
         </div>
     @endif
+
+    <p class="border_bottom">Create New Post</p>
+
     <div class="row">
         <div class="col-lg-6">
             @if (count($errors) > 0)

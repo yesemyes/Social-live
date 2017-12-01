@@ -34,7 +34,10 @@ class HomeController extends Controller
 	 */
 	public function index()
 	{
-		return view('home');
+		$user = Auth::user();
+		$posts = Post::where('user_id',$user->id)->get();
+		if( count($posts) > 0 ) return view('home',['posts'=>$posts,'user'=>$user]);
+		else return redirect('/create-post');
 	}
 
 	public function createPost()
@@ -120,6 +123,7 @@ class HomeController extends Controller
 					}
 				}else $userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
 			}
+
 			return view('publishPost',[
 				'userAccounts' => $userAccounts,
             'user'         => $user,
@@ -145,7 +149,7 @@ class HomeController extends Controller
 			else $request->boards = null;
 			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
 			else $request->subreddits = null;
-
+			$suc_mes = [];
 			foreach($connected as $key => $item)
 			{
 				if( $item == "pinterest" || $item == "reddit" )
@@ -176,11 +180,12 @@ class HomeController extends Controller
 					Session::flash('message', 'Warning! URL is required in (linkedin)');
 					return redirect()->back();
 				}
-
 				if( isset($request->access_token[$key]) && $request->access_token[$key] != "" ) $request->token_soc = $request->access_token[$key];
 				else $request->token_soc = null;
 				if( isset($request->access_token_secret[$key]) && $request->access_token_secret[$key] != "" ) $request->token_soc_sec = $request->access_token_secret[$key];
 				else $request->token_soc_sec = null;
+				if( isset($request->prov_user_id[$key]) && $request->prov_user_id[$key] != "" ) $request->provUserId = $request->prov_user_id[$key];
+				else $request->provUserId = null;
 				if( isset($request->postTitle) && $request->postTitle != null ) $request->message = $request->postTitle[$key];
 				else $request->message = null;
 				if( isset($request->postContent) && $request->postContent != null ) $request->content_text  = $request->postContent[$key];
@@ -193,14 +198,19 @@ class HomeController extends Controller
 					$request->img_upload_link  = $img;
 				}else$request->img_upload_link = null;
 				$socials = $socialClass->$item($request);
+				$res = $socials->getData('result')['result'];
+				array_push($suc_mes,$res);
+				//dump($socials->getData('result')['result']);
 			} // end foreach
-			if( $socials->getData('result')['result'] == "success" ){
+			//dd($suc_mes);
+			return redirect()->back()->with('share_message_result', $suc_mes);
+			/*if( $socials->getData('result')['result'] == "success" ){
 				Session::flash('message', 'Your post(s) successful created!');
 				return redirect()->back();
 			}else{
 				Session::flash('message', 'Error !');
 				return redirect()->back();
-			}
+			}*/
 		}
 	}
 

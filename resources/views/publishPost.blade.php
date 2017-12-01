@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 @section('title')
     Publish Post(s)
 @endsection
@@ -17,6 +17,11 @@
             </div>
         </div>
     @endif
+    @if( Session::has('share_message_result') )
+        @foreach(session()->get('share_message_result') as $item)
+            <p>{{$item}}</p>
+        @endforeach
+    @endif
     <div class="row">
         <div class="col-md-12">
             <form action="{{ url('/publish-post') }}" method="POST" id="sharePost" enctype="multipart/form-data">
@@ -34,6 +39,7 @@
                             <div class="b2s-post-item" data-network-name="{{ $value['provider'] }}">
                                 <input type="hidden" data-soc="{{ $value['provider'] }}" name="access_token[]" value="{{ $value['access_token'] }}">
                                 <input type="hidden" data-soc-sec="{{ $value['provider'] }}" name="access_token_secret[]" value="{{ $value['access_token_secret'] }}">
+                                <input type="hidden" data-soc-id="{{ $value['provider'] }}" name="prov_user_id[]" value="{{ $value['provUserId'] }}">
                                 <div class="panel panel-group">
                                     <div class="panel-body  ">
                                         <div class="b2s-post-item-area">

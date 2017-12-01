@@ -8,7 +8,8 @@ require_once( base_path('socials/twitter/TwitterAPIExchange.php') );
 require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
 require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
-require_once( base_path('socials/instagram/instagram_post.php') );
+//require_once( base_path('socials/instagram/instagram_post.php') );
+require_once( base_path('socials/instagram/ins.php') );
 //require_once( base_path('socials/googleplus/vendor/autoload.php') );
 require_once( base_path('socials/google/vendor/autoload.php') );
 
@@ -18,7 +19,8 @@ use Facebook\Exceptions\FacebookSDKException;
 use TwitterAPIExchange;
 use LinkedIn\LinkedIn;
 use reddit;
-use instagram_post;
+//use instagram_post;
+use InstagramUpload;
 use Pinterest\Authentication as Pin;
 use Pinterest\Http\BuzzClient as Buzz;
 use Pinterest\App\Scope;
@@ -85,9 +87,9 @@ class SocialController extends Controller
 		}
 		$graphNode = $response->getGraphNode();
 		if( $graphNode != null ){
-			return response()->json(['result'=>'success']);
+			return response()->json(['result'=>'facebook success']);
 		}else{
-			return response()->json(['result'=>'error']);
+			return response()->json(['result'=>'facebook error']);
 		}
 	}
 
@@ -153,7 +155,8 @@ class SocialController extends Controller
 			$requestMethod = 'POST';
 			$postfields = array(
 				'media_ids' => $id,
-				'status' => $request->message.' '.$request->link );
+				'status'    => $request->message.' '.$request->link
+			);
 			$response = $this->twitter->buildOauth($url, $requestMethod)
 			                          ->setPostfields($postfields)
 			                          ->performRequest();
@@ -167,12 +170,11 @@ class SocialController extends Controller
 			                          ->setPostfields($postfields)
 			                          ->performRequest();
 		}
-
-
-		if( $response != null ){
-			return response()->json(['result'=>'success']);
-		}else{
-			return response()->json(['result'=>'error']);
+		$response = json_decode($response, true);
+		if( isset($response['id']) && $response['id'] != null ){
+			return response()->json(['result'=>'twitter success']);
+		}elseif( isset($response['errors']) ){
+			return response()->json(['result'=>'twitter error']);
 		}
 	}
 
@@ -418,68 +420,59 @@ class SocialController extends Controller
 
 	public function instagram(Request $request) // not working
 	{
-		$upload_image_filename = 'download.jpg'; // TODO; Link to your image from here
-		$image_caption = 'My example image caption #InstagramImageAPI'; // TODO; Add your image caption here
+		if( $request->img_upload_link != null ){
+			$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
+		}else{
+			$pathToFile = str_replace('https://', 'http://', $request->img_link );
+		}
+//dd($pathToFile);
+		$obj = new InstagramUpload();
+		$obj->Login("yesemyes517715", "SONYvaio517715!$&@");
+		//dd($request->img_link);
+		$obj->UploadPhoto("185dcc2a3eef033549786d4b3aa4816b.jpeg", $request->message);
+		//$obj->UploadVideo("test-video.mp4", "square-thumb.jpg", "Test Upload Video From PHP");
 
-		$ig = new instagram_post();
-
-		if ($ig->doPostImage($upload_image_filename, $image_caption)) {
-			echo "<pre>";
-			var_dump($ig);
-			echo "</pre>";
-		} else {
-			return response(['instagram'=>'error']);
+		if(isset($obj->upload_id)&&$obj->upload_id!=null){
+			return response()->json(['result'=>'success']);
+		}else{
+			return response()->json(['result'=>'error']);
 		}
 	}
 
-	public function google(Request $request) // not working
+	public function google(Request $request) // not working in public
 	{
-		$client = new Google_Client();
-		$client->setClientId("114777295493-rlp2c28pr2l2dpmpi4spec663fjrf5si.apps.googleusercontent.com");
-		$client->setClientSecret("iUIqdh9Hf9-Tbm8iOVLV3x3L");
-		$client->setRedirectUri("https://ipisocial.iimagine.one/google/login");
-		$client->setAccessType("offline");
-		$client->setScopes(array(
-			'https://www.googleapis.com/auth/userinfo.email',
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/plus.me',
-			'https://www.googleapis.com/auth/plus.stream.write'
-		));
-		$client->setAccessToken($request->token_soc);
-		$_SESSION['upload_token'] = $request->token_soc;
-		if( $client->getAccessToken() ){
-			$t = $client->getAccessToken();
-
-			$accesstoken = $t['access_token'];
-
-			$user_id = '110045277843807427377';
-			$url = 'https://www.googleapis.com/plusDomains/v1/people/' . $user_id . '/activities';
+		if( $request->token_soc )
+		{
+			$url = 'https://www.googleapis.com/plusDomains/v1/people/' . $request->provUserId . '/activities';
 			$headers = array(
-				'Authorization : Bearer ' . $accesstoken,
+				'Authorization : Bearer ' . $request->token_soc,
 				'Content-Type : application/json',
 
 			);
+			if( $request->img_upload_link != null ){
+				$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
+				$post_data = array("object" => array('originalContent'=> $request->message,'attachments'=>[
+					'image'=> array('url'=>$pathToFile),
+					'url'=> $request->link,
+					'objectType'=>'article']),
+				                   "access" => array("items" => array(array("type" => "domain")),
+				                                     "domainRestricted" => true));
 
-			/*$body = [
-				"object" => [
-					"originalContent" => "We\'re putting new coversheets on all the TPS reports before they go out now."
-				],
-				"access" => [
-					"items" => [
-						["type" => "domain"]
-					],
-					"domainRestricted" => true
-				]
-			];*/
-			//$request = new \GuzzleHttp\Psr7\Request('POST', $url, $headers, json_encode($body));
-			//$response = $http->send($request);
-
-
-			$post_data = array("object" => array("originalContent" => $request->message),
-			                   "access" => array("items" => array(array("type" => "domain")), "domainRestricted" => true));
-
+			}elseif( $request->img_link != null ){
+				$pathToFile = str_replace('https://', 'http://', $request->img_link );
+				$post_data = array("object" => array('originalContent'=> $request->message,'attachments'=>[
+																				'image'=> array('url'=>$pathToFile),
+					                                             'url'=> $request->link,
+																				'objectType'=>'article']),
+																		"access" => array("items" => array(array("type" => "domain")),
+																		"domainRestricted" => true));
+			}else{
+				$post_data = array("object" => array("originalContent" => $request->message),
+				                   "access" => array("items" => array(array("type" => "public")), "domainRestricted" => true));
+			}
+			/*$post_data = array("object" => array("originalContent" => $request->message),
+			                   "access" => array("items" => array(array("type" => "domain")), "domainRestricted" => true));*/
 			$data_string = json_encode($post_data);
-
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -489,8 +482,12 @@ class SocialController extends Controller
 			curl_setopt($ch, CURLOPT_URL, $url);
 			$file_result = curl_exec($ch);
 			curl_close($ch);
-			dd($file_result);
-			//exit;
+			//dd($file_result);
+			if(isset($file_result)&&$file_result!=null){
+				return response()->json(['result'=>'success']);
+			}else{
+				return response()->json(['result'=>'error']);
+			}
 
 		}
 

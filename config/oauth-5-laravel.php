@@ -24,9 +24,15 @@ return [
 			'scope'         => ['email','publish_actions'],
 		],
 		'Google' => [
-			'client_id'     => '114777295493-rlp2c28pr2l2dpmpi4spec663fjrf5si.apps.googleusercontent.com',
-			'client_secret' => 'iUIqdh9Hf9-Tbm8iOVLV3x3L',
-			'scope'         => ['userinfo_email', 'userinfo_profile', 'https://www.googleapis.com/auth/plus.me', 'https://www.googleapis.com/auth/plus.stream.write'],
+			'client_id'     => '24418481962-52f7vpeofhhpdlgl16rmefuhudionjj2.apps.googleusercontent.com',
+			'client_secret' => 'tfSbrFKlJ1pvaAAohNrfm4La',
+			'scope'         => ['userinfo_email', 'userinfo_profile',
+									'https://www.googleapis.com/auth/plus.me',
+									'https://www.googleapis.com/auth/plus.circles.read',
+									'https://www.googleapis.com/auth/plus.circles.write',
+									'https://www.googleapis.com/auth/plus.stream.read',
+									'https://www.googleapis.com/auth/plus.stream.write',
+									'https://www.googleapis.com/auth/plus.media.upload'],
 		],
 		'Twitter' => [
 			'client_id'     => 'jc07IXLaF7F8rs7yQFYQ9SYHD',
