@@ -35,7 +35,7 @@
     @foreach( $posts as $post )
     <div class="flex-container mt20 pl20 border_bottom">
         <div class="flex-grow-1">
-            <p class="post_title_detalis">Download Anything Now A Days</p>
+            <p class="post_title_detalis">{{$post->title}}</p>
         </div>
         <div class="flex-grow-1">
             <p class="created">Created {{date('M d, Y', strtotime($post->updated_at))}}</p>
@@ -47,8 +47,8 @@
             <p class="name">{{ $user->name }}</p>
         </div>
         <div class="success">
-            <span class="circle"></span>
-            <p class="success_text">Success</p>
+            <span class="circle-green"></span>
+            <p class="success_text_green">Success</p>
         </div>
         <div class="share">
             <a href="{{ url('/publish-post/'.$post->id) }}" class="share_text">SHARE</a>

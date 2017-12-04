@@ -19,18 +19,27 @@
                         </div>
                     </div>
                     <div class="header_right">
-                        {{--<a href="api/docs" class="documentation"></a>--}}
                         <a href="{{URL::to('/')}}" class="home"></a>
+                        @if(Auth::check())
+                            <a href="{{url('/logout')}}" onclick="event.preventDefault();
+                            document.getElementById('logout-form').submit();" class="logout"><i class="fa fa-sign-out fa-3" aria-hidden="true"></i></a>
+                            <form id="logout-form" action="{{url('/logout')}}" method="POST" style="display: none;">
+                                {{ csrf_field() }}
+                            </form>
+                        @endif
                     </div>
-                    {{--<a href="api/docs" class="docsBtn">Documentation</a>--}}
                 </div>
             </div>
         </header>
         <main>
             <div class="container-fluid">
                 <div class="flex-container">
+                    @if(Auth::check())
                     @include('partials.sidebar')
                     @include('partials.content')
+                    @else
+                        @include('partials.content-login')
+                    @endif
                 </div>
             </div>
         </main>

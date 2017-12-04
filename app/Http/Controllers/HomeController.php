@@ -63,11 +63,11 @@ class HomeController extends Controller
 				'text'   => $content,
 				'img'    => $filename,
 			]);
-			Session::flash('message', 'Post created!');
-			return redirect('/manage-posts');
+			Session::flash('message_success', 'Success! your post created');
+			return redirect('/posts');
 		}else{
-			Session::flash('message', 'Post not created!');
-			return redirect('/manage-posts');
+			Session::flash('message_error', 'Warning! your post not created');
+			return redirect('/posts');
 		}
 	}
 
@@ -253,14 +253,14 @@ class HomeController extends Controller
 				if( isset($request->postImgOldUrl) ){
 					File::delete(storage_path($request->postImgOldUrl));
 				}
-				Session::flash('message', 'Post updated!');
+				Session::flash('message', 'Success! your post updated');
 				return redirect()->back();
 			}else{
-				Session::flash('message', 'Post not updated!');
+				Session::flash('message', 'Warning! your post not updated');
 				return redirect()->back();
 			}
 		}else{
-			Session::flash('message', 'Post not updated!');
+			Session::flash('message', 'Warning! your post not updated');
 			return redirect()->back();
 		}
 	}
