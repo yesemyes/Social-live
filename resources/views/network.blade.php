@@ -14,38 +14,34 @@
         <p class="msg_error">{{ Session::get('message_error') }}</p>
     @endif
 
-    <div class="flex-container-wrap">
+    <div class="flex-container-wrap mt20">
         @foreach($userAccounts as $item)
             @if(isset($item['userId']))
                 <div class="item_accounts">
+                    <a href="{{url($item["provider"].'/login')}}" class="accounts_block">
                         <img class="pull-left hidden-xs b2s-img-network" alt="{{$item['provider']}}" src="/soc_img/{{$item['icon']}}">
-                        <div class="media-body network">
-                            <h4>{{$item['provider']}}
-                                <span class="b2s-network-auth-count count_{{$item['userId']}}">(Connections <span class="">1</span>/1)</span>
-                                <span class="pull-right"><a href="{{url($item["provider"].'/login')}}">+ Profile</a></span>
-                            </h4>
-                            <ul class="user_detalis_provider_{{ $item['userId'] }}">
-                                <li>Profile: {{$item['first_name']}} {{$item['last_name']}} <span>(My profile)</span>
-                                    <a href="{{url($item["provider"].'/login')}}" class="update_povider">
-                                        <span class="glyphicon  glyphicon-refresh glyphicon-grey"></span>
-                                    </a>
-                                    <a class="deleteAccount" data-id="{{$item['userId']}}" href="#">
-                                        <span class="glyphicon  glyphicon-trash glyphicon-grey"></span>
-                                    </a>
-                                </li>
-                            </ul>
+                        <div class="media-body network user_detalis_provider_{{ $item['userId'] }}">
+                            <h3>Connected to {{ucfirst($item['provider'])}}</h3>
+                            <span class="circle-green"></span>
+                            <span class="success_text_green">online</span>
+                            <span class="success_text_blue">( 1 / 1 )</span>
+                            <span class="deleteAccount" data-id="{{$item['userId']}}" data-provider="{{$item['provider']}}" href="#">
+                                <i class="fa fa-trash black" aria-hidden="true"></i>
+                            </span>
                         </div>
+                    </a>
                 </div>
 
             @else
                 <div class="item_accounts">
+                    <a href="{{url($item["provider"].'/login')}}" class="accounts_block">
                         <img class="pull-left hidden-xs b2s-img-network" alt="{{ $item['provider'] }}" src="/soc_img/{{ $item['icon'] }}">
                         <div class="media-body network">
-                            <h4>{{$item['provider']}}
-                                <span class="b2s-network-auth-count">(Connections <span class="">0</span>/1)</span>
-                                <span class="pull-right"><a href="{{url($item["provider"].'/login')}}">+ Profile</a></span>
-                            </h4>
+                            <h3>Connect {{ucfirst($item['provider'])}}</h3>
+                            <span class="circle-gray"></span>
+                            <span class="grayText">offline</span>
                         </div>
+                    </a>
                 </div>
             @endif
         @endforeach

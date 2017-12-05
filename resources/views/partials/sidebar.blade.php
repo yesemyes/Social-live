@@ -4,7 +4,7 @@
             <li><a href="{{URL::to('/')}}"><i class="dashboard"></i> Dashboard</a></li>
             <li><a href="{{URL::to('/create-post')}}"><i class="create"></i> Create Post</a></li>
             <li><a href="{{URL::to('/posts')}}"><i class="posts"></i> Posts</a></li>
-            <li><a href="{{URL::to('/accounts')}}"><i class="accounts"></i> Accounts</a></li>
+            <li><a href="{{URL::to('/networks')}}"><i class="accounts"></i> Accounts</a></li>
             <li><a href=""><i class="settings"></i> Settings</a></li>
         </ul>
     </div>

@@ -7,6 +7,9 @@ jQuery(document).ready(function($)
             }
         });
         var dataId = $(this).attr('data-id');
+        var dataProvider = $(this).attr('data-provider');
+        dataProvider = dataProvider.charAt(0).toUpperCase() + dataProvider.substr(1).toLowerCase();
+
         $.ajax({
             url: '/account/delete/'+dataId,
             type: 'POST',
@@ -18,8 +21,7 @@ jQuery(document).ready(function($)
                     /*setInterval(function() {
                         window.location.reload();
                     }, 1000);*/
-                    $(".user_detalis_provider_"+dataId).fadeOut();
-                    $(".count_"+dataId).text("(Connections 0/1)");
+                    $(".user_detalis_provider_"+dataId).html('<h3>Connect '+dataProvider+'</h3><span class="circle-gray"></span><span class="grayText ml5">offline</span>');
                 }
             },
             error: function( data ) {

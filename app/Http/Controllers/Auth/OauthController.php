@@ -343,9 +343,9 @@ class OauthController extends Controller
 	    if ( $request->ajax() ) {
 	    	$account = Oauth::where('id',$id)->delete();
 
-	        return response(['message' => 'Product deleted', 'status' => 'success']);
+	        return response(['message_success' => 'Product deleted', 'status' => 'success']);
 	    }
-	    return response(['message' => 'Failed deleting the product', 'status' => 'failed']);   
+	    return response(['message_error' => 'Failed deleting the product', 'status' => 'failed']);
 	}
 
 	public function checkEmail($id,$url)

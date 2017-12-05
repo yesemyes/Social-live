@@ -8,6 +8,8 @@ ul{
 a{text-decoration: none;}
 .w100{width: 100%}
 .mCenter{margin: 0 auto}
+.ml5{margin-left: 5px;}
+.black{color: #000000}
 .dIBlock{display: inline-block}
 .none{display: none}
 .f16{font-size: 16px}
@@ -33,6 +35,7 @@ a{text-decoration: none;}
 
 .pl20{padding-left: 20px}
 .mt10{margin-top: 10px;}
+.ml10{margin-left: 10px}
 .mt20{margin-top: 20px;}
 .flex-grow-1{flex-grow: 1}
 .flex-grow-2{flex-grow: 2}
@@ -261,6 +264,15 @@ header
     display: inline-block;
     background: #0A8FE0;
 }
+.circle-gray{
+    border: 1px solid #E5E3E0;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background: #F6F5F4;
+}
+.grayText{color: #888580;}
 .success_text_green{
     color:#3F932C;
     font-size: 11pt;
@@ -338,6 +350,26 @@ header
 
 .item_accounts{
     flex-basis: 33%;
+    margin-bottom: 20px;
+}
+.item_accounts .accounts_block{
+    display: inline-block;
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #ffffff;
+}
+.item_accounts .accounts_block:hover{
+    border: 1px solid #E1DFDA;
+    border-radius: 4px;
+    background-color: #F6F5F4;
+}
+.item_accounts .media-body{
+    display: inline-block;
+    padding: 10px;
+}
+.media-body h3{
+    color: #7F7C77;
+    font-size: 16px;
 }
 
 

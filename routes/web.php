@@ -20,7 +20,7 @@ Auth::routes();
 /* Default */
 Route::get('/',                     'HomeController@index');
 Route::get('/dashboard',            'HomeController@index');
-Route::get('/accounts',             'HomeController@network');
+Route::get('/networks',             'HomeController@network');
 Route::get('/create-post',          'HomeController@createPost');
 Route::get('/posts',         'HomeController@managePosts');
 Route::get('/edit-post/{id}',       'HomeController@editPost');

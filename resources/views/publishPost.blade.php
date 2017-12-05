@@ -2,26 +2,32 @@
 @section('title')
     Publish Post(s)
 @endsection
-@section('page-header')
-    Publish Post(s)
-@endsection
 @section('page-content')
-    @if( Session::has('message') )
-        <div class="row">
-            <div class="col-lg-9">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <p>{{ Session::get('message') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+
     @if( Session::has('share_message_result') )
         @foreach(session()->get('share_message_result') as $item)
             <p>{{$item}}</p>
         @endforeach
     @endif
+
+    @if( Session::has('message_success') )
+        <p class="msg_success">{{ Session::get('message_success') }}</p>
+    @elseif( Session::has('message_error') )
+        <p class="msg_error">{{ Session::get('message_error') }}</p>
+    @endif
+
+    <div class="mt20 border_bottom">
+        <span class="f16">PUBLISH POST(s)</span>
+        <span>Share to this accounts</span>
+        @foreach($userAccounts as $value)
+            @if( isset($value['userId']) )
+
+                <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" checked="checked" class="connected">
+
+            @endif
+        @endforeach
+    </div>
+
     <div class="row">
         <div class="col-md-12">
             <form action="{{ url('/publish-post') }}" method="POST" id="sharePost" enctype="multipart/form-data">
@@ -111,14 +117,7 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    @foreach($userAccounts as $value)
-                        @if( isset($value['userId']) )
-                        <div class="choose-soc">
-                            <label for="{{ $value['provider'] }}">{{ $value['provider'] }} <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" checked="checked" class="connected"></label>
-                        </div>
-                            <hr>
-                        @endif
-                    @endforeach
+
                 </div>
                 @if(isset($checkConnected[0]))
                 <div class="b2s-publish-area">
