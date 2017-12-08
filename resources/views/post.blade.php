@@ -2,46 +2,43 @@
 @section('title')
     {{ $post['title'] }}
 @endsection
-@section('page-header')
-    Author {{ $user->name }} | published on blog: {{ $post->updated_at }}
-@endsection
 @section('page-content')
-    @if( Session::has('message') )
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <p>{{ Session::get('message') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+    <p class="border_bottom">Author {{ $user->name }} | published on: {{ $post->updated_at }}</p>
+
+    @if( Session::has('message_success') )
+        <p class="msg_success">{{ Session::get('message_success') }}</p>
+    @elseif( Session::has('message_error') )
+        <p class="msg_error">{{ Session::get('message_error') }}</p>
     @endif
+
     <div class="row">
         <div class="col-md-12">
             <form action="{{ url('/editPostAction/'.$post['id']) }}" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
-                <div class="form-group">
-                    <label for="postTitle">Post Title</label>
-                    <input type="text" id="postTitle" required="required" name="postTitle" class="form-control" placeholder="Title" value="{{ $post['title'] }}">
-                </div>
-                <div class="form-group">
-                    <label for="image">Add Image (max 2 MB) image|mimes:jpeg,bmp,png</label>
-                    <input type="file" id="image" name="image" class="form-control">
-                    @if( $post['img'] != null )
-                    <div class="w200px">
-                        <i class="fa fa-times del-post-img" data-del-post-img-id="{{ $post['id'] }}" data-del-post-img-url="{{ $post['img'] }}" aria-hidden="true"></i>
-                        <img src="{{ Storage::url($post['img']) }}" alt="{{ $post['title'] }}" width="100%">
-                        <input type="hidden" value="{{ $post['img'] }}" name="postImgOldUrl">
+                <div class="flex-container mt20 pl20 create_post">
+                    <div class="flex-grow-2">
+                        <label for="postTitle">Post Title</label>
+                        <p class="postTitleWrapper">
+                            <input type="text" id="postTitle" required="required" name="postTitle" class="postTitle" value="{{$post['title']}}" placeholder="Title">
+                        </p>
+                        <label for="postContent">Post Content</label>
+                        <p class="postContentWrapper">
+                            <textarea name="postContent" id="postContent" class="postContent" rows="10" required="required" placeholder="Content Goes Here">{{$post['text']}}</textarea>
+                        </p>
+                        {{--<button class="save_draft">Save Draft</button>--}}
+                        <button class="publish_button">Update</button>
                     </div>
-                    @endif
-                </div>
-                <div class="form-group">
-                    <label for="postContent">Post Content</label>
-                    <textarea class="mt10 form-control" rows="5" cols="50" placeholder="Write something about your post..." id="postContent" name="postContent" required="required">{{ $post['text'] }}</textarea>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Edit" class="form-control">
+                    <div class="flex-grow-1">
+                        <label for="imgInp">Featured Image</label>
+                        <p class="mt10">
+                            <img id="blah" src="@if($post['img']!=null) {{ Storage::url($post['img']) }} @else {{url('/img/file-image.png')}} @endif" style="border-radius: 4px;" alt="your image" width="150" height="150" />
+                        <p class="mt20">
+                            <input type="file" id="imgInp" name="image" class="none">
+                            <label class="choose_img" for="imgInp">Choose image</label>
+                        </p>
+                        </p>
+                    </div>
                 </div>
             </form>
         </div>

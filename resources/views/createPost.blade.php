@@ -4,8 +4,6 @@
     Create New Post
 @endsection
 
-
-
 @section('page-content')
 
     @if( Session::has('message_success') )
@@ -40,7 +38,7 @@
                 <label for="imgInp">Featured Image</label>
                 <p class="mt10">
                     <img id="blah" src="{{url('/img/file-image.png')}}" style="border-radius: 4px;" alt="your image" width="150" height="150" />
-                    <p class="mt20">
+                    <p class="mt10">
                         <input type="file" id="imgInp" name="image" class="none">
                         <label class="choose_img" for="imgInp">Choose image</label>
                     </p>
