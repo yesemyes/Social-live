@@ -6,7 +6,7 @@
 
     @if( Session::has('share_message_result') )
         @foreach(session()->get('share_message_result') as $item)
-            <p>{{$item}}</p>
+            <p class="success_share_status">{{$item}}</p>
         @endforeach
     @endif
 
@@ -48,7 +48,7 @@
                                 @elseif($value['provider'] == 'facebook')
                                     <i class="fa fa-{{ $value['provider'] }}-official" aria-hidden="true" style="color: #9A9691"></i>
                                 @elseif($value['provider'] == 'google')
-                                    <i class="fa fa-{{ $value['provider'] }}-plus-square" aria-hidden="true" style="color: #9A9691"></i>
+                                        <a href="https://ipisocial.iimagine.one/google/login"><i class="fa fa-{{ $value['provider'] }}-plus-square" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @else
                                     <i class="fa fa-{{ $value['provider'] }}-square" aria-hidden="true" style="color: #9A9691"></i>
                                 @endif

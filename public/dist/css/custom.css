@@ -249,6 +249,13 @@ header
 .success,.share,.status,.action{
     flex-basis: 110px;
 }
+.success_share_status{
+    padding: 10px;
+    background-color: #EDFFDD;
+    border: 1px solid #C0FF8C;
+    color: #709F59;
+    margin-bottom: 10px;
+}
 .status>p{padding-left: 10px;}
 .created,.time,.name{
     color:#39393a;
@@ -550,7 +557,7 @@ i.fa.fa-sign-out.fa-3 {
     transition: all 0.5s;
 }
 .post_title_detalis:hover:after{
-    width: 50%;
+    width: 100%;
 }
 .publishBlock{
     flex-basis: 33%;

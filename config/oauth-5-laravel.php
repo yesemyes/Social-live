@@ -41,7 +41,8 @@ return [
 		],
 		'Linkedin' => [
 		    'client_id'     => '77bxo3m22s83c2', //  Ks0UKEgWWRW5xPRS
-		    'client_secret' => 'POVE4Giqvd4DlTnU', //  Ks0UKEgWWRW5xPRS
+		    'client_secret' => 'POVE4Giqvd4DlTnU',
+			 'scope'         => ['r_basicprofile', 'r_emailaddress', 'rw_company_admin', 'w_share'],
 		],
 		'Instagram' => [
 			'client_id'     => '7502c314346d4f2fac1d02cbe9074c71',
@@ -54,8 +55,8 @@ return [
 			'scope'         => ['identity', 'submit','mysubreddits'],
 		],
 		'Pinterest' => [
-			'client_id'     => '4931223704112740825',
-			'client_secret' => '5f7c5a66892fb722848e620369462d72704ca5ac45ede426e7a6d061ceb53c69',
+			'client_id'     => '4931223704112740825', // 4931223704112740825
+			'client_secret' => '5f7c5a66892fb722848e620369462d72704ca5ac45ede426e7a6d061ceb53c69', // 5f7c5a66892fb722848e620369462d72704ca5ac45ede426e7a6d061ceb53c69
 			'scope'			=>	['read_public','write_public'],
 		],
 

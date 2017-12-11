@@ -6,21 +6,27 @@ session_start();
 require_once( base_path('socials/facebook/fbsdk/src/Facebook/autoload.php') );
 require_once( base_path('socials/twitter/TwitterAPIExchange.php') );
 require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
+//require_once( base_path('socials/link/vendor/autoload.php') );
 require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
 //require_once( base_path('socials/instagram/instagram_post.php') );
 require_once( base_path('socials/instagram/ins.php') );
-//require_once( base_path('socials/googleplus/vendor/autoload.php') );
 require_once( base_path('socials/google/vendor/autoload.php') );
 
 use Facebook\Facebook;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
+
 use TwitterAPIExchange;
+
 use LinkedIn\LinkedIn;
+//use Happyr\LinkedIn\LinkedIn as link;
+
 use reddit;
+
 //use instagram_post;
 use InstagramUpload;
+
 use Pinterest\Authentication as Pin;
 use Pinterest\Http\BuzzClient as Buzz;
 use Pinterest\App\Scope;
@@ -87,9 +93,9 @@ class SocialController extends Controller
 		}
 		$graphNode = $response->getGraphNode();
 		if( $graphNode != null ){
-			return response()->json(['result'=>'facebook success']);
+			return response()->json(['result'=>'SUCCESS! your post in Facebook now shared']);
 		}else{
-			return response()->json(['result'=>'facebook error']);
+			return response()->json(['result'=>'ERROR! Facebook share']);
 		}
 	}
 
@@ -172,9 +178,9 @@ class SocialController extends Controller
 		}
 		$response = json_decode($response, true);
 		if( isset($response['id']) && $response['id'] != null ){
-			return response()->json(['result'=>'twitter success']);
+			return response()->json(['result'=>'SUCCESS! your post in Twitter now shared']);
 		}elseif( isset($response['errors']) ){
-			return response()->json(['result'=>'twitter error']);
+			return response()->json(['result'=>'ERROR! Twitter share']);
 		}
 	}
 
@@ -187,7 +193,9 @@ class SocialController extends Controller
 				'callback_url' => 'https://ipisocial.iimagine.one/linkedin/login'
 			)
 		);
+
 		$this->li->setAccessToken($request->token_soc);
+
 		if($request->img_upload_link != null){
 			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
 			$postParams = array(
@@ -226,12 +234,27 @@ class SocialController extends Controller
 				)
 			);
 		}
-		$response = $this->li->post('/people/~/shares?format=json', $postParams);
+
+		$response = $this->li->post('people/~/shares?format=json', $postParams);
 		if( $response != null ){
-			return response()->json(['result'=>'success']);
+			return response()->json(['result'=>'SUCCESS! your post in Linkedin now shared']);
 		}else{
-			return response()->json(['result'=>'error']);
+			return response()->json(['result'=>'ERROR! Linkedin share']);
 		}
+
+		/*$this->li = new link('77bxo3m22s83c2', 'POVE4Giqvd4DlTnU');
+		$this->li->setAccessToken($request->token_soc);
+		$options = array('json'=>
+			                 array(
+				                 'comment' => 'Im testing Happyr LinkedIn client! https://github.com/Happyr/LinkedIn-API-client',
+				                 'visibility' => array(
+					                 'code' => 'anyone'
+				                 )
+			                 )
+		);
+
+		$result = $this->li->post('v1/people/~/shares', $options);
+		dd( $this->li );*/
 	}
 
 	public function reddit(Request $request)
@@ -278,8 +301,8 @@ class SocialController extends Controller
 			$response = $apiResponse;
 		}
 		curl_close($ch);
-		if( isset($response->success) && $response->success == false ) return response()->json(['result'=>'error']);
-		else return response()->json(['result'=>'success']);
+		if( isset($response->success) && $response->success == false ) return response()->json(['result'=>'ERROR!']);
+		else return response()->json(['result'=>'SUCCESS! your post in Reddit now shared']);
 	}
 
 	public function get_subreddits(Request $request)
@@ -380,9 +403,9 @@ class SocialController extends Controller
 		if ($response->ok()) {
 			$pin = $response->result(); // $pin instanceof Objects\Pin
 			if($pin != null){
-				return response()->json(['result'=>'success']);
+				return response()->json(['result'=>'SUCCESS! your post in Pinterest now shared']);
 			}else{
-				return response()->json(['result'=>'error']);
+				return response()->json(['result'=>'ERROR! Pinterest share']);
 			}
 		}
 	}
@@ -433,9 +456,9 @@ class SocialController extends Controller
 		//$obj->UploadVideo("test-video.mp4", "square-thumb.jpg", "Test Upload Video From PHP");
 
 		if(isset($obj->upload_id)&&$obj->upload_id!=null){
-			return response()->json(['result'=>'success']);
+			return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
 		}else{
-			return response()->json(['result'=>'error']);
+			return response()->json(['result'=>'ERROR! Instagram share']);
 		}
 	}
 
@@ -470,8 +493,7 @@ class SocialController extends Controller
 				$post_data = array("object" => array("originalContent" => $request->message),
 				                   "access" => array("items" => array(array("type" => "public")), "domainRestricted" => true));
 			}
-			/*$post_data = array("object" => array("originalContent" => $request->message),
-			                   "access" => array("items" => array(array("type" => "domain")), "domainRestricted" => true));*/
+
 			$data_string = json_encode($post_data);
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -484,13 +506,10 @@ class SocialController extends Controller
 			curl_close($ch);
 			//dd($file_result);
 			if(isset($file_result)&&$file_result!=null){
-				return response()->json(['result'=>'success']);
+				return response()->json(['result'=>'SUCCESS! your post in Google Plus now shared']);
 			}else{
-				return response()->json(['result'=>'error']);
+				return response()->json(['result'=>'ERROR! Google Plus share']);
 			}
-
 		}
-
 	}
-
 }

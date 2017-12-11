@@ -200,7 +200,6 @@ class HomeController extends Controller
 				$socials = $socialClass->$item($request);
 				$res = $socials->getData('result')['result'];
 				array_push($suc_mes,$res);
-				//dump($socials->getData('result')['result']);
 			} // end foreach
 			//dd($suc_mes);
 			return redirect()->back()->with('share_message_result', $suc_mes);

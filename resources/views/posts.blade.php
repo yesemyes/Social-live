@@ -27,8 +27,8 @@
     </div>
     @foreach( $posts as $post )
         <div class="flex-container mt20 pl20 border_bottom">
-            <div class="flex-grow-1 posRel">
-                <a href="{{ url('/edit-post/'.$post->id) }}" class="post_title_detalis">{{$post->title}}</a>
+            <div class="flex-grow-1">
+                <a href="{{ url('/edit-post/'.$post->id) }}" class="post_title_detalis posRel">{{$post->title}}</a>
             </div>
             <div class="flex-grow-1">
                 <p class="created">Created {{date('M d, Y', strtotime($post->updated_at))}}</p>
