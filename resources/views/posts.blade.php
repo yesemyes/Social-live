@@ -6,6 +6,10 @@
 
     <p class="border_bottom">Welcome <b>{{ Auth::user()->name }} !</b></p>
 
+    @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount == 0 )
+        <p class="accounts_check">You are not connected to any social account. <a href="{{url('/networks')}}" style="color: #0051F8;"><i class="fa fa-plus" aria-hidden="true"></i> Add Account</a></p>
+    @endif
+
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
@@ -28,7 +32,7 @@
     @foreach( $posts as $post )
         <div class="flex-container mt20 pl20 border_bottom">
             <div class="flex-grow-1">
-                <a href="{{ url('/edit-post/'.$post->id) }}" class="post_title_detalis posRel">{{$post->title}}</a>
+                <a href="{{ url('/edit-post/'.$post->id) }}" class="post_title_detalis @if( mobile_user_agent_switch()!="iphone" ) class-for-check-device-hover @endif posRel">{{$post->title}}</a>
             </div>
             <div class="flex-grow-1">
                 <p class="created">Created {{date('M d, Y', strtotime($post->updated_at))}}</p>
@@ -44,7 +48,7 @@
                 <p class="success_text_blue">Published</p>
             </div>
             <div class="share">
-                <a href="{{ url('/publish-post/'.$post->id) }}" class="share_text">SHARE</a>
+                <a href="@if($userConnectedAccountsCount != 0) {{ url('/publish-post/'.$post->id) }} @else # @endif" class="share_text">SHARE</a>
             </div>
         </div>
     @endforeach

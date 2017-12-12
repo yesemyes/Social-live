@@ -74,8 +74,14 @@ class HomeController extends Controller
 	public function managePosts()
 	{
 		$user = Auth::user();
+		$userConnectedAccounts = Oauth::select('oauth.user_id')
+		                              ->leftJoin('users','users.id','=','oauth.user_id')
+		                              ->where('oauth.user_name',$user->name)
+		                              ->where('oauth.user_id',$user->id)
+		                              ->get()->keyBy('social_id');
+		$userConnectedAccountsCount = count($userConnectedAccounts);
 		$posts = Post::where('user_id',$user->id)->get();
-		if( count($posts) > 0 ) return view('posts',['posts'=>$posts,'user'=>$user]);
+		if( count($posts) > 0 ) return view('posts',['userConnectedAccountsCount'=>$userConnectedAccountsCount,'posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
 
@@ -91,6 +97,7 @@ class HomeController extends Controller
 			                              ->where('oauth.user_name',$user->name)
 			                              ->where('oauth.user_id',$user->id)
 			                              ->get()->keyBy('social_id');
+			$userConnectedAccountsCount = count($userConnectedAccounts);
 			$userAccounts = array();
 			$socialClass = new SocialController();
 			$subreddits = "";
@@ -123,13 +130,13 @@ class HomeController extends Controller
 					}
 				}else $userAccounts[$key] = ['provider' => $item->provider,'icon' => $item['icon']];
 			}
-
 			return view('publishPost',[
 				'userAccounts' => $userAccounts,
             'user'         => $user,
 				'post'         => $post,
 				'subreddits'   => $subreddits,
-				'boards'       => $boards
+				'boards'       => $boards,
+				'userConnectedAccountsCount' => $userConnectedAccountsCount
 			]);
 		}else return redirect('/login');
 	}

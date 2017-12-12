@@ -9,11 +9,17 @@
             <div class="container-fluid">
                 <div class="header-container">
                     <div class="logo">
-                        <a href="{{URL::to('/')}}"><img src="{{URL::to('img/logo.png')}}" alt="logo" class="w100"></a>
+                        <a href="{{URL::to('/')}}">
+                            <picture>
+                                <source srcset="{{URL::to('img/logo-mobile.png')}}" media="(max-width: 768px)">
+                                <source srcset="{{URL::to('img/logo.png')}}">
+                                <img src="{{URL::to('img/logo.png')}}" alt="logo">
+                            </picture>
+                        </a>
                     </div>
                     <div class="header_center">
                         <span class="megaphone"></span>
-                        <div class="dIBlock">
+                        <div class="dIBlock megaphone-text">
                             <p class="f20">content</p>
                             <p class="f16">promotion</p>
                         </div>
@@ -33,7 +39,7 @@
         </header>
         <main>
             <div class="container-fluid">
-                <div class="flex-container">
+                <div class="flex-container" id="content-flex">
                     @if(Auth::check())
                     @include('partials.sidebar')
                     @include('partials.content')

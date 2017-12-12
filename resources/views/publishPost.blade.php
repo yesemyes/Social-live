@@ -14,15 +14,17 @@
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
         <p class="msg_error">{{ Session::get('message_error') }}</p>
+    @elseif( isset($userConnectedAccountsCount) && $userConnectedAccountsCount == 0 )
+        <p class="accounts_check">You are not connected to any social account. <a href="{{url('/networks')}}" style="color: #0051F8;"><i class="fa fa-plus" aria-hidden="true"></i> Add Account</a></p>
     @endif
 
     <form action="{{ url('/publish-post') }}" method="POST" id="sharePost" enctype="multipart/form-data" class="">
         {{ csrf_field() }}
         <div class="mt20 border_bottom flex-container">
             <div class="f16 share_posts_header_left"><b>PUBLISH POST(s)</b></div>
-            <div class="share_posts_header_right flex-container space-between">
+            <div class="share_posts_header_right flex-container-wrap space-between">
 
-                <div class="dIBlock mAuto">
+                <div class="dIBlock top_social_button mAuto">
                     <span class="mr10 f12pt">Share to this accounts</span>
                     <div class="social_icons_size dIBlock">
                         @foreach($userAccounts as $key => $value)
@@ -44,22 +46,24 @@
                             @if( !isset($value['userId']) )
                                 <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" disabled>
                                 @if($value['provider'] == 'instagram')
-                                    <i class="fa fa-{{ $value['provider'] }}" aria-hidden="true" style="color: #9A9691"></i>
+                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @elseif($value['provider'] == 'facebook')
-                                    <i class="fa fa-{{ $value['provider'] }}-official" aria-hidden="true" style="color: #9A9691"></i>
+                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-official" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @elseif($value['provider'] == 'google')
-                                        <a href="https://ipisocial.iimagine.one/google/login"><i class="fa fa-{{ $value['provider'] }}-plus-square" aria-hidden="true" style="color: #9A9691"></i></a>
+                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-plus-square" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @else
-                                    <i class="fa fa-{{ $value['provider'] }}-square" aria-hidden="true" style="color: #9A9691"></i>
+                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-square" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @endif
                             @endif
 
                         @endforeach
                     </div>
                 </div>
-                <div class="mAuto">
+                @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount > 0 )
+                <div class="mAuto top_share_button">
                     <button class="share_button_color"><i class="fa fa-share-alt" aria-hidden="true"></i> <b>SHARE NOW</b></button>
                 </div>
+                @endif
             </div>
         </div>
         <div class="flex-container-wrap space-between">
@@ -142,10 +146,12 @@
                 @endif
             @endforeach
         </div>
+        @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount > 0 )
         <div class="flex-container flex-end">
             <div class="block-content">
                 <button class="share_button_color p10"><i class="fa fa-share-alt" aria-hidden="true"></i> <b class="pl5">SHARE NOW</b></button>
             </div>
         </div>
+        @endif
     </form>
 @endsection
