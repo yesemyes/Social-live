@@ -729,4 +729,18 @@ i.fa.fa-sign-out.fa-3 {
     }
     .soc-logo{flex-basis: 5%;}
     .soc-info-wrap{flex-basis: 80%}
+
+    .all_post_title,.block_posts{padding: 0}
+    .status,.success,.created_time,.created{display: none}
+    .name{text-align: right}
+    .share,.action{text-align: center}
+    .create_post{
+        display: -webkit-flex; /* Safari */
+        -webkit-flex-wrap: wrap; /* Safari 6.1+ */
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+    }
+    .create_post img{width: 100%; height: auto;}
+    .create_post .flex-grow-2{margin-bottom: 30px;}
 }

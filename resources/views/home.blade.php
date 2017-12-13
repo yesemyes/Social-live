@@ -33,14 +33,14 @@
     </div>
 
     @foreach( $posts as $post )
-    <div class="flex-container mt20 pl20 border_bottom">
+    <div class="flex-container mt20 pl20 border_bottom block_posts">
         <div class="flex-grow-1">
             <p class="post_title_detalis">{{$post->title}}</p>
         </div>
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 created">
             <p class="created">Created {{date('M d, Y', strtotime($post->updated_at))}}</p>
         </div>
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 created_time">
             <p class="time">{{date('H:i a', strtotime($post->updated_at))}}</p>
         </div>
         <div class="flex-grow-1">
