@@ -8,6 +8,8 @@
         "php": ">=5.6.4",
         "laravel/framework": "5.3.*",
         "oriceon/oauth-5-laravel": "dev-master",
+        "php-http/guzzle6-adapter": "^1.1",
+        "php-http/message": "^1.6",
         "tymon/jwt-auth": "0.5.*"
     },
     "require-dev": {

@@ -4,7 +4,7 @@
  */
 class instagram_post {
 	const USERNAME = 'yesemyes517715'; // TODO; Enter your Instagram username here to authenticate
-	const PASSWORD = 'SONYvaio517715!$&@'; // TODO; Enter your Instagram password here to authenticate
+	const PASSWORD = 'qwerty123456'; // TODO; Enter your Instagram password here to authenticate
 	const API_ENDPOINT = 'https://instagram.com/api';
 	const API_VERSION = 1;
 	protected $cookie_file = 'instagram_cookie.txt'; // Path from the root directory

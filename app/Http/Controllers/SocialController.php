@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 session_start();
-
+error_reporting(-1);
+ini_set("display_errors", 1);
+set_time_limit(0);
+date_default_timezone_set('UTC');
 require_once( base_path('socials/facebook/fbsdk/src/Facebook/autoload.php') );
 require_once( base_path('socials/twitter/TwitterAPIExchange.php') );
 require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
@@ -11,6 +14,7 @@ require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
 //require_once( base_path('socials/instagram/instagram_post.php') );
 require_once( base_path('socials/instagram/ins.php') );
+
 require_once( base_path('socials/google/vendor/autoload.php') );
 
 use Facebook\Facebook;
@@ -26,6 +30,7 @@ use reddit;
 
 //use instagram_post;
 use InstagramUpload;
+//use Vinkla\Instagram\Instagram;
 
 use Pinterest\Authentication as Pin;
 use Pinterest\Http\BuzzClient as Buzz;
@@ -443,17 +448,16 @@ class SocialController extends Controller
 
 	public function instagram(Request $request) // not working
 	{
-		if( $request->img_upload_link != null ){
+//dd($request->token_soc);
+		/*if( $request->img_upload_link != null ){
 			$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
 		}else{
 			$pathToFile = str_replace('https://', 'http://', $request->img_link );
-		}
-//dd($pathToFile);
+		}*/
+
 		$obj = new InstagramUpload();
-		$obj->Login("yesemyes517715", "SONYvaio517715!$&@");
-		//dd($request->img_link);
-		$obj->UploadPhoto("185dcc2a3eef033549786d4b3aa4816b.jpeg", $request->message);
-		//$obj->UploadVideo("test-video.mp4", "square-thumb.jpg", "Test Upload Video From PHP");
+		$obj->Login("yesemyes517715", "qwerty123456");
+		$obj->UploadPhoto("square-image.jpg", "Test Upload Photo From PHP");
 
 		if(isset($obj->upload_id)&&$obj->upload_id!=null){
 			return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);

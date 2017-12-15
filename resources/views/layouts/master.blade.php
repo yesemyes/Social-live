@@ -18,7 +18,7 @@
                         </a>
                     </div>
                     <div class="header_center">
-                        <span class="megaphone"></span>
+                        <a href="{{url('/')}}"><span class="megaphone"></span></a>
                         <div class="dIBlock megaphone-text">
                             <p class="f20">content</p>
                             <p class="f16">promotion</p>

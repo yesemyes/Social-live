@@ -572,7 +572,7 @@ i.fa.fa-sign-out.fa-3 {
 }
 .input-title{
     height: 35px;
-    width: 90%;
+    width: 95%;
     border-radius: 4px;
     background-color: #F6F5F4;
     padding: 0 10px;
@@ -581,7 +581,7 @@ i.fa.fa-sign-out.fa-3 {
 }
 
 .input-content{
-    width: 90%;
+    width: 95%;
     border-radius: 4px;
     background-color: #F6F5F4;
     padding: 10px;
@@ -743,4 +743,21 @@ i.fa.fa-sign-out.fa-3 {
     }
     .create_post img{width: 100%; height: auto;}
     .create_post .flex-grow-2{margin-bottom: 30px;}
+    .item_accounts{flex-basis: 50%;}
+    .login-card{width: auto;}
+}
+
+@media only screen and (max-width: 664px){
+    .item_accounts{
+        flex-basis: 100%;
+    }
+    .item_accounts .accounts_block{
+        width: 100%;
+        padding: 0;
+    }
+}
+
+@media only screen and (max-width: 412px){
+    .postContent, .postTitle{width: 92%;}
+    .create_post .flex-grow-2, .create_post .flex-grow-1{flex-basis: 100%;}
 }

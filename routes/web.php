@@ -11,9 +11,9 @@
 |
 */
 
-if (env('APP_ENV') === 'local') {
+/*if (env('APP_ENV') === 'local') {
 	URL::forceSchema('https');
-}
+}*/
 
 Auth::routes();
 
