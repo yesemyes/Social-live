@@ -45,8 +45,8 @@ return [
 			 'scope'         => ['r_basicprofile', 'r_emailaddress', 'rw_company_admin', 'w_share'],
 		],
 		'Instagram' => [
-			'client_id'     => '7502c314346d4f2fac1d02cbe9074c71',
-			'client_secret' => '3cc450155dec46c3941f1ab00645693a',
+			'client_id'     => '7502c314346d4f2fac1d02cbe9074c71', //
+			'client_secret' => '3cc450155dec46c3941f1ab00645693a', //
 			'scope'         => ['basic', 'comments', 'relationships', 'likes'],
 		],
 		'Reddit' => [

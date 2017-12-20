@@ -9,12 +9,9 @@ date_default_timezone_set('UTC');
 require_once( base_path('socials/facebook/fbsdk/src/Facebook/autoload.php') );
 require_once( base_path('socials/twitter/TwitterAPIExchange.php') );
 require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
-//require_once( base_path('socials/link/vendor/autoload.php') );
 require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
-//require_once( base_path('socials/instagram/instagram_post.php') );
 require_once( base_path('socials/instagram/ins.php') );
-
 require_once( base_path('socials/google/vendor/autoload.php') );
 
 use Facebook\Facebook;
@@ -27,10 +24,7 @@ use LinkedIn\LinkedIn;
 //use Happyr\LinkedIn\LinkedIn as link;
 
 use reddit;
-
-//use instagram_post;
 use InstagramUpload;
-//use Vinkla\Instagram\Instagram;
 
 use Pinterest\Authentication as Pin;
 use Pinterest\Http\BuzzClient as Buzz;
@@ -49,6 +43,7 @@ use Illuminate\Http\Request;
 class SocialController extends Controller
 {
 	public $fb;
+	public $inss;
 	public $twitter;
 	public $li;
 	public $reddit;
@@ -446,18 +441,19 @@ class SocialController extends Controller
 		return $boards;
 	}
 
-	public function instagram(Request $request) // not working
+	public function instagram(Request $request)
 	{
-//dd($request->token_soc);
-		/*if( $request->img_upload_link != null ){
+		if( $request->img_upload_link != null ){
 			$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
 		}else{
 			$pathToFile = str_replace('https://', 'http://', $request->img_link );
-		}*/
-
+		}
 		$obj = new InstagramUpload();
-		$obj->Login("yesemyes517715", "qwerty123456");
-		$obj->UploadPhoto("square-image.jpg", "Test Upload Photo From PHP");
+
+		$obj->Login($request->username, $request->password);
+
+
+		$obj->UploadPhoto("../".$pathToFile, $request->message);
 
 		if(isset($obj->upload_id)&&$obj->upload_id!=null){
 			return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);

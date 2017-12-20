@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+require_once( base_path('socials/instagram/ins.php') );
+
+use InstagramUpload;
+
 use App\User;
 use App\Social;
 use App\Oauth;
@@ -159,7 +163,7 @@ class OauthController extends Controller
 		}
 	}
 
-	public function loginWithInstagram(Request $request)
+	/*public function loginWithInstagram(Request $request)
 	{
 		$code = $request->get('code');
 		if( $this->userAuth == null ){
@@ -185,6 +189,23 @@ class OauthController extends Controller
 		{
 			$url = $instagramService->getAuthorizationUri();
 			return redirect((string)$url);
+		}
+	}*/
+
+	public function loginWithInstagram(Request $request)
+	{
+		$obj = new InstagramUpload();
+		$obj->Login($request->username, $request->password);
+		if(isset($obj->upload_id) && $obj->upload_id!=null)
+		{
+			$result['id'] = $obj->uid;
+			$result['access_token'] = $request->password;
+			$result['access_token_secret'] = '';
+			$result['first_name'] = $request->username;
+			$result['last_name'] = '';
+			return $this->regApi($result,'instagram');
+		}else{
+			print_r($obj);
 		}
 	}
 
@@ -276,6 +297,7 @@ class OauthController extends Controller
 		$currentDate = date("Y-m-d H:i:s");
 		$get_social_id = Social::where('provider',$provider)->first();
 		$check_user_by_id = User::where('id',$user_id)->first();
+
 		if( isset($check_user_by_id) && $check_user_by_id != null ){
 			$check_oauth_by_userIdAndProvider = Oauth::leftJoin('users', 'oauth.user_id', '=', 'users.id')
 																	->leftJoin('oauth_items','oauth_items.oauth_id','=','oauth.id')

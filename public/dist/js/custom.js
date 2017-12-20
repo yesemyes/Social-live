@@ -166,4 +166,103 @@ jQuery(document).ready(function($)
     $("#imgInp").change(function() {
         readURL(this);
     });
+
+
+    $("#ins-form").on("click", function(e){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        e.preventDefault();
+        var username = $("#ins-username").val();
+        var password = $("#ins-password").val();
+        $.ajax({
+            url: '/instagram/login/',
+            type: 'GET',
+            data: {
+                "username": username,
+                "password": password,
+            },
+            success: function( msg ) {
+                var obj = jQuery.parseJSON( msg );
+                if(obj.error_type === "bad_password" ){
+                    $(".ins-error").html("<p>"+obj.message+"</p>");
+                }
+                else if(obj.error_type === "invalid_user" ){
+                    $(".ins-error").html("<p>"+obj.message+"</p>");
+                }
+                else if(obj.status === "fail" ){
+                    $(".ins-error").html("<p><a href='"+obj.checkpoint_url+"' target='_blank'>We Detected An Unusual Login Attempt</a></p>");
+                }
+            },
+            error: function( data ) {
+                $(".ins-error").html("<p>Error! Try again</p>");
+            }
+        });
+
+        return false;
+    });
+
+    $("#ins-username, #ins-password").keypress(function(e) {
+        var key = e.which;
+        if (key == 13) // the enter key code
+        {
+            var username = $("#ins-username").val();
+            var password = $("#ins-password").val();
+            $.ajax({
+                url: '/instagram/login/',
+                type: 'GET',
+                data: {
+                    "username": username,
+                    "password": password,
+                },
+                success: function( msg ) {
+                    var obj = jQuery.parseJSON( msg );
+                    if(obj.error_type === "bad_password" ){
+                        $(".ins-error").html("<p>"+obj.message+"</p>");
+                    }
+                    else if(obj.error_type === "invalid_user" ){
+                        $(".ins-error").html("<p>"+obj.message+"</p>");
+                    }
+                    else if(obj.status === "fail" ){
+                        $(".ins-error").html("<p><a href='"+obj.checkpoint_url+"' target='_blank'>We Detected An Unusual Login Attempt</a></p>");
+                    }
+                },
+                error: function( data ) {
+                    $(".ins-error").html("<p>Error! Try again</p>");
+                }
+            });
+
+            return false;
+        }
+    });
 });
+
+
+// Get the modal
+var modal = document.getElementById('myModal');
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on the button, open the modal
+if(btn){
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+}
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}

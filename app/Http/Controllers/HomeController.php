@@ -149,9 +149,14 @@ class HomeController extends Controller
 			$socialClass = new SocialController();
 			$user = Auth::user();
 			$connected 	= $request->connected;
+			$check_connected_instagram = array_search('instagram', $connected);
+			
+			if( $check_connected_instagram != 0 ) $request->img_link = $request->postImage;
+			else $request->img_link = $request->postImage;
 
 			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
 			else $request->img_link = null;
+
 			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
 			else $request->boards = null;
 			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
@@ -201,9 +206,12 @@ class HomeController extends Controller
 				else $request->link = null;
 				if( isset($request->images[$key]) && $request->images[$key] != null ){
 					$filename = 'app/'.$request->images[$key]->store($user->id);
-					$img = url(Storage::url($filename));
+					//$img = url(Storage::url($filename));
+					$img = Storage::url($filename);
 					$request->img_upload_link  = $img;
-				}else$request->img_upload_link = null;
+				}else $request->img_upload_link = null;
+
+				//dd('oksssss');
 				$socials = $socialClass->$item($request);
 				$res = $socials->getData('result')['result'];
 				array_push($suc_mes,$res);

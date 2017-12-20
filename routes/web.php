@@ -11,9 +11,9 @@
 |
 */
 
-/*if (env('APP_ENV') === 'local') {
+if (env('APP_ENV') === 'local') {
 	URL::forceSchema('https');
-}*/
+}
 
 Auth::routes();
 
@@ -36,7 +36,6 @@ Route::post('/account/delete/{id}', 'Auth\OauthController@destroy');
 //Route::post('/account/update/{id}', 'HomeController@accountUpdate');
 //Route::get('check/email/{id}/{url}', 'Auth\OauthController@checkEmail');
 //Route::post('/setPass/{id}', 'Auth\OauthController@setPass');
-
 /* Networks */
 Route::get('facebook/login/{wp?}',  'Auth\OauthController@loginWithFacebook');
 Route::get('google/login/{wp?}',    'Auth\OauthController@loginWithGoogle');

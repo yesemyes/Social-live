@@ -46,7 +46,7 @@
                             @if( !isset($value['userId']) )
                                 <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" disabled>
                                 @if($value['provider'] == 'instagram')
-                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}" aria-hidden="true" style="color: #9A9691"></i></a>
+                                    <a href="#" id="myBtn"><i class="fa fa-{{ $value['provider'] }}" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @elseif($value['provider'] == 'facebook')
                                     <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-official" aria-hidden="true" style="color: #9A9691"></i></a>
                                 @elseif($value['provider'] == 'google')
@@ -75,6 +75,10 @@
                 @if( isset($value['userId']) )
                 <?php array_push($checkConnected,$value['userId']);?>
                 <input type="hidden" data-soc="{{ $value['provider'] }}" name="access_token[]" value="{{ $value['access_token'] }}">
+                @if($value['provider'] == "instagram")
+                    <input type="hidden" name="username" value="{{ $value['first_name'] }}">
+                    <input type="hidden" name="password" value="{{ $value['access_token'] }}">
+                @endif
                 <input type="hidden" data-soc-sec="{{ $value['provider'] }}" name="access_token_secret[]" value="{{ $value['access_token_secret'] }}">
                 <input type="hidden" data-soc-id="{{ $value['provider'] }}" name="prov_user_id[]" value="{{ $value['provUserId'] }}">
                 <div class="publishBlock" data-network-name="{{$value['provider']}}">
@@ -154,4 +158,16 @@
         </div>
         @endif
     </form>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p class="tCenter">Instagram</p>
+            <div class="ins-content">
+                <p class="mt5"><input type="text" id="ins-username" name="username" value="" required="required" autocomplete="off"></p>
+                <p class="mt5"><input type="password" id="ins-password" name="password" value="" required="required" autocomplete="off"></p>
+                <p><button id="ins-form">Login</button></p>
+            </div>
+            <div class="ins-error"></div>
+        </div>
+    </div>
 @endsection
