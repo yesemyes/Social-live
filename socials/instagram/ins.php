@@ -8,19 +8,18 @@ Facebook : https://www.facebook.com/LookHin
 Source Code On Github : https://github.com/LookHin/instagram-photo-video-upload-api
 Rewrite Code From : https://github.com/mgp25/Instagram-API
  *****************************************************************/
-class InstagramUpload{
-	public $username;
-	public $password;
-	public $csrftoken;
+class InstagramUpload
+{
+	public  $username;
+	public  $password;
+	public  $csrftoken;
 	private $phone_id;
 	private $guid;
-	public $uid;
+	public  $uid;
 	private $device_id;
 	private $cookies;
 	private $api_url = 'https://i.instagram.com/api/v1';
 	private $ig_sig_key = '5ad7d6f013666cc93c88fc8af940348bd067b68f0dce3c85122a923f4f74b251';
-	//private $ig_sig_key = '55e91155636eaa89ba5ed619eb4645a4daf1103f2161dbfe6fd94d5ea7716095';
-	//private $ig_sig_key = '25eace5393646842f0d0c3fb2ac7d3cfa15c052436ee86b5406a8433f54d24a5';
 	private $sig_key_version = '4';
 	private $x_ig_capabilities = '3ToAAA==';
 	private $android_version = 18;
@@ -29,9 +28,7 @@ class InstagramUpload{
 	private $android_model = "EVA-L19";
 	private $headers = array();
 	private $user_agent = "Instagram 10.3.2 Android (18/4.3; 320dpi; 720x1280; Huawei; HWEVA; EVA-L19; qcom; en_US)";
-	//private $user_agent = "Instagram 8.2.0 Android (18/4.3; 320dpi; 720x1280; Xiaomi; HM 1SW; armani; qcom; en_US)";
-	//private $user_agent = "Instagram 6.21.2 Android (19/4.4.2; 480dpi; 1152x1920; Meizu; MX4; mx4; mt6595; en_US)";
-	//private $user_agent = "Instagram 26.0.0.13.86 Android (18/4.3; 320dpi; 720x1280; Huawei; HWEVA; EVA-L19; qcom; en_US)";
+
 	public function __construct(){
 		$this->guid = $this->generateUUID();
 		$this->phone_id = $this->generateUUID();
@@ -51,6 +48,7 @@ class InstagramUpload{
 	public function UploadPhoto($image, $caption){
 		$this->UploadPhotoApi($image);
 		$this->ConfigPhotoApi($caption);
+		//dd( $this->ConfigPhotoApi($caption) );
 	}
 	public function UploadVideo($video, $image, $caption){
 		$this->UploadVideoApi($video);
@@ -66,6 +64,7 @@ class InstagramUpload{
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		$result = curl_exec($ch);
 		curl_close ($ch);
@@ -88,14 +87,20 @@ class InstagramUpload{
 		$arrPostData['username'] = $this->username;
 		$arrPostData['password'] = $this->password;
 		$strUrl = $this->api_url."/accounts/login/";
+		//$strUrl="https://www.instagram.com/accounts/login/?force_classic_login";
+		//$proxy = '93.94.223.18:8080';
+
+		//print_r($arrPostData);die;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL,$strUrl);
+		//curl_setopt($ch, CURLOPT_PROXY, $proxy);
 		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->generateSignature(json_encode($arrPostData)));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		$result = curl_exec($ch);
@@ -111,22 +116,9 @@ class InstagramUpload{
 		$arrResult = json_decode($body, true);
 		if($arrResult['status'] == "ok"){
 			$uid = $arrResult['logged_in_user']['pk'];
-
 			return array($uid, $cookies);
 		}else{
-			/*if( $json->error_type == 'bad_password' ){
-
-			}elseif($json->error_type == 'checkpoint_challenge_required'){
-				$url = $json->checkpoint_url;
-				dd($url);
-				return $url;
-			}*/
-			//$strUrl = $this->api_url.'/si/fetch_headers/?challenge_type=signup&guid=' . $this->generateUUID(false);
-
-			//preg_match('#Set-Cookie: csrftoken=([^;]+)#', $strUrl, $this->csrftoken);
 			print $body;
-
-
 			exit;
 		}
 	}
@@ -146,6 +138,7 @@ class InstagramUpload{
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $arrPostData);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_COOKIE, $this->cookies);
@@ -156,6 +149,7 @@ class InstagramUpload{
 			return true;
 		}else{
 			print $result;
+			//return $arrResult['status'];
 			exit;
 		}
 	}
@@ -174,6 +168,7 @@ class InstagramUpload{
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $arrPostData);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_COOKIE, $this->cookies);
@@ -195,6 +190,7 @@ class InstagramUpload{
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($file));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_COOKIE, $this->cookies);
@@ -207,7 +203,7 @@ class InstagramUpload{
 			exit;
 		}
 	}
-	private function ConfigPhotoApi($caption){
+	public function ConfigPhotoApi($caption){
 		$arrPostData = array();
 		$arrPostData['media_folder'] = "Instagram";
 		$arrPostData['source_type'] = "4";
@@ -230,6 +226,7 @@ class InstagramUpload{
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->generateSignature(json_encode($arrPostData)));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_COOKIE, $this->cookies);
@@ -239,8 +236,7 @@ class InstagramUpload{
 		if($arrResult['status'] == "ok"){
 			return true;
 		}else{
-			print $result;
-			exit;
+			return false;
 		}
 	}
 	private function ConfigVideoApi($caption){
@@ -270,6 +266,7 @@ class InstagramUpload{
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->user_agent);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->generateSignature(json_encode($arrPostData)));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_COOKIE, $this->cookies);

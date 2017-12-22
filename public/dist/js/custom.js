@@ -18,10 +18,11 @@ jQuery(document).ready(function($)
             },
             success: function( msg ) {
                 if ( msg.status === 'success' ) {
-                    /*setInterval(function() {
+                    setInterval(function() {
+                        $(".user_detalis_provider_"+dataId).html('<h3>Connect '+dataProvider+'</h3><span class="circle-gray"></span><span class="grayText ml5">offline</span>');
                         window.location.reload();
-                    }, 1000);*/
-                    $(".user_detalis_provider_"+dataId).html('<h3>Connect '+dataProvider+'</h3><span class="circle-gray"></span><span class="grayText ml5">offline</span>');
+                    }, 1000);
+
                 }
             },
             error: function( data ) {
@@ -185,15 +186,19 @@ jQuery(document).ready(function($)
                 "password": password,
             },
             success: function( msg ) {
-                var obj = jQuery.parseJSON( msg );
-                if(obj.error_type === "bad_password" ){
-                    $(".ins-error").html("<p>"+obj.message+"</p>");
-                }
-                else if(obj.error_type === "invalid_user" ){
-                    $(".ins-error").html("<p>"+obj.message+"</p>");
-                }
-                else if(obj.status === "fail" ){
-                    $(".ins-error").html("<p><a href='"+obj.checkpoint_url+"' target='_blank'>We Detected An Unusual Login Attempt</a></p>");
+                if(msg === "ok" ){
+                    location.reload();
+                }else{
+                    var obj = jQuery.parseJSON( msg );
+                    if(obj.error_type === "bad_password" ){
+                        $(".ins-error").html("<p>"+obj.message+"</p>");
+                    }
+                    else if(obj.error_type === "invalid_user" ){
+                        $(".ins-error").html("<p>"+obj.message+"</p>");
+                    }
+                    else if(obj.status === "fail" ){
+                        $(".ins-error").html("<p><a href='"+obj.checkpoint_url+"' target='_blank'>We Detected An Unusual Login Attempt</a></p>");
+                    }
                 }
             },
             error: function( data ) {
@@ -218,15 +223,19 @@ jQuery(document).ready(function($)
                     "password": password,
                 },
                 success: function( msg ) {
-                    var obj = jQuery.parseJSON( msg );
-                    if(obj.error_type === "bad_password" ){
-                        $(".ins-error").html("<p>"+obj.message+"</p>");
-                    }
-                    else if(obj.error_type === "invalid_user" ){
-                        $(".ins-error").html("<p>"+obj.message+"</p>");
-                    }
-                    else if(obj.status === "fail" ){
-                        $(".ins-error").html("<p><a href='"+obj.checkpoint_url+"' target='_blank'>We Detected An Unusual Login Attempt</a></p>");
+                    if(msg === "ok" ){
+                        location.reload();
+                    }else{
+                        var obj = jQuery.parseJSON( msg );
+                        if(obj.error_type === "bad_password" ){
+                            $(".ins-error").html("<p>"+obj.message+"</p>");
+                        }
+                        else if(obj.error_type === "invalid_user" ){
+                            $(".ins-error").html("<p>"+obj.message+"</p>");
+                        }
+                        else if(obj.status === "fail" ){
+                            $(".ins-error").html("<p><a href='"+obj.checkpoint_url+"' target='_blank'>We Detected An Unusual Login Attempt</a></p>");
+                        }
                     }
                 },
                 error: function( data ) {

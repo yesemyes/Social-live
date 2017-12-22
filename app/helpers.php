@@ -1,5 +1,6 @@
 <?php
-function mobile_user_agent_switch(){
+function mobile_user_agent_switch()
+{
 	$device = '';
 
 	if( stristr($_SERVER['HTTP_USER_AGENT'],'ipad') ) {

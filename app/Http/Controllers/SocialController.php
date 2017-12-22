@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-session_start();
 error_reporting(-1);
 ini_set("display_errors", 1);
+session_start();
 set_time_limit(0);
 date_default_timezone_set('UTC');
 require_once( base_path('socials/facebook/fbsdk/src/Facebook/autoload.php') );
@@ -12,7 +12,12 @@ require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
 require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
 require_once( base_path('socials/instagram/ins.php') );
+//require_once( base_path('socials/instagram/instagram_post.php') );
 require_once( base_path('socials/google/vendor/autoload.php') );
+require_once( base_path('vendor/msc/instaresize/src/Resize.php') );
+
+
+use MSC\Instaresize\Resize;
 
 use Facebook\Facebook;
 use Facebook\Exceptions\FacebookResponseException;
@@ -21,9 +26,9 @@ use Facebook\Exceptions\FacebookSDKException;
 use TwitterAPIExchange;
 
 use LinkedIn\LinkedIn;
-//use Happyr\LinkedIn\LinkedIn as link;
 
 use reddit;
+
 use InstagramUpload;
 
 use Pinterest\Authentication as Pin;
@@ -36,14 +41,12 @@ use Google_Client;
 use Google_Service_Plus;
 use Aws\S3\S3Client;
 
-
-
 use Illuminate\Http\Request;
 
 class SocialController extends Controller
 {
 	public $fb;
-	public $inss;
+	public $ins;
 	public $twitter;
 	public $li;
 	public $reddit;
@@ -448,15 +451,21 @@ class SocialController extends Controller
 		}else{
 			$pathToFile = str_replace('https://', 'http://', $request->img_link );
 		}
-		$obj = new InstagramUpload();
+		$resize = new Resize();
+		$new_ = $resize->check(base_path(substr($pathToFile, 1)));
+		$new_resize_img = substr($new_, strrpos($new_, '/') + 1);
+		$path = substr($pathToFile, 0,strrpos($pathToFile, '/'));
+		$new_upload_pic =  $path."/".$new_resize_img;
+		$this->ins = new InstagramUpload();
+		$this->ins->Login($request->username, $request->password);
+		$this->ins->UploadPhoto("../".$new_upload_pic, $request->message);
 
-		$obj->Login($request->username, $request->password);
+		if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null){
+			if( $this->ins->ConfigPhotoApi($request->message) == true )
+				return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
+			else
+				return response()->json(['result'=>'ERROR! Uploaded image into instagram isn\'t in the right format']);
 
-
-		$obj->UploadPhoto("../".$pathToFile, $request->message);
-
-		if(isset($obj->upload_id)&&$obj->upload_id!=null){
-			return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
 		}else{
 			return response()->json(['result'=>'ERROR! Instagram share']);
 		}

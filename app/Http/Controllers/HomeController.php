@@ -150,12 +150,17 @@ class HomeController extends Controller
 			$user = Auth::user();
 			$connected 	= $request->connected;
 			$check_connected_instagram = array_search('instagram', $connected);
-			
-			if( $check_connected_instagram != 0 ) $request->img_link = $request->postImage;
-			else $request->img_link = $request->postImage;
 
-			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
-			else $request->img_link = null;
+			if( isset($request->postImage) ){
+				if( $check_connected_instagram == 0 ) $request->img_link = $request->postImage;
+				else {
+					if( isset($request->postImage) ) $request->img_link = url($request->postImage);
+					else $request->img_link = null;
+				}
+			}
+
+
+
 
 			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
 			else $request->boards = null;

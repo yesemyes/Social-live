@@ -18,7 +18,7 @@
         @foreach($userAccounts as $item)
             @if(isset($item['userId']))
                 <div class="item_accounts">
-                    <a href="{{url($item["provider"].'/login')}}" class="accounts_block">
+                    <a href="@if($item['provider'] != 'instagram') {{url($item["provider"].'/login')}} @else # @endif" class="accounts_block">
                         @if($item['provider'] == 'instagram')
                             <i class=" f3em fa fa-{{ $item['provider'] }}" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
                         @elseif($item['provider'] == 'facebook')
@@ -67,8 +67,8 @@
                 <span class="close">&times;</span>
                 <p class="tCenter">Instagram</p>
                 <div class="ins-content">
-                    <p class="mt5"><input type="text" id="ins-username" name="username" value="" required="required" autocomplete="off"></p>
-                    <p class="mt5"><input type="password" id="ins-password" name="password" value="" required="required" autocomplete="off"></p>
+                    <p class="mt5"><input type="text" id="ins-username" name="username" value="" placeholder="Username or Email" required="required" autocomplete="off"></p>
+                    <p class="mt5"><input type="password" id="ins-password" name="password" value="" placeholder="Password" required="required" autocomplete="off"></p>
                     <p><button id="ins-form">Login</button></p>
                 </div>
                 <div class="ins-error"></div>

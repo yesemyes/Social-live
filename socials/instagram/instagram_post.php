@@ -3,8 +3,8 @@
  * Class instagram_post
  */
 class instagram_post {
-	const USERNAME = 'yesemyes517715'; // TODO; Enter your Instagram username here to authenticate
-	const PASSWORD = 'qwerty123456'; // TODO; Enter your Instagram password here to authenticate
+	const USERNAME = "yesemyes517715"; // TODO; Enter your Instagram username here to authenticate
+	const PASSWORD = "VWGOLF5GTI"; // TODO; Enter your Instagram password here to authenticate
 	const API_ENDPOINT = 'https://instagram.com/api';
 	const API_VERSION = 1;
 	protected $cookie_file = 'instagram_cookie.txt'; // Path from the root directory
@@ -45,14 +45,14 @@ class instagram_post {
 				'device_timestamp' => time(),
 				'photo' => '@' . $filename
 			])) {
-				if ($post['status'] !== 'ok') {
+				/*if ($post['status'] !== 'ok') {
 					throw new Exception('Invalid response received when trying to upload the image: ' . $post['status']);
-				}
+				}*/
 				// Now, configure the photo
 				if ($upload = $this->doApiCall('media/configure', [
 					'device_id' => $this->getDeviceId(),
 					'guid' => $this->getGuid(),
-					'media_id' => $post['media_id'],
+					//'media_id' => $post['media_id'],
 					'caption' => trim(preg_replace("/\r|\n/", "", $caption)), // Remove and line breaks from the caption
 					'device_timestamp' => time(),
 					'source_type' => 5,
@@ -176,8 +176,9 @@ class instagram_post {
 			$ver = $versions[array_rand($versions)];
 			$dpi = $dpis[array_rand($dpis)];
 			$res = $resolutions[array_rand($resolutions)];
-			$this->user_agent = 'Instagram 4.' . mt_rand(1, 2) . '.' . mt_rand(0, 2) . ' Android (' . mt_rand(10, 11) . '/' . mt_rand(1, 3) . '.' . mt_rand(3, 5) . '.' . mt_rand(0, 5) . '; ' . $dpi . '; ' . $res . '; samsung; ' . $ver . '; ' . $ver . '; smdkc210; en_US)';
+			$this->user_agent = 'Instagram 4.' . mt_rand(1, 2) . '.' . mt_rand(0, 2) . ' Android (' . mt_rand(6, 7) . '/' . mt_rand(1, 3) . '.' . mt_rand(3, 5) . '.' . mt_rand(0, 5) . '; ' . $dpi . '; ' . $res . '; samsung; ' . $ver . '; ' . $ver . '; smdkc210; en_US)';
 		}
+		//print_r($this->user_agent);die;
 		return $this->user_agent;
 	}
 }

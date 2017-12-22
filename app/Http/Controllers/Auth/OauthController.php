@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 require_once( base_path('socials/instagram/ins.php') );
+require_once( base_path('socials/instagram/instagram_post.php') );
 
 use InstagramUpload;
+use instagram_post;
 
 use App\User;
 use App\Social;
@@ -194,8 +196,12 @@ class OauthController extends Controller
 
 	public function loginWithInstagram(Request $request)
 	{
+		set_time_limit(0);
+		date_default_timezone_set('UTC');
+
 		$obj = new InstagramUpload();
 		$obj->Login($request->username, $request->password);
+
 		if(isset($obj->upload_id) && $obj->upload_id!=null)
 		{
 			$result['id'] = $obj->uid;
@@ -350,7 +356,8 @@ class OauthController extends Controller
 					if( $this->userAuth == null ){
 						return redirect($check_user_by_id->user_url.'/wp-admin/admin.php?page=iio4social-network');
 					}else{
-						return redirect('/networks');
+						if($provider=="instagram") echo "ok";
+						else return redirect('/networks');
 					}
 				}
 			}
