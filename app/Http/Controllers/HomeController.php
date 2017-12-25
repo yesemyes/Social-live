@@ -17,21 +17,11 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-	/**
-	 * Create a new controller instance.
-	 *
-	 * @return void
-	 */
 	public function __construct()
 	{
 		$this->middleware('auth');
 	}
 
-	/**
-	 * Show the application dashboard.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
 	public function index()
 	{
 		$user = Auth::user();
@@ -151,16 +141,10 @@ class HomeController extends Controller
 			$connected 	= $request->connected;
 			$check_connected_instagram = array_search('instagram', $connected);
 
-			if( isset($request->postImage) ){
-				if( $check_connected_instagram == 0 ) $request->img_link = $request->postImage;
-				else {
-					if( isset($request->postImage) ) $request->img_link = url($request->postImage);
-					else $request->img_link = null;
-				}
-			}
+			if( $check_connected_instagram != false ) $request->img_link_ins = $request->postImage;
 
-
-
+			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
+			else $request->img_link = null;
 
 			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
 			else $request->boards = null;
@@ -211,25 +195,20 @@ class HomeController extends Controller
 				else $request->link = null;
 				if( isset($request->images[$key]) && $request->images[$key] != null ){
 					$filename = 'app/'.$request->images[$key]->store($user->id);
-					//$img = url(Storage::url($filename));
-					$img = Storage::url($filename);
+					$img = url(Storage::url($filename));
+					$img_ins = Storage::url($filename);
 					$request->img_upload_link  = $img;
-				}else $request->img_upload_link = null;
+					$request->img_upload_link_ins  = $img_ins;
+				}else {
+					$request->img_upload_link = null;
+					$request->img_upload_link_ins = null;
+				}
 
-				//dd('oksssss');
 				$socials = $socialClass->$item($request);
 				$res = $socials->getData('result')['result'];
 				array_push($suc_mes,$res);
 			} // end foreach
-			//dd($suc_mes);
 			return redirect()->back()->with('share_message_result', $suc_mes);
-			/*if( $socials->getData('result')['result'] == "success" ){
-				Session::flash('message', 'Your post(s) successful created!');
-				return redirect()->back();
-			}else{
-				Session::flash('message', 'Error !');
-				return redirect()->back();
-			}*/
 		}
 	}
 

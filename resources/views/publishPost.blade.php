@@ -137,13 +137,16 @@
                             <div class="flex-container">
                                 <div class="fb35">
                                     <input type="file" data-img="{{ $value['provider'] }}" id="imgInp{{$key}}" name="images[]" class="none">
-                                    <label class="dIBlock choose_img f10pt" for="imgInp{{$key}}">Choose image</label>
+                                    <label class="dIBlock choose_img f10pt" id="ablah-{{$key}}" for="imgInp{{$key}}">Choose image</label>
                                 </div>
-                                <div class="fb65 f9pt">
+                                <div class="fb65 f8pt">
                                     <p class="pl10">Featured Image</p>
                                     <p class="pl10">2mb max size, jpg,bmp or png</p>
                                 </div>
                             </div>
+                        </div>
+                        <div class="mt10 tCenter">
+                            <img id="blah-{{$key}}" src="#" class="none" style="border-radius: 4px;" alt="your image" width="200" height="auto" />
                         </div>
                     </div>
                 </div>
@@ -170,4 +173,5 @@
             <div class="ins-error"></div>
         </div>
     </div>
+    <div class="loader"></div>
 @endsection

@@ -37,7 +37,7 @@
             <div class="flex-grow-1">
                 <label for="imgInp">Featured Image</label>
                 <p class="mt10">
-                    <img id="blah" src="{{url('/img/file-image.png')}}" style="border-radius: 4px;" alt="your image" width="150" height="150" />
+                    <img id="blah" src="{{url('/img/file-image.png')}}" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
                     <p class="mt10">
                         <input type="file" id="imgInp" name="image" class="none">
                         <label class="choose_img" for="imgInp">Choose image</label>

@@ -151,21 +151,40 @@ jQuery(document).ready(function($)
         }
     });
 
-    function readURL(input) {
-
+    function readURL(input)
+    {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
-
             reader.onload = function(e) {
                 $('#blah').attr('src', e.target.result);
             }
-
             reader.readAsDataURL(input.files[0]);
         }
     }
-
     $("#imgInp").change(function() {
         readURL(this);
+    });
+
+    $(document).on("click", "label[id^='ablah-']", function(){
+        var a = this.id.split('-')[1];
+        function readURLnew(input)
+        {
+            if (input.files && input.files[0]) {
+                var reader_new = new FileReader();
+                reader_new.onload = function(e) {
+                    $("#blah-"+a).attr('src', e.target.result);
+                }
+                reader_new.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#imgInp"+a).change(function() {
+            $("#blah-"+a).show();
+            readURLnew(this);
+        });
+    });
+
+    $(".share_button_color").click(function(){
+        $(".loader").show();
     });
 
 
@@ -259,19 +278,19 @@ var btn = document.getElementById("myBtn");
 var span = document.getElementsByClassName("close")[0];
 
 // When the user clicks on the button, open the modal
-if(btn){
-btn.onclick = function() {
-    modal.style.display = "block";
-}
-}
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-    modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == modal) {
+if(btn)
+{
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
         modal.style.display = "none";
+    }
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
     }
 }

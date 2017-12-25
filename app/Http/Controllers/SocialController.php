@@ -196,7 +196,6 @@ class SocialController extends Controller
 				'callback_url' => 'https://ipisocial.iimagine.one/linkedin/login'
 			)
 		);
-
 		$this->li->setAccessToken($request->token_soc);
 
 		if($request->img_upload_link != null){
@@ -238,14 +237,17 @@ class SocialController extends Controller
 			);
 		}
 
+
+
 		$response = $this->li->post('people/~/shares?format=json', $postParams);
+
 		if( $response != null ){
 			return response()->json(['result'=>'SUCCESS! your post in Linkedin now shared']);
 		}else{
 			return response()->json(['result'=>'ERROR! Linkedin share']);
 		}
 
-		/*$this->li = new link('77bxo3m22s83c2', 'POVE4Giqvd4DlTnU');
+		/*$this->li = new LinkedIn('77bxo3m22s83c2', 'POVE4Giqvd4DlTnU');
 		$this->li->setAccessToken($request->token_soc);
 		$options = array('json'=>
 			                 array(
@@ -256,8 +258,8 @@ class SocialController extends Controller
 			                 )
 		);
 
-		$result = $this->li->post('v1/people/~/shares', $options);
-		dd( $this->li );*/
+		$result = $this->li->post('people/~/shares', $options);
+		dd( $result );*/
 	}
 
 	public function reddit(Request $request)
@@ -446,26 +448,34 @@ class SocialController extends Controller
 
 	public function instagram(Request $request)
 	{
-		if( $request->img_upload_link != null ){
-			$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
-		}else{
-			$pathToFile = str_replace('https://', 'http://', $request->img_link );
+		if( $request->img_upload_link_ins != null ){
+			$pathToFile = $request->img_upload_link_ins;
 		}
-		$resize = new Resize();
-		$new_ = $resize->check(base_path(substr($pathToFile, 1)));
-		$new_resize_img = substr($new_, strrpos($new_, '/') + 1);
-		$path = substr($pathToFile, 0,strrpos($pathToFile, '/'));
-		$new_upload_pic =  $path."/".$new_resize_img;
-		$this->ins = new InstagramUpload();
-		$this->ins->Login($request->username, $request->password);
-		$this->ins->UploadPhoto("../".$new_upload_pic, $request->message);
+		else if( $request->img_link_ins != null ){
+			$pathToFile = $request->img_link_ins;
+		}
+		else{
+			$pathToFile = null;
+		}
+		if( $pathToFile != null ){
+			$resize = new Resize();
+			$new_ = $resize->check(base_path(substr($pathToFile, 1)));
+			$new_resize_img = substr($new_, strrpos($new_, '/') + 1);
+			$path = substr($pathToFile, 0,strrpos($pathToFile, '/'));
+			$new_upload_pic =  $path."/".$new_resize_img;
+			$this->ins = new InstagramUpload();
+			$this->ins->Login($request->username, $request->password);
+			$this->ins->UploadPhoto("../".$new_upload_pic, $request->message);
 
-		if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null){
-			if( $this->ins->ConfigPhotoApi($request->message) == true )
-				return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
-			else
-				return response()->json(['result'=>'ERROR! Uploaded image into instagram isn\'t in the right format']);
+			if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null){
+				if( $this->ins->ConfigPhotoApi($request->message) == true )
+					return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
+				else
+					return response()->json(['result'=>'ERROR! Uploaded image into instagram isn\'t in the right format']);
 
+			}else{
+				return response()->json(['result'=>'ERROR! Instagram share']);
+			}
 		}else{
 			return response()->json(['result'=>'ERROR! Instagram share']);
 		}

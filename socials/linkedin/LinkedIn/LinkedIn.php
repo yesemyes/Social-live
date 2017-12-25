@@ -208,6 +208,7 @@ class LinkedIn
 		$endpoint = self::API_BASE . '/' . trim($endpoint, '/\\') . $concat;
 		$headers[] = 'x-li-format: json';
 		$headers[] = 'Authorization: Bearer ' . $this->getAccessToken();
+
 		return $this->_makeRequest($endpoint, $payload, $method, $headers, $curl_options);
 	}
 	/**

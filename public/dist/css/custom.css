@@ -30,6 +30,7 @@ a{text-decoration: none;}
 .VAT{vertical-align: top;}
 .f16{font-size: 16px}
 .f20{font-size: 20px}
+.f8pt{font-size: 8pt;}
 .f9pt{font-size: 9pt;}
 .f10pt{font-size: 10pt;}
 .f11pt{font-size: 11pt;}
@@ -350,6 +351,10 @@ header
     background-color: #f6f5f5;
     color: #6E6C68;
     cursor: pointer;
+    width: 150px;
+    box-sizing: border-box;
+    display: inline-block;
+    text-align: center;
 }
 .save_draft{
     margin-top: 10px;
@@ -828,3 +833,18 @@ i.fa.fa-sign-out.fa-3 {
     text-decoration: underline;
 }
 /* end instagram modal */
+.loader{
+    background-image: url("../../img/loader.gif");
+    width: 80px;
+    height: 80px;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: none;
+}
