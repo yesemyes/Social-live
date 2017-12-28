@@ -204,6 +204,7 @@ class LinkedIn
 	 */
 	public function fetch($endpoint, array $payload = array(), $method = 'GET', array $headers = array(), array $curl_options = array())
 	{
+		//dd( $this->getAccessToken() );
 		$concat = (stristr($endpoint,'?') ? '&' : '?');
 		$endpoint = self::API_BASE . '/' . trim($endpoint, '/\\') . $concat;
 		$headers[] = 'x-li-format: json';
@@ -262,6 +263,7 @@ class LinkedIn
 		curl_setopt_array($ch, $options);
 		$response = curl_exec($ch);
 		$this->_debug_info = curl_getinfo($ch);
+
 		if ($response === false) {
 			throw new \RuntimeException('Request Error: ' . curl_error($ch));
 		}

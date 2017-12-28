@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App;
 use App\Post;
+use App\Posted;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class HomeController extends Controller
 	public function index()
 	{
 		$user = Auth::user();
-		$posts = Post::where('user_id',$user->id)->get();
+		$posts = Posted::where('user_id',$user->id)->get();
 		if( count($posts) > 0 ) return view('home',['posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
@@ -75,13 +76,16 @@ class HomeController extends Controller
 		else return redirect('/create-post');
 	}
 
-	public function publishPost($postID)
+	public function publishPost($postID, $posted=null)
 	{
 		$user = Auth::user();
 		if( $user != null )
 		{
 			$socials = Social::get();
-			$post    = Post::where('user_id',$user->id)->where('id',$postID)->first();
+			if( isset($posted)&&$posted!=null&&$posted=="posted" )
+				$post = Posted::where('user_id',$user->id)->where('id',$postID)->first();
+			else
+				$post = Post::where('user_id',$user->id)->where('id',$postID)->first();
 			$userConnectedAccounts = Oauth::select('oauth.*')
 			                              ->leftJoin('users','users.id','=','oauth.user_id')
 			                              ->where('oauth.user_name',$user->name)
@@ -219,6 +223,13 @@ class HomeController extends Controller
 		return view('post',['post'=>$post, 'user'=>$user]);
 	}
 
+	public function editPosted($id)
+	{
+		$user = Auth::user();
+		$post = Posted::where('user_id',$user->id)->where('id',$id)->first();
+		return view('posted',['post'=>$post, 'user'=>$user]);
+	}
+
 	public function deletePostImage(Request $request)
 	{
 		$postImage = Post::where('id',$request->id)->update([ 'img' => '' ]);
@@ -235,18 +246,29 @@ class HomeController extends Controller
 		$title = $request->postTitle;
 		$content = $request->postContent;
 		$image = $request->image;
+		$default_img = $request->default_img;
 		if( !empty($title) ) {
 			if ( $image != null ) {
 				$filename = 'app/' . $image->store( $user['id'] );
 			} else {
-				$filename = null;
+				$filename = $default_img;
 			}
-			$post = Post::where('id',$id)
-						            ->update([
-							            'title'  => $title,
-							            'text'   => $content,
-							            'img'    => $filename,
-						            ]);
+			if( isset($request->posted) && $request->posted == 1 ){
+				$post = Posted::where('id',$id)
+				            ->update([
+					            'title'  => $title,
+					            'text'   => $content,
+					            'img'    => $filename,
+				            ]);
+			}else{
+				$post = Post::where('id',$id)
+				            ->update([
+					            'title'  => $title,
+					            'text'   => $content,
+					            'img'    => $filename,
+				            ]);
+			}
+
 			if( $post == 1 ){
 				if( isset($request->postImgOldUrl) ){
 					File::delete(storage_path($request->postImgOldUrl));

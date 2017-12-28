@@ -6,6 +6,8 @@ ul{
     list-style: none;
 }
 a{text-decoration: none;}
+.maxW200{max-width: 200px;}
+.fb200{flex-basis: 200px;}
 .w100{width: 100%}
 .fb100p{flex-basis: 100%;}
 .mCenter{margin: 0 auto}
@@ -185,6 +187,9 @@ header
     transition: all 0.5s;
 }
 .class-for-check-device-hover li a:hover:after{
+    width: 100%;
+}
+.class-for-check-device-hover li .activeMenu:after {
     width: 100%;
 }
 .sidebar .dashboard{

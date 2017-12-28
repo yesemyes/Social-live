@@ -34,8 +34,8 @@
 
     @foreach( $posts as $post )
     <div class="flex-container mt20 pl20 border_bottom block_posts">
-        <div class="flex-grow-1">
-            <p class="post_title_detalis">{{$post->title}}</p>
+        <div class="fb200">
+            <a href="{{ url('/edit-posted/'.$post->id) }}" class="post_title_detalis @if( mobile_user_agent_switch()!="iphone" ) class-for-check-device-hover @endif posRel">{{$post->title}}</a>
         </div>
         <div class="flex-grow-1 created">
             <p class="created">Created {{date('M d, Y', strtotime($post->updated_at))}}</p>
@@ -51,7 +51,7 @@
             <p class="success_text_green">Success</p>
         </div>
         <div class="share">
-            <a href="{{ url('/publish-post/'.$post->id) }}" class="share_text">SHARE</a>
+            <a href="{{ url('/publish-post/'.$post->id.'/posted') }}" class="share_text">SHARE</a>
         </div>
     </div>
     @endforeach

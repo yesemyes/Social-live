@@ -1,5 +1,5 @@
 <?php
-
+use OAuth\Common\Storage\Session;
 return [
 
 	/*
@@ -11,8 +11,8 @@ return [
 	/**
 	 * Storage
 	 */
-	'storage' => '\\OAuth\\Common\\Storage\\Session',
-
+	//'storage' => '\\OAuth\\Common\\Storage\\Session',
+	'storage' => new Session(),
 	/**
 	 * Consumers
 	 */
@@ -40,9 +40,8 @@ return [
 			// No scope - oauth1 doesn't need scope
 		],
 		'Linkedin' => [
-		    'client_id'     => '77bxo3m22s83c2', //  Ks0UKEgWWRW5xPRS
-		    'client_secret' => 'POVE4Giqvd4DlTnU',
-			 'scope'         => ['r_basicprofile', 'r_emailaddress', 'rw_company_admin', 'w_share'],
+		    'client_id'     => '77bxo3m22s83c2', //  77bxo3m22s83c2
+		    'client_secret' => 'POVE4Giqvd4DlTnU', // POVE4Giqvd4DlTnU
 		],
 		'Instagram' => [
 			'client_id'     => '7502c314346d4f2fac1d02cbe9074c71', //

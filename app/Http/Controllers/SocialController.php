@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-error_reporting(-1);
-ini_set("display_errors", 1);
-session_start();
+
 set_time_limit(0);
 date_default_timezone_set('UTC');
 require_once( base_path('socials/facebook/fbsdk/src/Facebook/autoload.php') );
@@ -12,10 +10,8 @@ require_once( base_path('socials/linkedin/LinkedIn/LinkedIn.php') );
 require_once( base_path('socials/reddit/reddit.php') );
 require_once( base_path('socials/pinterest/vendor/autoload.php') );
 require_once( base_path('socials/instagram/ins.php') );
-//require_once( base_path('socials/instagram/instagram_post.php') );
 require_once( base_path('socials/google/vendor/autoload.php') );
 require_once( base_path('vendor/msc/instaresize/src/Resize.php') );
-
 
 use MSC\Instaresize\Resize;
 
@@ -41,6 +37,8 @@ use Google_Client;
 use Google_Service_Plus;
 use Aws\S3\S3Client;
 
+use App\Posted;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class SocialController extends Controller
@@ -52,6 +50,13 @@ class SocialController extends Controller
 	public $reddit;
 	public $pin;
 
+	protected $userAuth;
+
+	public function __construct()
+	{
+		$this->userAuth = Auth::user();
+	}
+
 	public function facebook(Request $request)
 	{
 		$this->fb = new Facebook([
@@ -61,6 +66,7 @@ class SocialController extends Controller
 		]);
 		if( $request->img_upload_link != null ){
 			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
+			$img = $request->img_upload_link;
 			$linkData = [
 				'link' => $request->link,
 				'message' => $request->message,
@@ -69,6 +75,7 @@ class SocialController extends Controller
 		}
 		elseif($request->img_link != null){
 			$request->img_link = str_replace('https://', 'http://', $request->img_link );
+			$img = $request->img_link;
 			$linkData = [
 				'link' => $request->link,
 				'message' => $request->message,
@@ -76,6 +83,7 @@ class SocialController extends Controller
 			];
 		}
 		else{
+			$img = null;
 			$linkData = [
 				'link' => $request->link,
 				'message' => $request->message,
@@ -95,7 +103,15 @@ class SocialController extends Controller
 			exit;
 		}
 		$graphNode = $response->getGraphNode();
-		if( $graphNode != null ){
+		if( isset($graphNode["post_id"])&&$graphNode["post_id"]!=null ){
+			Posted::create([
+				'user_id'   => $this->userAuth['id'],
+				'provider'  => 'facebook',
+				'title'     => $request->message,
+				'text'      => $request->content_text,
+				'img'       => $img,
+				'link'      => $request->link,
+			]);
 			return response()->json(['result'=>'SUCCESS! your post in Facebook now shared']);
 		}else{
 			return response()->json(['result'=>'ERROR! Facebook share']);
@@ -115,7 +131,7 @@ class SocialController extends Controller
 
 		if($request->img_upload_link != null){
 			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
-
+			$img = $request->img_upload_link;
 			$file = file_get_contents($request->img_upload_link);
 
 			$data = base64_encode($file);
@@ -144,6 +160,7 @@ class SocialController extends Controller
 		}
 		elseif($request->img_link != null){
 			$request->img_link = str_replace('https://', 'http://', $request->img_link );
+			$img = $request->img_link;
 			$file = file_get_contents($request->img_link);
 			$data = base64_encode($file);
 			$url = "https://upload.twitter.com/1.1/media/upload.json";
@@ -172,6 +189,7 @@ class SocialController extends Controller
 		}
 		else{
 			$url = 'https://api.twitter.com/1.1/statuses/update.json';
+			$img = null;
 			$requestMethod = 'POST';
 			$postfields = array(
 				'status' => $request->message.' '.$request->link );
@@ -181,6 +199,14 @@ class SocialController extends Controller
 		}
 		$response = json_decode($response, true);
 		if( isset($response['id']) && $response['id'] != null ){
+			Posted::create([
+				'user_id'   => $this->userAuth['id'],
+				'provider'  => 'twitter',
+				'title'     => $request->message,
+				'text'      => $request->content_text,
+				'img'       => $img,
+				'link'      => $request->link,
+			]);
 			return response()->json(['result'=>'SUCCESS! your post in Twitter now shared']);
 		}elseif( isset($response['errors']) ){
 			return response()->json(['result'=>'ERROR! Twitter share']);
@@ -237,8 +263,6 @@ class SocialController extends Controller
 			);
 		}
 
-
-
 		$response = $this->li->post('people/~/shares?format=json', $postParams);
 
 		if( $response != null ){
@@ -246,21 +270,7 @@ class SocialController extends Controller
 		}else{
 			return response()->json(['result'=>'ERROR! Linkedin share']);
 		}
-
-		/*$this->li = new LinkedIn('77bxo3m22s83c2', 'POVE4Giqvd4DlTnU');
-		$this->li->setAccessToken($request->token_soc);
-		$options = array('json'=>
-			                 array(
-				                 'comment' => 'Im testing Happyr LinkedIn client! https://github.com/Happyr/LinkedIn-API-client',
-				                 'visibility' => array(
-					                 'code' => 'anyone'
-				                 )
-			                 )
-		);
-
-		$result = $this->li->post('people/~/shares', $options);
-		dd( $result );*/
-	}
+	} // not working invalid access token
 
 	public function reddit(Request $request)
 	{
@@ -494,7 +504,7 @@ class SocialController extends Controller
 			if( $request->img_upload_link != null ){
 				$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
 				$post_data = array("object" => array('originalContent'=> $request->message,'attachments'=>[
-					'image'=> array('url'=>$pathToFile),
+					'image'=> array('url'=>$pathToFile,'isDefault' => true),
 					'url'=> $request->link,
 					'objectType'=>'article']),
 				                   "access" => array("items" => array(array("type" => "domain")),
@@ -503,7 +513,7 @@ class SocialController extends Controller
 			}elseif( $request->img_link != null ){
 				$pathToFile = str_replace('https://', 'http://', $request->img_link );
 				$post_data = array("object" => array('originalContent'=> $request->message,'attachments'=>[
-																				'image'=> array('url'=>$pathToFile),
+																				'image'=> array('url'=>$pathToFile,'isDefault' => true),
 					                                             'url'=> $request->link,
 																				'objectType'=>'article']),
 																		"access" => array("items" => array(array("type" => "domain")),
@@ -523,7 +533,6 @@ class SocialController extends Controller
 			curl_setopt($ch, CURLOPT_URL, $url);
 			$file_result = curl_exec($ch);
 			curl_close($ch);
-			//dd($file_result);
 			if(isset($file_result)&&$file_result!=null){
 				return response()->json(['result'=>'SUCCESS! your post in Google Plus now shared']);
 			}else{

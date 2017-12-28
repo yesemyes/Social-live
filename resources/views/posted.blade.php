@@ -16,6 +16,7 @@
         <div class="col-md-12">
             <form action="{{ url('/editPostAction/'.$post['id']) }}" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
+                <input type="hidden" name="posted" value="1">
                 <input type="hidden" name="default_img" value="{{$post['img']}}">
                 <div class="flex-container mt20 pl20 create_post">
                     <div class="flex-grow-2">
@@ -33,11 +34,11 @@
                     <div class="flex-grow-1">
                         <label for="imgInp">Featured Image</label>
                         <p class="mt10">
-                            <img id="blah" src="@if($post['img']!=null){{ Storage::url($post['img']) }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
-                        </p>
+                            <img id="blah" src="@if($post['img']!=null){{ url($post['img']) }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
                         <p class="mt20">
                             <input type="file" id="imgInp" name="image" class="none">
                             <label class="choose_img" for="imgInp">Choose image</label>
+                        </p>
                         </p>
                     </div>
                 </div>

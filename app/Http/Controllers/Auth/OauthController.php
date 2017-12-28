@@ -165,35 +165,6 @@ class OauthController extends Controller
 		}
 	}
 
-	/*public function loginWithInstagram(Request $request)
-	{
-		$code = $request->get('code');
-		if( $this->userAuth == null ){
-			$user_id = $request->get('user_id');
-			$user_name = $request->get('user_name');
-			if( isset($user_id) ) Session::put('api_user_id', $user_id);
-			if( isset($user_name) ) Session::put('api_user_name', $user_name);
-		}
-		$instagramService = \OAuth::consumer('Instagram','https://ipisocial.iimagine.one/instagram/login');
-		if ( ! is_null($code))
-		{
-			$state = isset($_GET['state']) ? $_GET['state'] : null;
-			$token = $instagramService->requestAccessToken($code, $state);
-			$result = json_decode($instagramService->request('users/self'), true);
-			$result['access_token'] = $token->getAccessToken();
-			$result['access_token_secret'] = '';
-			$result['id'] = $result['data']['id'];
-			$result['first_name'] = $result['data']['username'];
-			$result['last_name'] = '';
-			if(isset($result['access_token'])) return $this->regApi($result,'instagram');
-		}
-		else
-		{
-			$url = $instagramService->getAuthorizationUri();
-			return redirect((string)$url);
-		}
-	}*/
-
 	public function loginWithInstagram(Request $request)
 	{
 		set_time_limit(0);
@@ -306,7 +277,6 @@ class OauthController extends Controller
 
 		if( isset($check_user_by_id) && $check_user_by_id != null ){
 			$check_oauth_by_userIdAndProvider = Oauth::leftJoin('users', 'oauth.user_id', '=', 'users.id')
-																	->leftJoin('oauth_items','oauth_items.oauth_id','=','oauth.id')
 			                                         ->where('oauth.user_id',$check_user_by_id->id)
 			                                         ->where('oauth.user_name',$user)
 			                                         ->where('oauth.provider',$provider)
