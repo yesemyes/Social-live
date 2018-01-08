@@ -48,7 +48,6 @@ class InstagramUpload
 	public function UploadPhoto($image, $caption){
 		$this->UploadPhotoApi($image);
 		$this->ConfigPhotoApi($caption);
-		//dd( $this->ConfigPhotoApi($caption) );
 	}
 	public function UploadVideo($video, $image, $caption){
 		$this->UploadVideoApi($video);

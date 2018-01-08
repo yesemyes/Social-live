@@ -473,6 +473,7 @@ class SocialController extends Controller
 			$new_resize_img = substr($new_, strrpos($new_, '/') + 1);
 			$path = substr($pathToFile, 0,strrpos($pathToFile, '/'));
 			$new_upload_pic =  $path."/".$new_resize_img;
+
 			$this->ins = new InstagramUpload();
 			$this->ins->Login($request->username, $request->password);
 			$this->ins->UploadPhoto("../".$new_upload_pic, $request->message);

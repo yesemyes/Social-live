@@ -31,7 +31,7 @@
     </div>
     @foreach( $posts as $post )
         <div class="flex-container mt20 pl20 border_bottom block_posts">
-            <div class="flex-grow-1">
+            <div class="fb200">
                 <a href="{{ url('/edit-post/'.$post->id) }}" class="post_title_detalis @if( mobile_user_agent_switch()!="iphone" ) class-for-check-device-hover @endif posRel">{{$post->title}}</a>
             </div>
             <div class="flex-grow-1 created">

@@ -34,7 +34,7 @@
                     <div class="flex-grow-1">
                         <label for="imgInp">Featured Image</label>
                         <p class="mt10">
-                            <img id="blah" src="@if($post['img']!=null){{ url($post['img']) }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
+                            <img id="blah" src="@if($post['img']!=null){{ $post['img'] }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
                         <p class="mt20">
                             <input type="file" id="imgInp" name="image" class="none">
                             <label class="choose_img" for="imgInp">Choose image</label>

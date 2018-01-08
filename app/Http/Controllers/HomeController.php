@@ -26,7 +26,7 @@ class HomeController extends Controller
 	public function index()
 	{
 		$user = Auth::user();
-		$posts = Posted::where('user_id',$user->id)->get();
+		$posts = Posted::where('user_id',$user->id)->orderBy('id','desc')->get();
 		if( count($posts) > 0 ) return view('home',['posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
@@ -71,7 +71,7 @@ class HomeController extends Controller
 		                              ->where('oauth.user_id',$user->id)
 		                              ->get()->keyBy('social_id');
 		$userConnectedAccountsCount = count($userConnectedAccounts);
-		$posts = Post::where('user_id',$user->id)->get();
+		$posts = Post::where('user_id',$user->id)->orderBy('id','desc')->get();
 		if( count($posts) > 0 ) return view('posts',['userConnectedAccountsCount'=>$userConnectedAccountsCount,'posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
@@ -145,10 +145,11 @@ class HomeController extends Controller
 			$connected 	= $request->connected;
 			$check_connected_instagram = array_search('instagram', $connected);
 
-			if( $check_connected_instagram != false ) $request->img_link_ins = $request->postImage;
-
 			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
 			else $request->img_link = null;
+
+			if( $check_connected_instagram != false || $check_connected_instagram == 0 ) $request->img_link_ins = $request->postImage;
+			else $request->img_link_ins = null;
 
 			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
 			else $request->boards = null;
@@ -203,11 +204,11 @@ class HomeController extends Controller
 					$img_ins = Storage::url($filename);
 					$request->img_upload_link  = $img;
 					$request->img_upload_link_ins  = $img_ins;
+
 				}else {
 					$request->img_upload_link = null;
 					$request->img_upload_link_ins = null;
 				}
-
 				$socials = $socialClass->$item($request);
 				$res = $socials->getData('result')['result'];
 				array_push($suc_mes,$res);
