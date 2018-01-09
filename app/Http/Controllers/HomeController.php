@@ -128,6 +128,7 @@ class HomeController extends Controller
 				'userAccounts' => $userAccounts,
             'user'         => $user,
 				'post'         => $post,
+				'posted'       => $posted,
 				'subreddits'   => $subreddits,
 				'boards'       => $boards,
 				'userConnectedAccountsCount' => $userConnectedAccountsCount
@@ -221,14 +222,16 @@ class HomeController extends Controller
 	{
 		$user = Auth::user();
 		$post = Post::where('user_id',$user->id)->where('id',$id)->first();
-		return view('post',['post'=>$post, 'user'=>$user]);
+		if($post!=null) return view('post',['post'=>$post, 'user'=>$user]);
+		else return redirect('/posts');
 	}
 
 	public function editPosted($id)
 	{
 		$user = Auth::user();
 		$post = Posted::where('user_id',$user->id)->where('id',$id)->first();
-		return view('posted',['post'=>$post, 'user'=>$user]);
+		if($post!=null) return view('posted',['post'=>$post, 'user'=>$user]);
+		else return redirect('/');
 	}
 
 	public function deletePostImage(Request $request)
@@ -286,14 +289,67 @@ class HomeController extends Controller
 		}
 	}
 
-	public function deletePost($id)
+	public function deletePost($id, Request $request)
 	{
-		$post = Post::where('id',$id)->first();
+		if(isset($request->post) && ($request->post==1 || $request->post==2) )
+		{
+			if($request->post==2)
+			{
+				$post = Post::where('id',$id)->first();
+				$userID = $post->user_id;
+				if( $post->img != null ){
+					File::delete(storage_path($post->img));
+					$del_post = Post::where('id',$id)->delete();
+					$posts = Post::where('user_id',$userID)->get();
+					if(count($posts) == 0){
+						File::deleteDirectory(storage_path('/app/'.$userID));
+					}else{
+						foreach ($posts as $item){
+							if($item['img'] == null){
+								File::deleteDirectory(storage_path('/app/'.$userID));
+							}
+						}
+					}
+				}else $del_post = Post::where('id',$id)->delete();
+
+				if( $del_post == 1 ) return 'success';
+				else return 'faild';
+			}
+			elseif ($request->post==1)
+			{
+				$post = Posted::where('id',$id)->first();
+				/*
+				$userID = $post->user_id;
+				if( $post->img != null ){
+					File::delete(storage_path($post->img));
+					$del_post = Posted::where('id',$id)->delete();
+					$posts = Posted::where('user_id',$userID)->get();
+					if(count($posts) == 0){
+						File::deleteDirectory(storage_path('/app/'.$userID));
+					}else{
+						foreach ($posts as $item){
+							if($item['img'] == null){
+								File::deleteDirectory(storage_path('/app/'.$userID));
+							}
+						}
+					}
+				}else */
+				$del_post = Posted::where('id',$id)->delete();
+
+				if( $del_post == 1 ) return 'success';
+				else return 'faild';
+			}
+		}
+	}
+
+	public function deletePosted($id)
+	{
+		$post = Posted::where('id',$id)->first();
 		$userID = $post->user_id;
 		if( $post->img != null ){
 			File::delete(storage_path($post->img));
-			$del_post = Post::where('id',$id)->delete();
-			$posts = Post::where('user_id',$userID)->get();
+			$del_post = Posted::where('id',$id)->delete();
+			$posts = Posted::where('user_id',$userID)->get();
 			if(count($posts) == 0){
 				File::deleteDirectory(storage_path('/app/'.$userID));
 			}else{
@@ -303,7 +359,7 @@ class HomeController extends Controller
 					}
 				}
 			}
-		}else $del_post = Post::where('id',$id)->delete();
+		}else $del_post = Posted::where('id',$id)->delete();
 
 		if( $del_post == 1 ) return 'success';
 		else return 'faild';

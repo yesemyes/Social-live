@@ -31,7 +31,7 @@
     </div>
     @foreach( $posts as $post )
         <div class="flex-container mt20 pl20 border_bottom block_posts">
-            <div class="fb200">
+            <div class="fb200 flex-grow-1">
                 <a href="{{ url('/edit-post/'.$post->id) }}" class="post_title_detalis @if( mobile_user_agent_switch()!="iphone" ) class-for-check-device-hover @endif posRel">{{$post->title}}</a>
             </div>
             <div class="flex-grow-1 created">
@@ -40,7 +40,7 @@
             <div class="flex-grow-1 created_time">
                 <p class="time">{{date('H:i a', strtotime($post->updated_at))}}</p>
             </div>
-            <div class="flex-grow-1">
+            <div class="flex-grow-1 created_user">
                 <p class="name">{{ $user->name }}</p>
             </div>
             <div class="success">

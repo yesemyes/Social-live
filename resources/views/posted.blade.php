@@ -4,19 +4,20 @@
 @endsection
 @section('page-content')
 
-    <p class="border_bottom">Author {{ $user->name }} | published on: {{ $post->updated_at }}</p>
+    <p class="border_bottom">Author {{$user->name}} | published on: {{$post->updated_at}} - {{$post->provider}}</p>
 
     @if( Session::has('message_success') )
-        <p class="msg_success">{{ Session::get('message_success') }}</p>
+        <p class="msg_success">{{Session::get('message_success')}}</p>
     @elseif( Session::has('message_error') )
-        <p class="msg_error">{{ Session::get('message_error') }}</p>
+        <p class="msg_error">{{Session::get('message_error')}}</p>
     @endif
 
     <div class="row">
         <div class="col-md-12">
             <form action="{{ url('/editPostAction/'.$post['id']) }}" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
-                <input type="hidden" name="posted" value="1">
+                <input type="hidden" id="post" name="posted" value="1">
+                <input type="hidden" id="post_id" value="{{$post['id']}}">
                 <input type="hidden" name="default_img" value="{{$post['img']}}">
                 <div class="flex-container mt20 pl20 create_post">
                     <div class="flex-grow-2">
@@ -30,15 +31,16 @@
                         </p>
                         {{--<button class="save_draft">Save Draft</button>--}}
                         <button class="publish_button">Update</button>
+                        <button id="delete_post" class="delete_button">Delete</button>
                     </div>
                     <div class="flex-grow-1">
                         <label for="imgInp">Featured Image</label>
                         <p class="mt10">
-                            <img id="blah" src="@if($post['img']!=null){{ $post['img'] }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
+                            <img id="blah" src="@if($post['img']!=null){{ Storage::url($post['img']) }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
+                        </p>
                         <p class="mt20">
                             <input type="file" id="imgInp" name="image" class="none">
                             <label class="choose_img" for="imgInp">Choose image</label>
-                        </p>
                         </p>
                     </div>
                 </div>

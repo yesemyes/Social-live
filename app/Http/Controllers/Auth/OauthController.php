@@ -167,16 +167,24 @@ class OauthController extends Controller
 
 	public function loginWithInstagram(Request $request)
 	{
+		$data = array();
+		$data['pass'] = $request->password;
+		$pass = json_encode($data);
+		$encoded = $this->sonEncode($pass);
+		$decoded = $this->sonDecode($encoded);
+		$decoded = explode(":",$decoded);
+		$decoded = explode('"',$decoded[1]);
+		$password = $decoded[1];
 		set_time_limit(0);
 		date_default_timezone_set('UTC');
 
 		$obj = new InstagramUpload();
-		$obj->Login($request->username, $request->password);
+		$obj->Login($request->username, $password);
 
 		if(isset($obj->upload_id) && $obj->upload_id!=null)
 		{
 			$result['id'] = $obj->uid;
-			$result['access_token'] = $request->password;
+			$result['access_token'] = $encoded;
 			$result['access_token_secret'] = '';
 			$result['first_name'] = $request->username;
 			$result['last_name'] = '';
@@ -184,6 +192,22 @@ class OauthController extends Controller
 		}else{
 			print_r($obj);
 		}
+	}
+
+	public function sonKey()
+	{
+		return "~b9TLrFAeY@#$%^&";
+	}
+	public function sonEncode($str)
+	{
+		$key = $this->sonKey();
+		return strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($key), $str, MCRYPT_MODE_CBC, md5(md5($key)))), '+/=', '-_~');
+
+	}
+	public function sonDecode($encoded)
+	{
+		$key = $this->sonKey();
+		return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($key), base64_decode(strtr($encoded, '-_~', '+/=')), MCRYPT_MODE_CBC, md5(md5($key))), "");
 	}
 
 	public function loginWithReddit(Request $request)

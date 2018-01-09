@@ -8,6 +8,7 @@ ul{
 a{text-decoration: none;}
 .maxW200{max-width: 200px;}
 .fb200{flex-basis: 200px;}
+.fb300{flex-basis: 300px;}
 .w100{width: 100%}
 .fb100p{flex-basis: 100%;}
 .mCenter{margin: 0 auto}
@@ -382,6 +383,16 @@ header
     border-radius: 4px;
     padding: 5px 10px;
 }
+.delete_button{
+    margin-top: 10px;
+    border: none;
+    background: #FA2300;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
 .save_draft:hover{
     background: #0070FA;
     color: #fff;
@@ -476,11 +487,14 @@ header
     /* -webkit-user-select: none;
       user-select: none; */
 }
-
+#remember{
+    cursor: pointer;
+}
 .login-submit {
     /* border: 1px solid #3079ed; */
     border: 0px;
     color: #fff;
+    cursor: pointer;
     text-shadow: 0 1px rgba(0,0,0,0.1);
     background-color: #4d90fe;
     /* background-image: -webkit-gradient(linear, 0 0, 0 100%,   from(#4d90fe), to(#4787ed)); */
@@ -742,7 +756,7 @@ i.fa.fa-sign-out.fa-3 {
     .soc-info-wrap{flex-basis: 80%}
 
     .all_post_title,.block_posts{padding: 0}
-    .status,.success,.created_time,.created{display: none}
+    .status,.success,.created_time,.created,.created_user{display: none}
     .name{text-align: right}
     .share,.action{text-align: center}
     .create_post{

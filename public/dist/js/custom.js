@@ -265,6 +265,66 @@ jQuery(document).ready(function($)
             return false;
         }
     });
+
+    $(document).on("click","#delete_posted",function(e)
+    {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        e.preventDefault();
+        var post_id = $("#post_id").val();
+        var post = $("#post").val();
+        $.ajax({
+            url: '/deletePosted/'+post_id,
+            type: 'POST',
+            data: {
+                "id": post_id,
+                "post": post,
+            },
+            success: function( msg ) {
+                if(msg === "success" ){
+                    location.reload();
+                }else{
+                    console.log('error');
+                }
+            },
+            error: function( data ) {
+                console.log(data);
+            }
+        });
+    });
+
+    $(document).on("click","#delete_post",function(e)
+    {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        e.preventDefault();
+        var post_id = $("#post_id").val();
+        var post = $("#post").val();
+        $.ajax({
+            url: '/deletePost/'+post_id,
+            type: 'POST',
+            data: {
+                "id": post_id,
+                "post": post,
+            },
+            success: function( msg ) {
+                if(msg === "success" ){
+                    location.reload();
+                }else{
+                    console.log('error');
+                }
+            },
+            error: function( data ) {
+                console.log(data);
+            }
+        });
+    });
 });
 
 

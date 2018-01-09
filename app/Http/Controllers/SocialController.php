@@ -22,7 +22,7 @@ use Facebook\Exceptions\FacebookSDKException;
 use TwitterAPIExchange;
 
 use LinkedIn\LinkedIn;
-
+use App\Http\Controllers\Auth\OauthController as Oa;
 use reddit;
 
 use InstagramUpload;
@@ -104,6 +104,10 @@ class SocialController extends Controller
 		}
 		$graphNode = $response->getGraphNode();
 		if( isset($graphNode["post_id"])&&$graphNode["post_id"]!=null ){
+			if($img!=null){
+				$img = explode("/",$img);
+				$img = $img[4].'/'.$img[5].'/'.$img[6];
+			}
 			Posted::create([
 				'user_id'   => $this->userAuth['id'],
 				'provider'  => 'facebook',
@@ -199,6 +203,10 @@ class SocialController extends Controller
 		}
 		$response = json_decode($response, true);
 		if( isset($response['id']) && $response['id'] != null ){
+			if($img!=null){
+				$img = explode("/",$img);
+				$img = $img[4].'/'.$img[5].'/'.$img[6];
+			}
 			Posted::create([
 				'user_id'   => $this->userAuth['id'],
 				'provider'  => 'twitter',
@@ -274,6 +282,17 @@ class SocialController extends Controller
 
 	public function reddit(Request $request)
 	{
+		if($request->img_upload_link != null) {
+			$request->img_upload_link = str_replace( 'https://', 'http://', $request->img_upload_link );
+			$img                      = $request->img_upload_link;
+		}
+		elseif($request->img_link != null) {
+			$request->img_link = str_replace( 'https://', 'http://', $request->img_link );
+			$img               = $request->img_link;
+		}
+		else{
+			$img = null;
+		}
 		$title = $request->message;
 		$link = $request->link;
 		$subreddit = $request->subreddits;
@@ -317,7 +336,21 @@ class SocialController extends Controller
 		}
 		curl_close($ch);
 		if( isset($response->success) && $response->success == false ) return response()->json(['result'=>'ERROR!']);
-		else return response()->json(['result'=>'SUCCESS! your post in Reddit now shared']);
+		else {
+			if($img!=null){
+				$img = explode("/",$img);
+				$img = $img[4].'/'.$img[5].'/'.$img[6];
+			}
+			Posted::create([
+				'user_id'   => $this->userAuth['id'],
+				'provider'  => 'reddit',
+				'title'     => $request->message,
+				'text'      => $request->content_text,
+				'img'       => $img,
+				'link'      => $request->link,
+			]);
+			return response()->json(['result'=>'SUCCESS! your post in Reddit now shared']);
+		}
 	}
 
 	public function get_subreddits(Request $request)
@@ -418,6 +451,16 @@ class SocialController extends Controller
 		if ($response->ok()) {
 			$pin = $response->result(); // $pin instanceof Objects\Pin
 			if($pin != null){
+				$img = explode("/",$pathToFile);
+				$img = $img[4].'/'.$img[5].'/'.$img[6];
+				Posted::create([
+					'user_id'   => $this->userAuth['id'],
+					'provider'  => 'pinterest',
+					'title'     => $request->message,
+					'text'      => $request->content_text,
+					'img'       => $img,
+					'link'      => $request->link,
+				]);
 				return response()->json(['result'=>'SUCCESS! your post in Pinterest now shared']);
 			}else{
 				return response()->json(['result'=>'ERROR! Pinterest share']);
@@ -467,20 +510,37 @@ class SocialController extends Controller
 		else{
 			$pathToFile = null;
 		}
-		if( $pathToFile != null ){
+		if( $pathToFile != null )
+		{
 			$resize = new Resize();
 			$new_ = $resize->check(base_path(substr($pathToFile, 1)));
 			$new_resize_img = substr($new_, strrpos($new_, '/') + 1);
 			$path = substr($pathToFile, 0,strrpos($pathToFile, '/'));
 			$new_upload_pic =  $path."/".$new_resize_img;
 
+			$oa = new Oa;
+			$encoded = $oa->sonDecode($request->password);
+			$encoded = explode(":",$encoded);
+			$encoded = explode('"',$encoded[1]);
+			$password = $encoded[1];
 			$this->ins = new InstagramUpload();
-			$this->ins->Login($request->username, $request->password);
+			$this->ins->Login($request->username, $password);
 			$this->ins->UploadPhoto("../".$new_upload_pic, $request->message);
 
 			if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null){
-				if( $this->ins->ConfigPhotoApi($request->message) == true )
+				if( $this->ins->ConfigPhotoApi($request->message) == true ){
+					$img = explode("/",$new_upload_pic);
+					$img = $img[2].'/'.$img[3].'/'.$img[4];
+					Posted::create([
+						'user_id'   => $this->userAuth['id'],
+						'provider'  => 'instagram',
+						'title'     => $request->message,
+						'text'      => $request->content_text,
+						'img'       => $img,
+						'link'      => $request->link,
+					]);
 					return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
+				}
 				else
 					return response()->json(['result'=>'ERROR! Uploaded image into instagram isn\'t in the right format']);
 

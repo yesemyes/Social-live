@@ -16,7 +16,9 @@
         <div class="col-md-12">
             <form action="{{ url('/editPostAction/'.$post['id']) }}" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
+                <input type="hidden" id="post" name="posted" value="2">
                 <input type="hidden" name="default_img" value="{{$post['img']}}">
+                <input type="hidden" id="post_id" value="{{$post['id']}}">
                 <div class="flex-container mt20 pl20 create_post">
                     <div class="flex-grow-2">
                         <label for="postTitle">Post Title</label>
@@ -29,6 +31,7 @@
                         </p>
                         {{--<button class="save_draft">Save Draft</button>--}}
                         <button class="publish_button">Update</button>
+                        <button id="delete_post" class="delete_button">Delete</button>
                     </div>
                     <div class="flex-grow-1">
                         <label for="imgInp">Featured Image</label>

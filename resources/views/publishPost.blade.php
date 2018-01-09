@@ -67,6 +67,7 @@
             </div>
         </div>
         <div class="flex-container-wrap space-between">
+
             @if( $post['img'] != null )
                 <input type="hidden" name="postImage" value="{{ Storage::url($post['img']) }}">
             @endif
