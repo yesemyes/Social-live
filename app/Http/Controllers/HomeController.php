@@ -26,7 +26,11 @@ class HomeController extends Controller
 	public function index()
 	{
 		$user = Auth::user();
-		$posts = Posted::where('user_id',$user->id)->orderBy('id','desc')->get();
+		$posts = Posted::select("social.icon","posted.*")
+		               ->leftJoin('social','social.provider','=','posted.provider')
+		               ->where('posted.user_id',$user->id)
+		               ->orderBy('posted.id','desc')
+		               ->get();
 		if( count($posts) > 0 ) return view('home',['posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
@@ -38,6 +42,9 @@ class HomeController extends Controller
 
 	public function createPostAction(Request $request)
 	{
+		$status = 0;
+		if(isset($request->publish)) $status = 1;
+		elseif(isset($request->draft)) $status = 0;
 		$user = Auth::user();
 		$title = $request->postTitle;
 		$content = $request->postContent;
@@ -53,6 +60,7 @@ class HomeController extends Controller
 				'title'  => $title,
 				'text'   => $content,
 				'img'    => $filename,
+				'status' => $status,
 			]);
 			Session::flash('message_success', 'Success! your post created');
 			return redirect('/posts');
@@ -85,7 +93,11 @@ class HomeController extends Controller
 			if( isset($posted)&&$posted!=null&&$posted=="posted" )
 				$post = Posted::where('user_id',$user->id)->where('id',$postID)->first();
 			else
-				$post = Post::where('user_id',$user->id)->where('id',$postID)->first();
+				$post = Post::where('user_id',$user->id)->where('id',$postID)->where('status',1)->first();
+			if($post==null){
+				Session::flash('message_error', 'Warning! your post not published');
+				return redirect('/edit-post/'.$postID);
+			}
 			$userConnectedAccounts = Oauth::select('oauth.*')
 			                              ->leftJoin('users','users.id','=','oauth.user_id')
 			                              ->where('oauth.user_name',$user->name)
@@ -229,7 +241,11 @@ class HomeController extends Controller
 	public function editPosted($id)
 	{
 		$user = Auth::user();
-		$post = Posted::where('user_id',$user->id)->where('id',$id)->first();
+		$post = Posted::select("social.icon","posted.*")
+						->leftJoin('social','social.provider','=','posted.provider')
+						->where('posted.user_id',$user->id)
+						->where('posted.id',$id)
+						->first();
 		if($post!=null) return view('posted',['post'=>$post, 'user'=>$user]);
 		else return redirect('/');
 	}
@@ -246,6 +262,9 @@ class HomeController extends Controller
 
 	public function editPostAction($id, Request $request)
 	{
+		if(isset($request->publish)) $status = 1;
+		elseif(isset($request->draft)) $status = 0;
+		else $status = null;
 		$user = Auth::user();
 		$title = $request->postTitle;
 		$content = $request->postContent;
@@ -265,26 +284,29 @@ class HomeController extends Controller
 					            'img'    => $filename,
 				            ]);
 			}else{
-				$post = Post::where('id',$id)
-				            ->update([
-					            'title'  => $title,
-					            'text'   => $content,
-					            'img'    => $filename,
-				            ]);
+				if($status==1 || $status==0){
+					$post = Post::where('id',$id)
+					            ->update([
+						            'title'  => $title,
+						            'text'   => $content,
+						            'img'    => $filename,
+						            'status' => $status,
+					            ]);
+				}
 			}
 
 			if( $post == 1 ){
 				if( isset($request->postImgOldUrl) ){
 					File::delete(storage_path($request->postImgOldUrl));
 				}
-				Session::flash('message', 'Success! your post updated');
+				Session::flash('message_success', 'Success! your post updated');
 				return redirect()->back();
 			}else{
-				Session::flash('message', 'Warning! your post not updated');
+				Session::flash('message_error', 'Warning! your post not updated');
 				return redirect()->back();
 			}
 		}else{
-			Session::flash('message', 'Warning! your post not updated');
+			Session::flash('message_error', 'Warning! your post not updated');
 			return redirect()->back();
 		}
 	}
@@ -340,29 +362,6 @@ class HomeController extends Controller
 				else return 'faild';
 			}
 		}
-	}
-
-	public function deletePosted($id)
-	{
-		$post = Posted::where('id',$id)->first();
-		$userID = $post->user_id;
-		if( $post->img != null ){
-			File::delete(storage_path($post->img));
-			$del_post = Posted::where('id',$id)->delete();
-			$posts = Posted::where('user_id',$userID)->get();
-			if(count($posts) == 0){
-				File::deleteDirectory(storage_path('/app/'.$userID));
-			}else{
-				foreach ($posts as $item){
-					if($item['img'] == null){
-						File::deleteDirectory(storage_path('/app/'.$userID));
-					}
-				}
-			}
-		}else $del_post = Posted::where('id',$id)->delete();
-
-		if( $del_post == 1 ) return 'success';
-		else return 'faild';
 	}
 
 	public function network()

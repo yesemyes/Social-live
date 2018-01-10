@@ -22,7 +22,7 @@
         <div class="flex-grow-1">
             <p class="tUppercase">title</p>
         </div>
-        <div class="status">
+        <div class="status fb150">
             <p class="tUppercase">status</p>
         </div>
         <div class="action">
@@ -43,34 +43,17 @@
             <div class="flex-grow-1 created_user">
                 <p class="name">{{ $user->name }}</p>
             </div>
-            <div class="success">
+            <div class="success fb150">
                 <span class="circle-blue"></span>
-                <p class="success_text_blue">Published</p>
+                <p class="success_text_blue">@if($post->status==1) Published @else Draft @endif</p>
             </div>
             <div class="share">
-                <a href="@if($userConnectedAccountsCount != 0) {{ url('/publish-post/'.$post->id) }} @else # @endif" class="share_text">SHARE</a>
+                @if($post->status==1)
+                    <a href="@if($userConnectedAccountsCount != 0) {{ url('/publish-post/'.$post->id) }} @else # @endif" class="share_text">SHARE</a>
+                @else
+                    <a href="{{ url('/edit-post/'.$post->id) }}" class="share_text">Publish</a>
+                @endif
             </div>
         </div>
     @endforeach
-
-    {{--<div class="row">
-        <div class="col-md-12">
-            <ul class="posts">
-                @foreach( $posts as $post )
-                <li class="post_{{ $post->id }}">
-                    <i class="fa fa-times del-post" data-del-post-id="{{ $post->id }}" aria-hidden="true"></i>
-                    <div class="tbCell">
-                        <strong>
-                            <a href="{{ url('/edit-post/'.$post->id) }}" class="postTitle">{{ $post->title }}</a>
-                        </strong>
-                        <span class="pull-right shareBtn">
-                            <a class="btn btn-success btn-sm" href="{{ url('/publish-post/'.$post->id) }}">Share on Social Media</a>
-                        </span>
-                        <p class="info hidden-xs">#{{ $post->id }} | Author {{ $user->name }} | published on blog: {{ $post->updated_at }}</p>
-                    </div>
-                </li>
-                    @endforeach
-            </ul>
-        </div>
-    </div>--}}
 @endsection

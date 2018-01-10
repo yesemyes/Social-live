@@ -8,7 +8,7 @@ ul{
 a{text-decoration: none;}
 .maxW200{max-width: 200px;}
 .fb200{flex-basis: 200px;}
-.fb300{flex-basis: 300px;}
+.fb150{flex-basis: 150px;}
 .w100{width: 100%}
 .fb100p{flex-basis: 100%;}
 .mCenter{margin: 0 auto}
@@ -29,6 +29,7 @@ a{text-decoration: none;}
 .dIBlock{display: inline-block}
 .dFIBlock{display: inline-flex;}
 .posRel{position: relative;}
+.t5{top:5px;}
 .none{display: none}
 .VAT{vertical-align: top;}
 .f16{font-size: 16px}
@@ -41,6 +42,7 @@ a{text-decoration: none;}
 .f16pt{font-size: 16pt;}
 .tUppercase{text-transform: uppercase;}
 .block-content{padding: 10px;}
+.f2em{font-size: 2em !important;}
 .f3em{font-size: 3em !important;}
 .msg_success{
     padding: 10px;
@@ -254,8 +256,11 @@ header
 .post_title_detalis{
     color: #414141;
 }
-.success,.share,.status,.action{
+.share,.action{
     flex-basis: 110px;
+}
+.actions{
+    width: calc(90% + 20px);
 }
 .success_share_status{
     padding: 10px;
@@ -318,7 +323,8 @@ header
     color:#3F932C;
     font-size: 11pt;
     font-weight: bold;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
 }
 .success_text_blue{
     color:#0A8FE0;
@@ -392,6 +398,7 @@ header
     cursor: pointer;
     border-radius: 4px;
     padding: 5px 10px;
+    margin-left: auto;
 }
 .save_draft:hover{
     background: #0070FA;

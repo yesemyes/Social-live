@@ -33,7 +33,6 @@ Route::post('/image/delete/{id}',   'HomeController@deletePostImage');
 Route::post('/editPostAction/{id}', 'HomeController@editPostAction');
 Route::post('/publish-post',        'HomeController@publishPostsAction');
 Route::post('/deletePost/{id?}',    'HomeController@deletePost');
-Route::post('/deletePosted',        'HomeController@deletePosted');
 Route::post('/account/delete/{id}', 'Auth\OauthController@destroy');
 //Route::post('/account/update/{id}', 'HomeController@accountUpdate');
 //Route::get('check/email/{id}/{url}', 'Auth\OauthController@checkEmail');

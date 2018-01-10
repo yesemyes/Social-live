@@ -24,7 +24,7 @@
         <div class="flex-grow-1">
             <p class="tUppercase">title</p>
         </div>
-        <div class="status">
+        <div class="status fb150">
             <p class="tUppercase">status</p>
         </div>
         <div class="action">
@@ -37,8 +37,8 @@
         <div class="fb200 flex-grow-1">
             <a href="{{ url('/edit-posted/'.$post->id) }}" class="post_title_detalis @if( mobile_user_agent_switch()!="iphone" ) class-for-check-device-hover @endif posRel">{{$post->title}}</a>
         </div>
-        <div class="fb300 created">
-            <p class="created">Shared {{date('M d, Y', strtotime($post->updated_at))}} - {{$post->provider}}</p>
+        <div class="created">
+            <p class="created">Shared {{date('M d, Y', strtotime($post->updated_at))}}</p>
         </div>
         <div class="flex-grow-1 created_time">
             <p class="time">{{date('H:i a', strtotime($post->updated_at))}}</p>
@@ -46,16 +46,24 @@
         <div class="flex-grow-1 created_user">
             <p class="name">{{ $user->name }}</p>
         </div>
-        <div class="success">
+        <div class="success fb150">
             <span class="circle-green"></span>
-            <p class="success_text_green">Success</p>
+            <p class="success_text_green">Success
+                @if($post->provider == 'instagram')
+                    <i class="ml5 f2em fa fa-{{$post->provider}}" aria-hidden="true" style="color: {{$post->icon}}"></i>
+                @elseif($post->provider == 'facebook')
+                    <i class="ml5 f2em fa fa-{{$post->provider}}-official" aria-hidden="true" style="color: {{$post->icon}}"></i>
+                @elseif($post->provider == 'google')
+                    <i class="ml5 f2em fa fa-{{$post->provider}}-plus-square" aria-hidden="true" style="color: {{$post->icon}}"></i>
+                @else
+                    <i class="ml5 f2em fa fa-{{$post->provider}}-square" aria-hidden="true" style="color: {{$post->icon}}"></i>
+                @endif
+            </p>
         </div>
         <div class="share">
             <a href="{{ url('/publish-post/'.$post->id.'/posted') }}" class="share_text">SHARE</a>
         </div>
     </div>
     @endforeach
-
-
 @endsection
 

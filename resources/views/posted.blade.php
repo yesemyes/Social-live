@@ -4,7 +4,17 @@
 @endsection
 @section('page-content')
 
-    <p class="border_bottom">Author {{$user->name}} | published on: {{$post->updated_at}} - {{$post->provider}}</p>
+    <p class="border_bottom">Author {{$user->name}} | published on: {{$post->updated_at}}
+        @if($post->provider == 'instagram')
+            <i class="f2em posRel t5 fa fa-{{$post->provider}}" aria-hidden="true" style="color: {{$post->icon}}"></i>
+        @elseif($post->provider == 'facebook')
+            <i class="f2em posRel t5 fa fa-{{$post->provider}}-official" aria-hidden="true" style="color: {{$post->icon}}"></i>
+        @elseif($post->provider == 'google')
+            <i class="f2em posRel t5 fa fa-{{$post->provider}}-plus-square" aria-hidden="true" style="color: {{$post->icon}}"></i>
+        @else
+            <i class="f2em posRel t5 fa fa-{{$post->provider}}-square" aria-hidden="true" style="color: {{$post->icon}}"></i>
+        @endif
+    </p>
 
     @if( Session::has('message_success') )
         <p class="msg_success">{{Session::get('message_success')}}</p>

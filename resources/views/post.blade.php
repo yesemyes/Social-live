@@ -4,7 +4,7 @@
 @endsection
 @section('page-content')
 
-    <p class="border_bottom">Author {{ $user->name }} | published on: {{ $post->updated_at }}</p>
+    <p class="border_bottom">Author {{ $user->name }} | @if($post['status']==1) published on:@else drafted on: @endif {{ $post->updated_at }}</p>
 
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
@@ -29,9 +29,15 @@
                         <p class="postContentWrapper">
                             <textarea name="postContent" id="postContent" class="postContent" rows="10" required="required" placeholder="Content Goes Here">{{$post['text']}}</textarea>
                         </p>
-                        {{--<button class="save_draft">Save Draft</button>--}}
-                        <button class="publish_button">Update</button>
-                        <button id="delete_post" class="delete_button">Delete</button>
+                        <div class="actions flex-container">
+                            @if($post['status']==1)
+                                <button name="draft" class="save_draft">Save Draft</button>
+                            @else
+                                <button name="publish" class="save_draft">Publish</button>
+                            @endif
+                            <button class="publish_button">Update</button>
+                            <button id="delete_post" class="delete_button">Delete</button>
+                        </div>
                     </div>
                     <div class="flex-grow-1">
                         <label for="imgInp">Featured Image</label>

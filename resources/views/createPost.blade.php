@@ -31,8 +31,8 @@
                 <p class="postTitleWrapper"><input type="text" id="postTitle" required="required" name="postTitle" class="postTitle" placeholder="Title"></p>
                 <label for="postContent">Post Content</label>
                 <p class="postContentWrapper"><textarea name="postContent" id="postContent" class="postContent" rows="10" required="required" placeholder="Content Goes Here"></textarea></p>
-                <button class="save_draft">Save Draft</button>
-                <button class="publish_button">Publish</button>
+                <button name="draft" class="save_draft">Save Draft</button>
+                <button name="publish" class="publish_button">Publish</button>
             </div>
             <div class="flex-grow-1">
                 <label for="imgInp">Featured Image</label>
