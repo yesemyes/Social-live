@@ -24,7 +24,7 @@
             <div class="f16 share_posts_header_left"><b>PUBLISH POST(s)</b></div>
             <div class="share_posts_header_right flex-container-wrap space-between">
 
-                <div class="dIBlock top_social_button mAuto">
+                <div class="dIBlock top_social_button mLAuto">
                     <span class="mr10 f12pt">Share to this accounts</span>
                     <div class="social_icons_size dIBlock">
                         @foreach($userAccounts as $key => $value)
@@ -60,8 +60,9 @@
                     </div>
                 </div>
                 @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount > 0 )
-                <div class="mAuto top_share_button">
+                <div class="mLAuto mt10 top_share_button">
                     <button class="share_button_color"><i class="fa fa-share-alt" aria-hidden="true"></i> <b>SHARE NOW</b></button>
+                    <button class="schedule_button_color" id="myBtn_schedule"><i class="fa fa-clock-o" aria-hidden="true"></i> <b>SCHEDULED</b></button>
                 </div>
                 @endif
             </div>
@@ -174,5 +175,69 @@
             <div class="ins-error"></div>
         </div>
     </div>
+    <div id="myModalSchedule" class="modal_schedule">
+        <div class="modal-content-schedule">
+            <div class="schedule-header">
+                <span class="close_schedule">&times;</span>
+                <h3 class="f14px">Schedule Post</h3>
+            </div>
+            <div class="schedule-content">
+                <div class="f14px">Select a date and time in the future for when you want your post to publish.</div>
+                <div class="flex-container mt10">
+                    <div class='input-group date datetimepicker1 maxW200'>
+                        <input type='text' id="calendar" />
+                        <span class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                        </span>
+                    </div>
+                    <div class='input-group date datetimepicker2 maxW200 mLAuto'>
+                        <input type='text' id="time" />
+                        <span class="input-group-addon">
+                            <span class="fa fa-clock-o"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="schedule-footer flex-container">
+                <div class="mLAuto">
+                    <button class="disable_schedule">Cancel</button>
+                    <button class="schedule_send_button">Schedule</button>
+                </div>
+                <div class="schedule-error"></div>
+            </div>
+        </div>
+    </div>
     <div class="loader"></div>
+@endsection
+@section('myjsfile')
+{{--<link href="{{ url('bower_components/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">--}}
+<script src="{{ url('dist/js/moment.min.js') }}"></script>
+<script src="{{ url('dist/js/bootstrap-datetimepicker.min.js') }}"></script>
+<script type="text/javascript">
+    var hours = new Date().getHours();
+    var hours = (hours+24)%24;
+    var mid='AM';
+    if(hours==0){hours=12;}
+    else if(hours>12)
+    {
+        hours=hours%12;
+        mid='PM';
+    }
+    var time = hours + ":" + new Date().getMinutes() + " " + mid;
+    $(function () {
+        $('.datetimepicker1').datetimepicker({
+            defaultDate: new Date(),
+            format: 'MM/DD/YYYY'
+        });
+        $('.datetimepicker2').datetimepicker({
+            format: 'LT',
+            icons:{
+
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down"
+            }
+        });
+        $("#time").val(time);
+    });
+</script>
 @endsection

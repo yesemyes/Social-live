@@ -54,8 +54,8 @@ return [
 			'scope'         => ['identity', 'submit','mysubreddits'],
 		],
 		'Pinterest' => [
-			'client_id'     => '4931223704112740825', // 4931223704112740825
-			'client_secret' => '5f7c5a66892fb722848e620369462d72704ca5ac45ede426e7a6d061ceb53c69', // 5f7c5a66892fb722848e620369462d72704ca5ac45ede426e7a6d061ceb53c69
+			'client_id'     => '4931223704112740825',
+			'client_secret' => '5f7c5a66892fb722848e620369462d72704ca5ac45ede426e7a6d061ceb53c69',
 			'scope'			=>	['read_public','write_public'],
 		],
 

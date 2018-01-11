@@ -20,13 +20,13 @@
                 <div class="item_accounts">
                     <a href="@if($item['provider'] != 'instagram') {{url($item["provider"].'/login')}} @else # @endif" class="accounts_block">
                         @if($item['provider'] == 'instagram')
-                            <i class=" f3em fa fa-{{ $item['provider'] }}" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
+                            <i class="f3em fa fa-{{ $item['provider'] }}" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
                         @elseif($item['provider'] == 'facebook')
-                            <i class=" f3em fa fa-{{ $item['provider'] }}-official" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
+                            <i class="f3em fa fa-{{ $item['provider'] }}-official" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
                         @elseif($item['provider'] == 'google')
-                            <i class=" f3em fa fa-{{ $item['provider'] }}-plus-square" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
+                            <i class="f3em fa fa-{{ $item['provider'] }}-plus-square" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
                         @else
-                            <i class=" f3em fa fa-{{ $item['provider'] }}-square" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
+                            <i class="f3em fa fa-{{ $item['provider'] }}-square" aria-hidden="true" style="color: {{ $item['icon'] }}"></i>
                         @endif
                         <div class="media-body network user_detalis_provider_{{ $item['userId'] }}">
                             <h3>Connected to {{ucfirst($item['provider'])}}</h3>

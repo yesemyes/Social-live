@@ -15,7 +15,7 @@
 </script>
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <!-- Bootstrap Core CSS -->
-{{--<link href="{{ url('bower_components/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">--}}
+
 <!-- MetisMenu CSS -->
 {{--<link href="{{ url('bower_components/metisMenu/dist/metisMenu.min.css') }}" rel="stylesheet">--}}
 <!-- jQuery -->
@@ -23,6 +23,7 @@
 <!-- Custom CSS -->
 {{--<link href="{{ url('dist/css/sb-admin-2.css') }}" rel="stylesheet">--}}
 <link href="{{ url('dist/css/custom.css') }}" rel="stylesheet">
+<link href="{{ url('dist/css/datetimepicker.css') }}" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css?family=Montserrat:500" rel="stylesheet">
 <!-- Custom Fonts -->
 <link href="{{ url('bower_components/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
