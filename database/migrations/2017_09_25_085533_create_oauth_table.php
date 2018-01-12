@@ -30,6 +30,6 @@ class CreateOauthTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('oauth');
+        //Schema::dropIfExists('oauth');
     }
 }

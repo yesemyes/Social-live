@@ -103,6 +103,7 @@ jQuery(document).ready(function($)
             $("input[data-post-title='"+noconnected+"']").attr("name", "postContent[]");
             $("input[data-soc='"+noconnected+"']").attr("name", "token_soc[]");
             $("input[data-soc-sec='"+noconnected+"']").attr("name", "token_soc_sec[]");
+            $("input[data-soc-id='"+noconnected+"']").attr("name", "prov_user_id[]");
             $("input[data-img='"+noconnected+"']").attr("name", "images[]");
             $("input[data-link='"+noconnected+"']").attr("name", "url[]");
             if( noconnected == "linkedin" || noconnected == "reddit" ){
@@ -130,6 +131,7 @@ jQuery(document).ready(function($)
             $("input[data-post-title='"+connected+"']").attr("name", "asd[]");
             $("input[data-soc='"+connected+"']").attr("name", "asd[]");
             $("input[data-soc-sec='"+connected+"']").attr("name", "asd[]");
+            $("input[data-soc-id='"+connected+"']").attr("name", "asd[]");
             $("input[data-img='"+connected+"']").attr("name", "asd[]");
             $("input[data-link='"+connected+"']").attr("name", "asd[]");
             if( connected == "linkedin" || connected == "reddit" ){
@@ -335,6 +337,9 @@ jQuery(document).ready(function($)
     {
         e.preventDefault();
         $("#myModalSchedule").css({"display":"none"});
+    });
+    $(document).on("click",".schedule_send_button",function(){
+
     });
 }); // end ready function
 

@@ -30,6 +30,6 @@ class CreateApisTable extends Migration
      */
     public function down()
     {
-	    Schema::dropIfExists('api_users');
+	    //Schema::dropIfExists('api_users');
     }
 }

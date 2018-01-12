@@ -10,6 +10,16 @@
         @endforeach
     @endif
 
+    @if( Session::has('schedule_message_result') )
+        @foreach(session()->get('schedule_message_result') as $item)
+            @if(isset($item['provider'])&&$item['provider']!=null)
+                <p class="success_share_status">Success! Your scheduled post in {{$item['provider']}} on {{$item['datetime']}}</p>
+            @else
+                <p class="msg_error">{{$item}}</p>
+            @endif
+        @endforeach
+    @endif
+
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
@@ -161,6 +171,38 @@
                 <button class="share_button_color p10"><i class="fa fa-share-alt" aria-hidden="true"></i> <b class="pl5">SHARE NOW</b></button>
             </div>
         </div>
+        <div id="myModalSchedule" class="modal_schedule">
+            <div class="modal-content-schedule">
+                <div class="schedule-header">
+                    <span class="close_schedule">&times;</span>
+                    <h3 class="f14px">Schedule Post</h3>
+                </div>
+                <div class="schedule-content">
+                    <div class="f14px">Select a date and time in the future for when you want your post to publish.</div>
+                    <div class="flex-container mt10">
+                        <div class='input-group date datetimepicker1 maxW200'>
+                            <input type='text' name="calendar" id="calendar" />
+                            <span class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </span>
+                        </div>
+                        <div class='input-group date datetimepicker2 maxW200 mLAuto'>
+                            <input type='text' name="time" id="time" />
+                            <span class="input-group-addon">
+                        <span class="fa fa-clock-o"></span>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="schedule-footer flex-container">
+                    <div class="mLAuto">
+                        <button class="disable_schedule">Cancel</button>
+                        <button name="schedule_posts" class="schedule_send_button">Schedule</button>
+                    </div>
+                    <div class="schedule-error"></div>
+                </div>
+            </div>
+        </div>
         @endif
     </form>
     <div id="myModal" class="modal">
@@ -168,45 +210,14 @@
             <span class="close">&times;</span>
             <p class="tCenter">Instagram</p>
             <div class="ins-content">
-                <p class="mt5"><input type="text" id="ins-username" name="username" value="" required="required" autocomplete="off"></p>
-                <p class="mt5"><input type="password" id="ins-password" name="password" value="" required="required" autocomplete="off"></p>
+                <p class="mt5"><input type="text" id="ins-username" name="username" value="" placeholder="Username or Email" required="required" autocomplete="off"></p>
+                <p class="mt5"><input type="password" id="ins-password" name="password" value="" placeholder="Password" required="required" autocomplete="off"></p>
                 <p><button id="ins-form">Login</button></p>
             </div>
             <div class="ins-error"></div>
         </div>
     </div>
-    <div id="myModalSchedule" class="modal_schedule">
-        <div class="modal-content-schedule">
-            <div class="schedule-header">
-                <span class="close_schedule">&times;</span>
-                <h3 class="f14px">Schedule Post</h3>
-            </div>
-            <div class="schedule-content">
-                <div class="f14px">Select a date and time in the future for when you want your post to publish.</div>
-                <div class="flex-container mt10">
-                    <div class='input-group date datetimepicker1 maxW200'>
-                        <input type='text' id="calendar" />
-                        <span class="input-group-addon">
-                            <span class="fa fa-calendar"></span>
-                        </span>
-                    </div>
-                    <div class='input-group date datetimepicker2 maxW200 mLAuto'>
-                        <input type='text' id="time" />
-                        <span class="input-group-addon">
-                            <span class="fa fa-clock-o"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="schedule-footer flex-container">
-                <div class="mLAuto">
-                    <button class="disable_schedule">Cancel</button>
-                    <button class="schedule_send_button">Schedule</button>
-                </div>
-                <div class="schedule-error"></div>
-            </div>
-        </div>
-    </div>
+
     <div class="loader"></div>
 @endsection
 @section('myjsfile')

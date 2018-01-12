@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSocialTable extends Migration
+class CreatePostedTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,15 @@ class CreateSocialTable extends Migration
      */
     public function up()
     {
-	    Schema::create('social', function (Blueprint $table) {
+	    Schema::create('posted', function (Blueprint $table) {
 		    $table->increments('id');
+		    $table->integer('user_id')->unsigned();
 		    $table->string('provider');
-		    $table->string('icon');
+		    $table->string('title');
+		    $table->text('text');
+		    $table->string('img');
+		    $table->string('link');
+		    $table->timestamps();
 	    });
     }
 
@@ -27,6 +32,6 @@ class CreateSocialTable extends Migration
      */
     public function down()
     {
-	    //Schema::dropIfExists('social');
+	    //Schema::dropIfExists('posted');
     }
 }

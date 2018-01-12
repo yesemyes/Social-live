@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\SocialController;
+use App\Http\Controllers\ScheduleController;
 use App\User;
 use App\Social;
 use App\Oauth;
@@ -154,12 +155,19 @@ class HomeController extends Controller
 		if( isset($connected) )
 		{
 			$socialClass = new SocialController();
+			$scheduleClass = new ScheduleController();
 			$user = Auth::user();
 			$connected 	= $request->connected;
 			$check_connected_instagram = array_search('instagram', $connected);
 
-			if( isset($request->postImage) ) $request->img_link = url($request->postImage);
-			else $request->img_link = null;
+			if( isset($request->postImage) ) {
+				$request->img_link = url($request->postImage);
+				$request->img = $request->postImage;
+			}
+			else {
+				$request->img_link = null;
+				$request->img = null;
+			}
 
 			if( $check_connected_instagram != false || $check_connected_instagram == 0 ) $request->img_link_ins = $request->postImage;
 			else $request->img_link_ins = null;
@@ -169,8 +177,10 @@ class HomeController extends Controller
 			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
 			else $request->subreddits = null;
 			$suc_mes = [];
+			$suc_schedule = [];
 			foreach($connected as $key => $item)
 			{
+				if($item!=null) $request->social = $item;
 				if( $item == "pinterest" || $item == "reddit" )
 				{
 					if( $item == "pinterest" && $request->boards == null && $request->subreddits != null ){
@@ -216,17 +226,27 @@ class HomeController extends Controller
 					$img = url(Storage::url($filename));
 					$img_ins = Storage::url($filename);
 					$request->img_upload_link  = $img;
+					$request->img_upload  = $filename;
 					$request->img_upload_link_ins  = $img_ins;
-
 				}else {
 					$request->img_upload_link = null;
 					$request->img_upload_link_ins = null;
+					$request->img_upload = null;
 				}
-				$socials = $socialClass->$item($request);
-				$res = $socials->getData('result')['result'];
-				array_push($suc_mes,$res);
+
+
+				if(isset($request->schedule_posts))
+				{
+					$schedule = $scheduleClass->index($user->id,$request);
+					array_push($suc_schedule,$schedule);
+				}else{
+					$socials = $socialClass->$item($request);
+					$res = $socials->getData('result')['result'];
+					array_push($suc_mes,$res);
+				}
 			} // end foreach
-			return redirect()->back()->with('share_message_result', $suc_mes);
+			if($suc_mes!=[]) return redirect()->back()->with('share_message_result', $suc_mes);
+			if($suc_schedule!=[]) return redirect()->back()->with('schedule_message_result', $suc_schedule);
 		}
 	}
 
