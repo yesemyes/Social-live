@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Schedule;
 use Illuminate\Http\Request;
-
 class ScheduleController extends Controller
 {
-    public function index($user_id,Request $request)
+	public function index($user_id,Request $request)
 	{
 		$link = $request->link;
 		$connected = $request->social;
@@ -21,9 +18,7 @@ class ScheduleController extends Controller
 		elseif ($img!=null) $image = $img;
 		else $image = null;
 		$schedule_date = $request->calendar." ".$request->time;
-		$utc = strtotime($schedule_date);
-//date('m/d/y h:i A',$utc) petqa galu
-		//dump( date('m/d/y h:i A',$utc) );
+
 		$schedule_insert = Schedule::create([
 			'user_id'      => $user_id,
 			'provider'     => $connected,
@@ -43,6 +38,5 @@ class ScheduleController extends Controller
 		}else{
 			return "Error! Schedule post";
 		}
-
 	}
 }

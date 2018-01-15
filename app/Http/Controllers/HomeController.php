@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ScheduleController;
 use App\User;
@@ -16,14 +14,12 @@ use App\Posted;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
-
 class HomeController extends Controller
 {
 	public function __construct()
 	{
 		$this->middleware('auth');
 	}
-
 	public function index()
 	{
 		$user = Auth::user();
@@ -35,12 +31,10 @@ class HomeController extends Controller
 		if( count($posts) > 0 ) return view('home',['posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
-
 	public function createPost()
 	{
 		return view('createPost');
 	}
-
 	public function createPostAction(Request $request)
 	{
 		$status = 0;
@@ -70,7 +64,6 @@ class HomeController extends Controller
 			return redirect('/posts');
 		}
 	}
-
 	public function managePosts()
 	{
 		$user = Auth::user();
@@ -84,7 +77,6 @@ class HomeController extends Controller
 		if( count($posts) > 0 ) return view('posts',['userConnectedAccountsCount'=>$userConnectedAccountsCount,'posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
 	}
-
 	public function publishPost($postID, $posted=null)
 	{
 		$user = Auth::user();
@@ -139,7 +131,7 @@ class HomeController extends Controller
 			}
 			return view('publishPost',[
 				'userAccounts' => $userAccounts,
-            'user'         => $user,
+				'user'         => $user,
 				'post'         => $post,
 				'posted'       => $posted,
 				'subreddits'   => $subreddits,
@@ -148,7 +140,6 @@ class HomeController extends Controller
 			]);
 		}else return redirect('/login');
 	}
-
 	public function publishPostsAction(Request $request)
 	{
 		$connected = $request->connected;
@@ -159,7 +150,6 @@ class HomeController extends Controller
 			$user = Auth::user();
 			$connected 	= $request->connected;
 			$check_connected_instagram = array_search('instagram', $connected);
-
 			if( isset($request->postImage) ) {
 				$request->img_link = url($request->postImage);
 				$request->img = $request->postImage;
@@ -168,10 +158,8 @@ class HomeController extends Controller
 				$request->img_link = null;
 				$request->img = null;
 			}
-
 			if( $check_connected_instagram != false || $check_connected_instagram == 0 ) $request->img_link_ins = $request->postImage;
 			else $request->img_link_ins = null;
-
 			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
 			else $request->boards = null;
 			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
@@ -199,7 +187,6 @@ class HomeController extends Controller
 						Session::flash('message', 'Warning! URL is required in (reddit)');
 						return redirect()->back();
 					}
-
 					if( $request->subreddits == null && $request->boards == null ){
 						Session::flash('message', 'Warning! You have no boards in the (pinterest) and You don\'t have any subscriptions in (reddit)');
 						return redirect()->back();
@@ -233,14 +220,12 @@ class HomeController extends Controller
 					$request->img_upload_link_ins = null;
 					$request->img_upload = null;
 				}
-
-
 				if(isset($request->schedule_posts))
 				{
 					$schedule = $scheduleClass->index($user->id,$request);
 					array_push($suc_schedule,$schedule);
 				}else{
-					$socials = $socialClass->$item($request);
+					$socials = $socialClass->$item($req = null,$request);
 					$res = $socials->getData('result')['result'];
 					array_push($suc_mes,$res);
 				}
@@ -249,7 +234,6 @@ class HomeController extends Controller
 			if($suc_schedule!=[]) return redirect()->back()->with('schedule_message_result', $suc_schedule);
 		}
 	}
-
 	public function editPost($id)
 	{
 		$user = Auth::user();
@@ -257,19 +241,17 @@ class HomeController extends Controller
 		if($post!=null) return view('post',['post'=>$post, 'user'=>$user]);
 		else return redirect('/posts');
 	}
-
 	public function editPosted($id)
 	{
 		$user = Auth::user();
 		$post = Posted::select("social.icon","posted.*")
-						->leftJoin('social','social.provider','=','posted.provider')
-						->where('posted.user_id',$user->id)
-						->where('posted.id',$id)
-						->first();
+		              ->leftJoin('social','social.provider','=','posted.provider')
+		              ->where('posted.user_id',$user->id)
+		              ->where('posted.id',$id)
+		              ->first();
 		if($post!=null) return view('posted',['post'=>$post, 'user'=>$user]);
 		else return redirect('/');
 	}
-
 	public function deletePostImage(Request $request)
 	{
 		$postImage = Post::where('id',$request->id)->update([ 'img' => '' ]);
@@ -279,7 +261,6 @@ class HomeController extends Controller
 		}
 		else return 'faild';
 	}
-
 	public function editPostAction($id, Request $request)
 	{
 		if(isset($request->publish)) $status = 1;
@@ -298,11 +279,11 @@ class HomeController extends Controller
 			}
 			if( isset($request->posted) && $request->posted == 1 ){
 				$post = Posted::where('id',$id)
-				            ->update([
-					            'title'  => $title,
-					            'text'   => $content,
-					            'img'    => $filename,
-				            ]);
+				              ->update([
+					              'title'  => $title,
+					              'text'   => $content,
+					              'img'    => $filename,
+				              ]);
 			}else{
 				if($status==1 || $status==0){
 					$post = Post::where('id',$id)
@@ -314,7 +295,6 @@ class HomeController extends Controller
 					            ]);
 				}
 			}
-
 			if( $post == 1 ){
 				if( isset($request->postImgOldUrl) ){
 					File::delete(storage_path($request->postImgOldUrl));
@@ -330,7 +310,6 @@ class HomeController extends Controller
 			return redirect()->back();
 		}
 	}
-
 	public function deletePost($id, Request $request)
 	{
 		if(isset($request->post) && ($request->post==1 || $request->post==2) )
@@ -353,7 +332,6 @@ class HomeController extends Controller
 						}
 					}
 				}else $del_post = Post::where('id',$id)->delete();
-
 				if( $del_post == 1 ) return 'success';
 				else return 'faild';
 			}
@@ -377,21 +355,19 @@ class HomeController extends Controller
 					}
 				}else */
 				$del_post = Posted::where('id',$id)->delete();
-
 				if( $del_post == 1 ) return 'success';
 				else return 'faild';
 			}
 		}
 	}
-
 	public function network()
 	{
 		$user = Auth::user();
 		$socials = Social::get();
 		$userConnectedAccounts = Oauth::select('oauth.*')
 		                              ->leftJoin('users','users.id','=','oauth.user_id')
-		                              //->where('oauth.user_name',$user->name)
-		                              ->where('oauth.user_id',$user->id)
+			//->where('oauth.user_name',$user->name)
+			                           ->where('oauth.user_id',$user->id)
 		                              ->get()->keyBy('social_id');
 		$userAccounts = array();
 		foreach($socials as $key => $item)
@@ -413,17 +389,14 @@ class HomeController extends Controller
 		}
 		return view('network', ['user' => $user, 'userAccounts' => $userAccounts]);
 	}
-
 	public function policy()
 	{
 		return view('policy');
 	}
-
 	public function Account()
 	{
 		return view('account');
 	}
-
 	public function accountUpdate($id, Request $request)
 	{
 		if($request && $request->change_account == "change")
@@ -438,6 +411,5 @@ class HomeController extends Controller
 			Session::flash('msg','Error!');
 			return redirect()->back();
 		}
-
 	}
 }

@@ -198,12 +198,14 @@ class OauthController extends Controller
 	{
 		return "~b9TLrFAeY@#$%^&";
 	}
+
 	public function sonEncode($str)
 	{
 		$key = $this->sonKey();
 		return strtr(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($key), $str, MCRYPT_MODE_CBC, md5(md5($key)))), '+/=', '-_~');
 
 	}
+
 	public function sonDecode($encoded)
 	{
 		$key = $this->sonKey();
