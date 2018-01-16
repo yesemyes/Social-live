@@ -1,11 +1,12 @@
 <?php
 namespace App\Http\Controllers;
-use App\Schedule;
+use App\Posted;
 use Illuminate\Http\Request;
 class ScheduleController extends Controller
 {
 	public function index($user_id,Request $request)
 	{
+		$timezone = $request->timezone;
 		$link = $request->link;
 		$connected = $request->social;
 		$text = $request->content_text;
@@ -19,7 +20,7 @@ class ScheduleController extends Controller
 		else $image = null;
 		$schedule_date = $request->calendar." ".$request->time;
 
-		$schedule_insert = Schedule::create([
+		$schedule_insert = Posted::create([
 			'user_id'      => $user_id,
 			'provider'     => $connected,
 			'title'        => $title,
@@ -28,6 +29,7 @@ class ScheduleController extends Controller
 			'link'         => $link,
 			'status'       => 0,
 			'schedule_date'=> $schedule_date,
+			'timezone'     => $timezone,
 		]);
 		if(isset($schedule_insert->id) && $schedule_insert->id!=null){
 			$schedule = [

@@ -38,7 +38,6 @@ use Google_Service_Plus;
 use Aws\S3\S3Client;
 
 use App\Posted;
-use App\Schedule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -66,65 +65,45 @@ class SocialController extends Controller
 			'default_graph_version' => 'v2.5',
 		]);
 
-		if( isset($request->img_upload_link) && $request->img_upload_link != null ){
-			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
-			$img = $request->img_upload_link;
+		if($req!=null){
+			$request = collect();
+			$request->img_link = $req->img_link;
+			$request->token_soc = $req->token_soc;
+			$request->message = $req->message;
+			$request->content_text = $req->content_text;
+			$request->link = $req->link;
+		}
+
+		if(isset($request->img_upload_link) && $request->img_upload_link != null){
+			$img = str_replace('https://', 'http://', $request->img_upload_link );
+			$linkData = [
+				'link' => $request->link,
+				'message' => $request->message.' '.$request->link,
+				'source' => $this->fb->fileToUpload($img),
+			];
+		}
+		elseif(isset($request->img_link) && $request->img_link != null || isset($req->img_link) && $req->img_link != null){
+			$img = str_replace('https://', 'http://', $request->img_link );
+			$linkData = [
+				'link' => $request->link,
+				'message' => $request->message.' '.$request->link,
+				'source' => $this->fb->fileToUpload($img),
+			];
+		}
+		else{
+			$img = null;
 			$linkData = [
 				'link' => $request->link,
 				'message' => $request->message,
-				'source' => $this->fb->fileToUpload($request->img_upload_link),
 			];
 		}
-		elseif( isset($request->img_link) && $request->img_link != null || isset($req->img_link) && $req->img_link != null){
-			if(isset($req->img_link) && $req->img_link!=null){
-				$req->img_link = str_replace('https://', 'http://', $req->img_link );
-				$img = $req->img_link;
-				$linkData = [
-					'link' => $req->link,
-					'message' => $req->message,
-					'source' => $this->fb->fileToUpload($img),
-				];
-			}else{
-				$request->img_link = str_replace('https://', 'http://', $request->img_link );
-				$img = $request->img_link;
-				$linkData = [
-					'link' => $request->link,
-					'message' => $request->message,
-					'source' => $this->fb->fileToUpload($request->img_link),
-				];
-			}
-		}
-		else{
-			if( isset($req->img_link) && $req->img_link == null){
-				$img = null;
-				$linkData = [
-					'link' => $req->link,
-					'message' => $req->message,
-				];
-			}else{
-				$img = null;
-				$linkData = [
-					'link' => $request->link,
-					'message' => $request->message,
-				];
-			}
-		}
 		try {
-			if( isset($request->img_link) && $request->img_link != null || isset($request->img_upload_link) && $request->img_upload_link != null || isset($req->img_link) && $req->img_link!=null){
-				if(isset($req->img_link) && $req->img_link!=null){
-					$response = $this->fb->post('/me/photos', $linkData, $req->token_soc);
-				}else{
-					$response = $this->fb->post('/me/photos', $linkData, $request->token_soc);
-				}
+			if( isset($request->img_link) && $request->img_link != null || isset($request->img_upload_link) && $request->img_upload_link != null){
+				$response = $this->fb->post('/me/photos', $linkData, $request->token_soc);
 			}
 			else{
-				if(isset($req->img_link) && $req->img_link==null){
-					$response = $this->fb->post('/me/feed', $linkData, $req->token_soc);
-				}else{
-					$response = $this->fb->post('/me/feed', $linkData, $request->token_soc);
-				}
+				$response = $this->fb->post('/me/feed', $linkData, $request->token_soc);
 			}
-
 		} catch(FacebookResponseException $e) {
 			echo 'Graph returned an error: ' . $e->getMessage();
 			exit;
@@ -135,15 +114,12 @@ class SocialController extends Controller
 		$graphNode = $response->getGraphNode();
 
 		if( isset($graphNode["post_id"])&&$graphNode["post_id"]!=null ){
-			if($img!=null && $req==null){
+			if($img!=null){
 				$img = explode("/",$img);
 				$img = $img[4].'/'.$img[5].'/'.$img[6];
 			}
 			if($req!=null){
-				$scheduleStatus = Schedule::where('id',$req->id)->update(['status'=>1]);
-				if($scheduleStatus==1){
-					return response()->json(['result'=>'facebook']);
-				}
+				Posted::where('id',$req->id)->update(['status'=>1]);
 			}else{
 				Posted::create([
 					'user_id'   => $this->userAuth['id'],
@@ -152,6 +128,7 @@ class SocialController extends Controller
 					'text'      => $request->content_text,
 					'img'       => $img,
 					'link'      => $request->link,
+					'status'    => 1,
 				]);
 				return response()->json(['result'=>'SUCCESS! your post in Facebook now shared']);
 			}
@@ -160,18 +137,29 @@ class SocialController extends Controller
 		}
 	}
 
-	public function twitter(Request $request)
+	public function twitter($req = null,Request $request = null)
 	{
+		if($req!=null){
+			$request = collect();
+			$request->img_link = $req->img_link;
+			$request->token_soc = $req->token_soc;
+			$request->token_soc_sec = $req->token_soc_sec;
+			$request->message = $req->message;
+			$request->content_text = $req->content_text;
+			$request->link = $req->link;
+		}
+
 		$settings = array(
-			'oauth_access_token' => $request->token_soc, // request->access_token
-			'oauth_access_token_secret' => $request->token_soc_sec, // request->access_token_secret
+			'oauth_access_token' => $request->token_soc,
+			'oauth_access_token_secret' => $request->token_soc_sec,
 			'consumer_key' => "jc07IXLaF7F8rs7yQFYQ9SYHD",
 			'consumer_secret' => "WvZCLGkYZnTEMkeTDDgCwnmP3gb4opVZBmQaTBwroQr0numo7f"
 		);
+
 		$this->twitter = new TwitterAPIExchange($settings);
 		/** URL for REST request, see: https://dev.twitter.com/docs/api/1.1/ **/
 
-		if($request->img_upload_link != null){
+		if(isset($request->img_upload_link) && $request->img_upload_link != null){
 			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
 			$img = $request->img_upload_link;
 			$file = file_get_contents($request->img_upload_link);
@@ -200,10 +188,11 @@ class SocialController extends Controller
 			                          ->setPostfields($postfields)
 			                          ->performRequest();
 		}
-		elseif($request->img_link != null){
-			$request->img_link = str_replace('https://', 'http://', $request->img_link );
+		elseif(isset($request->img_link) && $request->img_link != null)
+		{
+			$request->img_link = str_replace( 'https://', 'http://', $request->img_link );
 			$img = $request->img_link;
-			$file = file_get_contents($request->img_link);
+			$file = file_get_contents( $request->img_link );
 			$data = base64_encode($file);
 			$url = "https://upload.twitter.com/1.1/media/upload.json";
 			$method = 'POST';
@@ -217,7 +206,6 @@ class SocialController extends Controller
 			// Result is a json string
 			$res = json_decode($json);
 			// Extract media id
-
 			$id = $res->media_id_string;
 			$url = 'https://api.twitter.com/1.1/statuses/update.json';
 			$requestMethod = 'POST';
@@ -230,11 +218,11 @@ class SocialController extends Controller
 			                          ->performRequest();
 		}
 		else{
+			$postfields = array(
+				'status' => $request->message.' '.$request->link );
 			$url = 'https://api.twitter.com/1.1/statuses/update.json';
 			$img = null;
 			$requestMethod = 'POST';
-			$postfields = array(
-				'status' => $request->message.' '.$request->link );
 			$response = $this->twitter->buildOauth($url, $requestMethod)
 			                          ->setPostfields($postfields)
 			                          ->performRequest();
@@ -245,15 +233,20 @@ class SocialController extends Controller
 				$img = explode("/",$img);
 				$img = $img[4].'/'.$img[5].'/'.$img[6];
 			}
-			Posted::create([
-				'user_id'   => $this->userAuth['id'],
-				'provider'  => 'twitter',
-				'title'     => $request->message,
-				'text'      => $request->content_text,
-				'img'       => $img,
-				'link'      => $request->link,
-			]);
-			return response()->json(['result'=>'SUCCESS! your post in Twitter now shared']);
+			if($req!=null){
+				Posted::where('id',$req->id)->update(['status'=>1]);
+			}else{
+				Posted::create([
+					'user_id'   => $this->userAuth['id'],
+					'provider'  => 'twitter',
+					'title'     => $request->message,
+					'text'      => $request->content_text,
+					'img'       => $img,
+					'link'      => $request->link,
+					'status'    => 1,
+				]);
+				return response()->json(['result'=>'SUCCESS! your post in Twitter now shared']);
+			}
 		}elseif( isset($response['errors']) ){
 			return response()->json(['result'=>'ERROR! Twitter share']);
 		}
@@ -537,12 +530,21 @@ class SocialController extends Controller
 		return $boards;
 	}
 
-	public function instagram(Request $request)
+	public function instagram($req = null,Request $request = null)
 	{
-		if( $request->img_upload_link_ins != null ){
+		if($req!=null){
+			$request = collect();
+			$request->img_link_ins = $req->img_link_ins;
+			$request->password = $req->password;
+			$request->username = $req->username;
+			$request->message = $req->message;
+			$request->content_text = $req->content_text;
+			$request->link = $req->link;
+		}
+		if( isset($request->img_upload_link_ins) && $request->img_upload_link_ins != null ){
 			$pathToFile = $request->img_upload_link_ins;
 		}
-		else if( $request->img_link_ins != null ){
+		else if( isset($request->img_link_ins) && $request->img_link_ins != null ){
 			$pathToFile = $request->img_link_ins;
 		}
 		else{
@@ -563,25 +565,33 @@ class SocialController extends Controller
 			$password = $encoded[1];
 			$this->ins = new InstagramUpload();
 			$this->ins->Login($request->username, $password);
-			dd($request->username);
-			$this->ins->UploadPhoto("../".$new_upload_pic, $request->message);
+			$this->ins->UploadPhoto("..".$new_upload_pic, $request->message);
 
 			if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null){
 				if( $this->ins->ConfigPhotoApi($request->message) == true ){
 					$img = explode("/",$new_upload_pic);
 					$img = $img[2].'/'.$img[3].'/'.$img[4];
-					Posted::create([
-						'user_id'   => $this->userAuth['id'],
-						'provider'  => 'instagram',
-						'title'     => $request->message,
-						'text'      => $request->content_text,
-						'img'       => $img,
-						'link'      => $request->link,
-					]);
-					return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
+					if($req!=null){
+						Posted::where('id',$req->id)->update([
+							'img'       => $img,
+							'status'    => 1,
+						]);
+					}else{
+						Posted::create([
+							'user_id'   => $this->userAuth['id'],
+							'provider'  => 'instagram',
+							'title'     => $request->message,
+							'text'      => $request->content_text,
+							'img'       => $img,
+							'link'      => $request->link,
+							'status'    => 1,
+						]);
+						return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
+					}
 				}
-				else
+				else{
 					return response()->json(['result'=>'ERROR! Uploaded image into instagram isn\'t in the right format']);
+				}
 
 			}else{
 				return response()->json(['result'=>'ERROR! Instagram share']);

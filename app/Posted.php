@@ -15,6 +15,9 @@ class Posted extends Model
 		'text',
 		'img',
 		'link',
+		'status',
+		'schedule_date',
+		'timezone',
 		'created_at',
 		'updated_at'
 	];

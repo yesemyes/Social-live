@@ -37,18 +37,27 @@
         <div class="fb200 flex-grow-1">
             <a href="{{ url('/edit-posted/'.$post->id) }}" class="post_title_detalis @if( mobile_user_agent_switch()!="iphone" ) class-for-check-device-hover @endif posRel">{{$post->title}}</a>
         </div>
-        <div class="created">
-            <p class="created">Shared {{date('M d, Y', strtotime($post->updated_at))}}</p>
-        </div>
-        <div class="flex-grow-1 created_time">
-            <p class="time">{{date('H:i a', strtotime($post->updated_at))}}</p>
-        </div>
+        @if($post->status==1)
+            <div class="created">
+                <p class="created">Shared {{date('M d, Y', strtotime($post->updated_at))}}</p>
+            </div>
+            <div class="flex-grow-1 created_time">
+                <p class="time"> {{date('H:i a', strtotime($post->updated_at))}} </p>
+            </div>
+        @elseif($post->status==0)
+            <div class="created">
+                <p class="created">Planning {{date("M d, Y", strtotime($post->schedule_date))}}</p>
+            </div>
+            <div class="flex-grow-1 created_time">
+                <p class="time"> {{date('H:i a', strtotime($post->schedule_date))}} </p>
+            </div>
+        @endif
         <div class="flex-grow-1 created_user">
             <p class="name">{{ $user->name }}</p>
         </div>
         <div class="success fb150">
             <span class="circle-green"></span>
-            <p class="success_text_green">Success
+            <p class="success_text_green">@if($post->status==1) Success @else Pending @endif
                 @if($post->provider == 'instagram')
                     <i class="ml5 f2em fa fa-{{$post->provider}}" aria-hidden="true" style="color: {{$post->icon}}"></i>
                 @elseif($post->provider == 'facebook')

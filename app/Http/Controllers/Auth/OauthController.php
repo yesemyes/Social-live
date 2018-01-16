@@ -209,7 +209,7 @@ class OauthController extends Controller
 	public function sonDecode($encoded)
 	{
 		$key = $this->sonKey();
-		return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($key), base64_decode(strtr($encoded, '-_~', '+/=')), MCRYPT_MODE_CBC, md5(md5($key))), "");
+		return rtrim(@mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($key), base64_decode(strtr($encoded, '-_~', '+/=')), MCRYPT_MODE_CBC, md5(md5($key))), "");
 	}
 
 	public function loginWithReddit(Request $request)

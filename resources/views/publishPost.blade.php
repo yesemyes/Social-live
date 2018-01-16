@@ -13,7 +13,7 @@
     @if( Session::has('schedule_message_result') )
         @foreach(session()->get('schedule_message_result') as $item)
             @if(isset($item['provider'])&&$item['provider']!=null)
-                <p class="success_share_status">Success! Your scheduled post in {{$item['provider']}} on {{$item['datetime']}}</p>
+                <p class="success_share_status">Success! Your scheduled post will be shared on {{$item['provider']}} on {{$item['datetime']}}</p>
             @else
                 <p class="msg_error">{{$item}}</p>
             @endif
@@ -183,15 +183,16 @@
                             <div class='input-group date datetimepicker1 maxW200'>
                                 <input type='text' name="calendar" id="calendar" />
                                 <span class="input-group-addon">
-                        <span class="fa fa-calendar"></span>
-                    </span>
+                                    <span class="fa fa-calendar"></span>
+                                </span>
                             </div>
                             <div class='input-group date datetimepicker2 maxW200 mLAuto'>
                                 <input type='text' name="time" id="time" />
                                 <span class="input-group-addon">
-                        <span class="fa fa-clock-o"></span>
-                    </span>
+                                    <span class="fa fa-clock-o"></span>
+                                </span>
                             </div>
+                            <input type="hidden" name="timezone" id="timezone">
                         </div>
                     </div>
                     <div class="schedule-footer flex-container">
@@ -225,6 +226,9 @@
     <script src="{{ url('dist/js/moment.min.js') }}"></script>
     <script src="{{ url('dist/js/bootstrap-datetimepicker.min.js') }}"></script>
     <script type="text/javascript">
+        var current_date = new Date();
+        var timezone = -current_date.getTimezoneOffset() / 60;
+        $("#timezone").val(timezone);
         var hours = new Date().getHours();
         var hours = (hours+24)%24;
         var mid='AM';

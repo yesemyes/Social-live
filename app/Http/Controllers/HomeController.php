@@ -208,7 +208,7 @@ class HomeController extends Controller
 				else $request->content_text = null;
 				if( isset($request->url[$key]) && $request->url[$key] != "" ) $request->link = $request->url[$key];
 				else $request->link = null;
-				if( isset($request->images[$key]) && $request->images[$key] != null ){
+				if( isset($request->images[$key]) && $request->images[$key] != null ) {
 					$filename = 'app/'.$request->images[$key]->store($user->id);
 					$img = url(Storage::url($filename));
 					$img_ins = Storage::url($filename);
@@ -220,11 +220,10 @@ class HomeController extends Controller
 					$request->img_upload_link_ins = null;
 					$request->img_upload = null;
 				}
-				if(isset($request->schedule_posts))
-				{
+				if(isset($request->schedule_posts)) {
 					$schedule = $scheduleClass->index($user->id,$request);
 					array_push($suc_schedule,$schedule);
-				}else{
+				}else {
 					$socials = $socialClass->$item($req = null,$request);
 					$res = $socials->getData('result')['result'];
 					array_push($suc_mes,$res);

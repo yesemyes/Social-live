@@ -276,6 +276,7 @@ header
 .created,.time,.name{
     color:#39393a;
     font-size: 10pt;
+    padding-left: 5px;
 }
 .share_text{
     width: 80px;
