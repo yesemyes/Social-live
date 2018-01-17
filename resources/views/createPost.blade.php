@@ -11,9 +11,7 @@
     @elseif( Session::has('message_error') )
         <p class="msg_error">{{ Session::get('message_error') }}</p>
     @endif
-
     <p class="border_bottom">Create New Post</p>
-
     @if (count($errors) > 0)
         <ul>
             @foreach ($errors->all() as $error)
@@ -22,9 +20,9 @@
         </ul>
     @endif
 
-
     <form action="{{ url('/createPostAction') }}" method="POST" enctype="multipart/form-data">
         {{ csrf_field() }}
+        <input type="hidden" name="timezone" id="timezone">
         <div class="flex-container mt20 pl20 create_post">
             <div class="flex-grow-2">
                 <label for="postTitle">Post Title</label>

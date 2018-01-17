@@ -11,13 +11,22 @@ class ScheduleController extends Controller
 		$connected = $request->social;
 		$text = $request->content_text;
 		$title = $request->message;
-		$img = $request->img;
-		$img = explode("/",$img);
-		$img = $img[2]."/".$img[3]."/".$img[4];
-		$img_upload = $request->img_upload;
-		if($img_upload!=null) $image = $img_upload;
-		elseif ($img!=null) $image = $img;
-		else $image = null;
+		if(isset($request->img)&&$request->img!=""){
+			$img = $request->img;
+			$img = explode("/",$img);
+			$img = $img[2]."/".$img[3]."/".$img[4];
+			$img_upload = $request->img_upload;
+			if($img_upload!=null) $image = $img_upload;
+			elseif ($img!=null) $image = $img;
+			else $image = null;
+		}else{
+			$image = null;
+		}
+		if(isset($request->boards_id)&&$request->boards_id!=""){
+			$boards_id = $request->boards_id;
+		}else{
+			$boards_id = null;
+		}
 		$schedule_date = $request->calendar." ".$request->time;
 
 		$schedule_insert = Posted::create([
@@ -28,6 +37,7 @@ class ScheduleController extends Controller
 			'img'          => $image,
 			'link'         => $link,
 			'status'       => 0,
+			'boards_id'    => $boards_id,
 			'schedule_date'=> $schedule_date,
 			'timezone'     => $timezone,
 		]);

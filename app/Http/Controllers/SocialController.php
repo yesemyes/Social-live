@@ -49,7 +49,6 @@ class SocialController extends Controller
 	public $li;
 	public $reddit;
 	public $pin;
-
 	protected $userAuth;
 
 	public function __construct()
@@ -64,7 +63,6 @@ class SocialController extends Controller
 			'app_secret'            => '333cc418895ad004074aeaac05ad5f5c',
 			'default_graph_version' => 'v2.5',
 		]);
-
 		if($req!=null){
 			$request = collect();
 			$request->img_link = $req->img_link;
@@ -73,7 +71,6 @@ class SocialController extends Controller
 			$request->content_text = $req->content_text;
 			$request->link = $req->link;
 		}
-
 		if(isset($request->img_upload_link) && $request->img_upload_link != null){
 			$img = str_replace('https://', 'http://', $request->img_upload_link );
 			$linkData = [
@@ -112,7 +109,6 @@ class SocialController extends Controller
 			exit;
 		}
 		$graphNode = $response->getGraphNode();
-
 		if( isset($graphNode["post_id"])&&$graphNode["post_id"]!=null ){
 			if($img!=null){
 				$img = explode("/",$img);
@@ -129,6 +125,9 @@ class SocialController extends Controller
 					'img'       => $img,
 					'link'      => $request->link,
 					'status'    => 1,
+					'timezone'  => $request->timezone,
+					'created_at'=> $request->updated_at,
+					'updated_at'=> $request->updated_at,
 				]);
 				return response()->json(['result'=>'SUCCESS! your post in Facebook now shared']);
 			}
@@ -148,17 +147,14 @@ class SocialController extends Controller
 			$request->content_text = $req->content_text;
 			$request->link = $req->link;
 		}
-
 		$settings = array(
 			'oauth_access_token' => $request->token_soc,
 			'oauth_access_token_secret' => $request->token_soc_sec,
 			'consumer_key' => "jc07IXLaF7F8rs7yQFYQ9SYHD",
 			'consumer_secret' => "WvZCLGkYZnTEMkeTDDgCwnmP3gb4opVZBmQaTBwroQr0numo7f"
 		);
-
 		$this->twitter = new TwitterAPIExchange($settings);
 		/** URL for REST request, see: https://dev.twitter.com/docs/api/1.1/ **/
-
 		if(isset($request->img_upload_link) && $request->img_upload_link != null){
 			$request->img_upload_link = str_replace('https://', 'http://', $request->img_upload_link );
 			$img = $request->img_upload_link;
@@ -244,6 +240,9 @@ class SocialController extends Controller
 					'img'       => $img,
 					'link'      => $request->link,
 					'status'    => 1,
+					'timezone'  => $request->timezone,
+					'created_at'=> $request->updated_at,
+					'updated_at'=> $request->updated_at,
 				]);
 				return response()->json(['result'=>'SUCCESS! your post in Twitter now shared']);
 			}
@@ -460,16 +459,24 @@ class SocialController extends Controller
 		return $response;
 	}
 
-	public function pinterest(Request $request)
+	public function pinterest($req = null,Request $request = null)
 	{
+		if($req!=null){
+			$request = collect();
+			$request->img_link = $req->img_link;
+			$request->token_soc = $req->token_soc;
+			$request->message = $req->message;
+			$request->content_text = $req->content_text;
+			$request->link = $req->link;
+			$request->boards = $req->boards_id;
+		}
 		$client = new Buzz;
 		$auth = Pin::onlyAccessToken($client, $request->token_soc);
 		$api = new API($auth);
 		$note = $request->message;
 		$optionalLink = $request->link;
-		// Load an image from a url.
 		$image = pinIMG::url('http://lorempixel.com/g/400/200/cats/');
-		if( $request->img_upload_link != null ){
+		if( isset($request->img_upload_link) && $request->img_upload_link != null ){
 			$pathToFile = str_replace('https://', 'http://', $request->img_upload_link );
 		}else{
 			$pathToFile = str_replace('https://', 'http://', $request->img_link );
@@ -479,20 +486,30 @@ class SocialController extends Controller
 		$base64 = base64_encode($data);
 		$image = pinIMG::base64($base64);
 		$response = $api->createPin($request->boards, $note, $image, $optionalLink);
-		if ($response->ok()) {
-			$pin = $response->result(); // $pin instanceof Objects\Pin
-			if($pin != null){
+		if($response->ok())
+		{
+			$pin = $response->result();
+			if($pin != null)
+			{
 				$img = explode("/",$pathToFile);
 				$img = $img[4].'/'.$img[5].'/'.$img[6];
-				Posted::create([
-					'user_id'   => $this->userAuth['id'],
-					'provider'  => 'pinterest',
-					'title'     => $request->message,
-					'text'      => $request->content_text,
-					'img'       => $img,
-					'link'      => $request->link,
-				]);
-				return response()->json(['result'=>'SUCCESS! your post in Pinterest now shared']);
+				if($req!=null){
+					Posted::where('id',$req->id)->update(['status'=>1]);
+				}else{
+					Posted::create([
+						'user_id'   => $this->userAuth['id'],
+						'provider'  => 'pinterest',
+						'title'     => $request->message,
+						'text'      => $request->content_text,
+						'img'       => $img,
+						'link'      => $request->link,
+						'status'    => 1,
+						'timezone'  => $request->timezone,
+						'created_at'=> $request->updated_at,
+						'updated_at'=> $request->updated_at,
+					]);
+					return response()->json(['result'=>'SUCCESS! your post in Pinterest now shared']);
+				}
 			}else{
 				return response()->json(['result'=>'ERROR! Pinterest share']);
 			}
@@ -567,8 +584,10 @@ class SocialController extends Controller
 			$this->ins->Login($request->username, $password);
 			$this->ins->UploadPhoto("..".$new_upload_pic, $request->message);
 
-			if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null){
-				if( $this->ins->ConfigPhotoApi($request->message) == true ){
+			if(isset($this->ins->upload_id)&&$this->ins->upload_id!=null)
+			{
+				if( $this->ins->ConfigPhotoApi($request->message) == true )
+				{
 					$img = explode("/",$new_upload_pic);
 					$img = $img[2].'/'.$img[3].'/'.$img[4];
 					if($req!=null){
@@ -585,6 +604,9 @@ class SocialController extends Controller
 							'img'       => $img,
 							'link'      => $request->link,
 							'status'    => 1,
+							'timezone'  => $request->timezone,
+							'created_at'=> $request->updated_at,
+							'updated_at'=> $request->updated_at,
 						]);
 						return response()->json(['result'=>'SUCCESS! your post in Instagram now shared']);
 					}

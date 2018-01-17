@@ -3,13 +3,11 @@
     Publish Post(s)
 @endsection
 @section('page-content')
-
     @if( Session::has('share_message_result') )
         @foreach(session()->get('share_message_result') as $item)
             <p class="success_share_status">{{$item}}</p>
         @endforeach
     @endif
-
     @if( Session::has('schedule_message_result') )
         @foreach(session()->get('schedule_message_result') as $item)
             @if(isset($item['provider'])&&$item['provider']!=null)
@@ -19,7 +17,6 @@
             @endif
         @endforeach
     @endif
-
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
@@ -27,13 +24,11 @@
     @elseif( isset($userConnectedAccountsCount) && $userConnectedAccountsCount == 0 )
         <p class="accounts_check">You are not connected to any social account. <a href="{{url('/networks')}}" style="color: #0051F8;"><i class="fa fa-plus" aria-hidden="true"></i> Add Account</a></p>
     @endif
-
     <form action="{{ url('/publish-post') }}" method="POST" id="sharePost" enctype="multipart/form-data" class="">
         {{ csrf_field() }}
         <div class="mt20 border_bottom flex-container">
             <div class="f16 share_posts_header_left"><b>PUBLISH POST(s)</b></div>
             <div class="share_posts_header_right flex-container-wrap space-between">
-
                 <div class="dIBlock top_social_button mLAuto">
                     <span class="mr10 f12pt">Share to this accounts</span>
                     <div class="social_icons_size dIBlock">
@@ -51,7 +46,6 @@
                                 @endif
                             @endif
                         @endforeach
-
                         @foreach($userAccounts as $value)
                             @if( !isset($value['userId']) )
                                 <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" disabled>
@@ -70,15 +64,14 @@
                     </div>
                 </div>
                 @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount > 0 )
-                    <div class="mLAuto mt10 top_share_button">
+                    <div class="mLAuto top_share_button">
                         <button class="share_button_color"><i class="fa fa-share-alt" aria-hidden="true"></i> <b>SHARE NOW</b></button>
-                        <button class="schedule_button_color" id="myBtn_schedule"><i class="fa fa-clock-o" aria-hidden="true"></i> <b>SCHEDULED</b></button>
+                        <button class="schedule_button_color" id="myBtn_schedule"><i class="fa fa-clock-o" aria-hidden="true"></i> <b>SCHEDULE</b></button>
                     </div>
                 @endif
             </div>
         </div>
         <div class="flex-container-wrap space-between">
-
             @if( $post['img'] != null )
                 <input type="hidden" name="postImage" value="{{ Storage::url($post['img']) }}">
             @endif
@@ -218,7 +211,6 @@
             <div class="ins-error"></div>
         </div>
     </div>
-
     <div class="loader"></div>
 @endsection
 @section('myjsfile')
@@ -226,9 +218,6 @@
     <script src="{{ url('dist/js/moment.min.js') }}"></script>
     <script src="{{ url('dist/js/bootstrap-datetimepicker.min.js') }}"></script>
     <script type="text/javascript">
-        var current_date = new Date();
-        var timezone = -current_date.getTimezoneOffset() / 60;
-        $("#timezone").val(timezone);
         var hours = new Date().getHours();
         var hours = (hours+24)%24;
         var mid='AM';

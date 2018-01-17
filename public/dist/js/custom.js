@@ -341,6 +341,11 @@ jQuery(document).ready(function($)
     $(document).on("click",".schedule_send_button",function(){
 
     });
+    var current_date = new Date();
+    var timezone = -current_date.getTimezoneOffset() / 60;
+    if($("#timezone")){
+        $("#timezone").val(timezone);
+    }
 }); // end ready function
 
 

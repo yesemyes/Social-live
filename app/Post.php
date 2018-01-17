@@ -13,6 +13,7 @@ class Post extends Model
 		'text',
 		'img',
 		'status',
+		'timezone',
 		'created_at',
 		'updated_at'
 	];

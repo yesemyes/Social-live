@@ -16,6 +16,7 @@ class Posted extends Model
 		'img',
 		'link',
 		'status',
+		'boards_id',
 		'schedule_date',
 		'timezone',
 		'created_at',

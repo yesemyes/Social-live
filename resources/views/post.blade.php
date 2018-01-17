@@ -3,19 +3,17 @@
     {{ $post['title'] }}
 @endsection
 @section('page-content')
-
     <p class="border_bottom">Author {{ $user->name }} | @if($post['status']==1) published on:@else drafted on: @endif {{ $post->updated_at }}</p>
-
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
         <p class="msg_error">{{ Session::get('message_error') }}</p>
     @endif
-
     <div class="row">
         <div class="col-md-12">
             <form action="{{ url('/editPostAction/'.$post['id']) }}" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
+                <input type="hidden" name="timezone" id="timezone">
                 <input type="hidden" id="post" name="posted" value="2">
                 <input type="hidden" name="default_img" value="{{$post['img']}}">
                 <input type="hidden" id="post_id" value="{{$post['id']}}">

@@ -6,6 +6,7 @@ use App\User;
 use App\Social;
 use App\Oauth;
 use DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App;
@@ -37,6 +38,13 @@ class HomeController extends Controller
 	}
 	public function createPostAction(Request $request)
 	{
+		if(isset($request->timezone)&&$request->timezone!=null){
+			$updated_at = Carbon::now('UTC')->addHour($request->timezone);
+			$timezone = $request->timezone;
+		}else{
+			$updated_at = Carbon::now();
+			$timezone = null;
+		}
 		$status = 0;
 		if(isset($request->publish)) $status = 1;
 		elseif(isset($request->draft)) $status = 0;
@@ -56,6 +64,9 @@ class HomeController extends Controller
 				'text'   => $content,
 				'img'    => $filename,
 				'status' => $status,
+				'timezone' => $timezone,
+				'created_at' => $updated_at,
+				'updated_at' => $updated_at,
 			]);
 			Session::flash('message_success', 'Success! your post created');
 			return redirect('/posts');
@@ -76,6 +87,65 @@ class HomeController extends Controller
 		$posts = Post::where('user_id',$user->id)->orderBy('id','desc')->get();
 		if( count($posts) > 0 ) return view('posts',['userConnectedAccountsCount'=>$userConnectedAccountsCount,'posts'=>$posts,'user'=>$user]);
 		else return redirect('/create-post');
+	}
+	public function editPostAction($id, Request $request)
+	{
+		if(isset($request->timezone)&&$request->timezone!=null){
+			$updated_at = Carbon::now('UTC')->addHour($request->timezone);
+			$timezone = $request->timezone;
+		}else{
+			$updated_at = Carbon::now();
+			$timezone = null;
+		}
+		if(isset($request->publish)) $status = 1;
+		elseif(isset($request->draft)) $status = 0;
+		else $status = null;
+		$user = Auth::user();
+		$title = $request->postTitle;
+		$content = $request->postContent;
+		$image = $request->image;
+		$default_img = $request->default_img;
+		if( !empty($title) ) {
+			if ( $image != null ) {
+				$filename = 'app/' . $image->store( $user['id'] );
+			} else {
+				$filename = $default_img;
+			}
+			if( isset($request->posted) && $request->posted == 1 ){
+				$post = Posted::where('id',$id)
+				              ->update([
+					              'title'  => $title,
+					              'text'   => $content,
+					              'img'    => $filename,
+				              ]);
+			}else{
+				if($status==1 || $status==0){
+					$post = Post::where('id',$id)
+					            ->update([
+						            'title'  => $title,
+						            'text'   => $content,
+						            'img'    => $filename,
+						            'status' => $status,
+						            'timezone' => $timezone,
+						            'created_at' => $updated_at,
+						            'updated_at' => $updated_at,
+					            ]);
+				}
+			}
+			if( $post == 1 ){
+				if( isset($request->postImgOldUrl) ){
+					File::delete(storage_path($request->postImgOldUrl));
+				}
+				Session::flash('message_success', 'Success! your post updated');
+				return redirect()->back();
+			}else{
+				Session::flash('message_error', 'Warning! your post not updated');
+				return redirect()->back();
+			}
+		}else{
+			Session::flash('message_error', 'Warning! your post not updated');
+			return redirect()->back();
+		}
 	}
 	public function publishPost($postID, $posted=null)
 	{
@@ -145,10 +215,15 @@ class HomeController extends Controller
 		$connected = $request->connected;
 		if( isset($connected) )
 		{
+			if(isset($request->timezone)&&$request->timezone!=null){
+				$request->updated_at = Carbon::now('UTC')->addHour($request->timezone);
+			}else{
+				$request->updated_at = Carbon::now();
+				$request->timezone = null;
+			}
 			$socialClass = new SocialController();
 			$scheduleClass = new ScheduleController();
 			$user = Auth::user();
-			$connected 	= $request->connected;
 			$check_connected_instagram = array_search('instagram', $connected);
 			if( isset($request->postImage) ) {
 				$request->img_link = url($request->postImage);
@@ -158,37 +233,52 @@ class HomeController extends Controller
 				$request->img_link = null;
 				$request->img = null;
 			}
-			if( $check_connected_instagram != false || $check_connected_instagram == 0 ) $request->img_link_ins = $request->postImage;
-			else $request->img_link_ins = null;
-			if( isset($request->boards_id) && $request->boards_id != "" ) $request->boards = $request->boards_id;
-			else $request->boards = null;
-			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) $request->subreddits = $request->subreddits_id;
-			else $request->subreddits = null;
+			if( $check_connected_instagram != false || $check_connected_instagram == 0 ) {
+				$request->img_link_ins = $request->postImage;
+			}
+			else {
+				$request->img_link_ins = null;
+			}
+			if( isset($request->boards_id) && $request->boards_id != "" ) {
+				$request->boards = $request->boards_id;
+			}
+			else {
+				$request->boards = null;
+			}
+			if( isset($request->subreddits_id) && $request->subreddits_id != "" ) {
+				$request->subreddits = $request->subreddits_id;
+			}
+			else {
+				$request->subreddits = null;
+			}
 			$suc_mes = [];
 			$suc_schedule = [];
+
 			foreach($connected as $key => $item)
 			{
-				if($item!=null) $request->social = $item;
+				if($item!=null) {
+					$request->social = $item;
+				}
 				if( $item == "pinterest" || $item == "reddit" )
 				{
 					if( $item == "pinterest" && $request->boards == null && $request->subreddits != null ){
-						Session::flash('message', 'Warning! You have no boards in the (pinterest)');
+						Session::flash('message_error', 'Warning! You have no boards in the (pinterest)');
 						return redirect()->back();
 					}
 					if( $item == "reddit" && $request->subreddits == null && $request->boards != null ){
-						Session::flash('message', 'Warning! You don\'t have any subscriptions in (reddit)');
+						Session::flash('message_error', 'Warning! You don\'t have any subscriptions in (reddit)');
 						return redirect()->back();
 					}
 					if( $item == "pinterest" && $request->img_link == null && $request->images[$key] == null ){
-						Session::flash('message', 'Warning! Your post in the (pinterest) not IMAGE');
+						Session::flash('message_error', 'Warning! Your post in the (pinterest) not IMAGE');
 						return redirect()->back();
 					}
 					if( $item == "reddit" && $request->url[$key] == null ){
-						Session::flash('message', 'Warning! URL is required in (reddit)');
+						Session::flash('message_error', 'Warning! URL is required in (reddit)');
 						return redirect()->back();
 					}
 					if( $request->subreddits == null && $request->boards == null ){
-						Session::flash('message', 'Warning! You have no boards in the (pinterest) and You don\'t have any subscriptions in (reddit)');
+						Session::flash('message_error', 'Warning! You have no boards in the (pinterest) and You don\'t have any subscriptions in (reddit)');
 						return redirect()->back();
 					}
 				}
@@ -196,18 +286,42 @@ class HomeController extends Controller
 					Session::flash('message', 'Warning! URL is required in (linkedin)');
 					return redirect()->back();
 				}
-				if( isset($request->access_token[$key]) && $request->access_token[$key] != "" ) $request->token_soc = $request->access_token[$key];
-				else $request->token_soc = null;
-				if( isset($request->access_token_secret[$key]) && $request->access_token_secret[$key] != "" ) $request->token_soc_sec = $request->access_token_secret[$key];
-				else $request->token_soc_sec = null;
-				if( isset($request->prov_user_id[$key]) && $request->prov_user_id[$key] != "" ) $request->provUserId = $request->prov_user_id[$key];
-				else $request->provUserId = null;
-				if( isset($request->postTitle) && $request->postTitle != null ) $request->message = $request->postTitle[$key];
-				else $request->message = null;
-				if( isset($request->postContent) && $request->postContent != null ) $request->content_text  = $request->postContent[$key];
-				else $request->content_text = null;
-				if( isset($request->url[$key]) && $request->url[$key] != "" ) $request->link = $request->url[$key];
-				else $request->link = null;
+				if( isset($request->access_token[$key]) && $request->access_token[$key] != "" ) {
+					$request->token_soc = $request->access_token[$key];
+				}
+				else {
+					$request->token_soc = null;
+				}
+				if( isset($request->access_token_secret[$key]) && $request->access_token_secret[$key] != "" ) {
+					$request->token_soc_sec = $request->access_token_secret[$key];
+				}
+				else {
+					$request->token_soc_sec = null;
+				}
+				if( isset($request->prov_user_id[$key]) && $request->prov_user_id[$key] != "" ) {
+					$request->provUserId = $request->prov_user_id[$key];
+				}
+				else {
+					$request->provUserId = null;
+				}
+				if( isset($request->postTitle) && $request->postTitle != null ) {
+					$request->message = $request->postTitle[$key];
+				}
+				else {
+					$request->message = null;
+				}
+				if( isset($request->postContent) && $request->postContent != null ) {
+					$request->content_text  = $request->postContent[$key];
+				}
+				else {
+					$request->content_text = null;
+				}
+				if( isset($request->url[$key]) && $request->url[$key] != "" ) {
+					$request->link = $request->url[$key];
+				}
+				else {
+					$request->link = null;
+				}
 				if( isset($request->images[$key]) && $request->images[$key] != null ) {
 					$filename = 'app/'.$request->images[$key]->store($user->id);
 					$img = url(Storage::url($filename));
@@ -229,8 +343,12 @@ class HomeController extends Controller
 					array_push($suc_mes,$res);
 				}
 			} // end foreach
-			if($suc_mes!=[]) return redirect()->back()->with('share_message_result', $suc_mes);
-			if($suc_schedule!=[]) return redirect()->back()->with('schedule_message_result', $suc_schedule);
+			if($suc_mes!=[]) {
+				return redirect()->back()->with('share_message_result', $suc_mes);
+			}
+			if($suc_schedule!=[]) {
+				return redirect()->back()->with('schedule_message_result', $suc_schedule);
+			}
 		}
 	}
 	public function editPost($id)
@@ -259,55 +377,6 @@ class HomeController extends Controller
 			return 'success';
 		}
 		else return 'faild';
-	}
-	public function editPostAction($id, Request $request)
-	{
-		if(isset($request->publish)) $status = 1;
-		elseif(isset($request->draft)) $status = 0;
-		else $status = null;
-		$user = Auth::user();
-		$title = $request->postTitle;
-		$content = $request->postContent;
-		$image = $request->image;
-		$default_img = $request->default_img;
-		if( !empty($title) ) {
-			if ( $image != null ) {
-				$filename = 'app/' . $image->store( $user['id'] );
-			} else {
-				$filename = $default_img;
-			}
-			if( isset($request->posted) && $request->posted == 1 ){
-				$post = Posted::where('id',$id)
-				              ->update([
-					              'title'  => $title,
-					              'text'   => $content,
-					              'img'    => $filename,
-				              ]);
-			}else{
-				if($status==1 || $status==0){
-					$post = Post::where('id',$id)
-					            ->update([
-						            'title'  => $title,
-						            'text'   => $content,
-						            'img'    => $filename,
-						            'status' => $status,
-					            ]);
-				}
-			}
-			if( $post == 1 ){
-				if( isset($request->postImgOldUrl) ){
-					File::delete(storage_path($request->postImgOldUrl));
-				}
-				Session::flash('message_success', 'Success! your post updated');
-				return redirect()->back();
-			}else{
-				Session::flash('message_error', 'Warning! your post not updated');
-				return redirect()->back();
-			}
-		}else{
-			Session::flash('message_error', 'Warning! your post not updated');
-			return redirect()->back();
-		}
 	}
 	public function deletePost($id, Request $request)
 	{

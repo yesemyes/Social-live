@@ -36,7 +36,6 @@ class Kernel extends ConsoleKernel
 			$SchedulePosts = SchedulePosts::where('status',0)->get();
 			$user_id = 0;
 			$request = collect();
-			$suc_mes = [];
 			foreach($SchedulePosts as $key => $item)
 			{
 				$utc_now_time = Carbon::now('UTC')->addHour($item->timezone);
@@ -64,19 +63,13 @@ class Kernel extends ConsoleKernel
 								$request->token_soc_sec = $v->access_token_secret;
 								$request->username = $v->first_name;
 								$request->password = $v->access_token;
-								$socials = $socialClass->$soc($request);
-								//$res = $socials->getData('result')['result'];
-								//array_push($suc_mes,$res);
+								$request->boards_id = $item->boards_id;
+								$socialClass->$soc($request);
 							}
 						}
 					}
 				}
 			}
-			/*if(isset($suc_mes)&&$suc_mes!=null){
-				foreach($suc_mes as $item){
-
-				}
-			}*/
 		})->everyMinute();
 	}
 	/**

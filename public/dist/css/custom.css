@@ -288,12 +288,14 @@ header
     margin-top: -5px;
     font-weight: bold;
     border-radius: 5%;
-}
-.share_text{
+    vertical-align: sub;
     color:#3b7adb;
     -webkit-transition: 0.5s; /* Safari */
     transition: 0.5s;
 }
+/*.share_text{
+
+}*/
 .share_text:hover{
     color:#F3F1ED;
     background: #3b7adb;
@@ -570,6 +572,7 @@ i.fa.fa-sign-out.fa-3 {
     border: 1px solid #58D63A;
     border-radius: 4px;
     cursor: pointer;
+    margin-bottom: 5px;
 }
 .share_button_color:focus{
     outline: none;
@@ -581,6 +584,7 @@ i.fa.fa-sign-out.fa-3 {
     border: 1px solid #3A83D6E6;
     border-radius: 4px;
     cursor: pointer;
+    margin-bottom: 5px;
 }
 
 .post_title_detalis:after{
@@ -703,7 +707,7 @@ i.fa.fa-sign-out.fa-3 {
         margin-top: 10px;
         flex-basis: 100%;
     }
-    .share_button_color{
+    .share_button_color,.schedule_button_color{
         width: 100%;
         padding: 10px 0;
     }
