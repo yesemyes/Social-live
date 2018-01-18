@@ -27,7 +27,7 @@ Route::get('/edit-post/{id}',       'HomeController@editPost');
 Route::get('/edit-posted/{id}',     'HomeController@editPosted');
 Route::get('/publish-post/{id}/{posted?}',    'HomeController@publishPost');
 Route::get('/privacy',              'HomeController@policy');
-Route::get('/account',              'HomeController@account');
+Route::get('/settings',             'HomeController@settings');
 Route::post('/createPostAction',    'HomeController@createPostAction');
 Route::post('/image/delete/{id}',   'HomeController@deletePostImage');
 Route::post('/editPostAction/{id}', 'HomeController@editPostAction');

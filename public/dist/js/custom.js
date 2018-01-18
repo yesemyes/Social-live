@@ -1,6 +1,26 @@
 jQuery(document).ready(function($)
 {
-    $('.deleteAccount').on('click', function(e) {
+    var current_date = new Date();
+    var timezone = -current_date.getTimezoneOffset() / 60;
+    if($("#timezone")){
+        $("#timezone").val(timezone);
+    }
+    if( $('.datetimepicker1') ){
+        $(function () {
+            $('.datetimepicker1').datetimepicker({
+                defaultDate: null,
+                inline: true,
+                sideBySide: true,
+                icons: {
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down"
+                }
+            });
+        });
+    }
+
+    $('.deleteAccount').on('click', function(e)
+    {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -14,7 +34,8 @@ jQuery(document).ready(function($)
             url: '/account/delete/'+dataId,
             type: 'POST',
             data: {
-                "id": dataId
+                "id": dataId,
+                "provider": dataProvider
             },
             success: function( msg ) {
                 if ( msg.status === 'success' ) {
@@ -22,11 +43,42 @@ jQuery(document).ready(function($)
                         $(".user_detalis_provider_"+dataId).html('<h3>Connect '+dataProvider+'</h3><span class="circle-gray"></span><span class="grayText ml5">offline</span>');
                         window.location.reload();
                     }, 1000);
-
+                }else if(msg.status === "schedule"){
+                    $.confirm({
+                        title: 'Warning!',
+                        content: 'There is a scheduled post on this social account , are you sure you want to delete it?',
+                        buttons: {
+                            confirm: function () {
+                                $.ajax({
+                                    url: '/account/delete/'+dataId,
+                                    type: 'POST',
+                                    data: {
+                                        "id": dataId,
+                                        "provider": dataProvider,
+                                        "schedule": "schedule"
+                                    },
+                                    success: function(req) {
+                                        if ( req.status === 'success' ) {
+                                            setInterval(function() {
+                                                $(".user_detalis_provider_"+dataId).html('<h3>Connect '+dataProvider+'</h3><span class="circle-gray"></span><span class="grayText ml5">offline</span>');
+                                                window.location.reload();
+                                            }, 1000);
+                                        }
+                                    },
+                                    error: function( req_data ) {
+                                        $.alert('Error!');
+                                    }
+                                });
+                            },
+                            cancel: function () {
+                                $.alert('Canceled!');
+                            }
+                        }
+                    });
                 }
             },
             error: function( data ) {
-
+                console.log(data);
             }
         });
 
@@ -87,9 +139,7 @@ jQuery(document).ready(function($)
                 console.log(data);
             }
         });
-
         return false;
-
     });
 
     var block = $(".publishBlock");
@@ -108,6 +158,12 @@ jQuery(document).ready(function($)
             $("input[data-link='"+noconnected+"']").attr("name", "url[]");
             if( noconnected == "linkedin" || noconnected == "reddit" ){
                 $("input[data-link='"+noconnected+"']").attr('required', true);
+            }
+            if(noconnected == "reddit"){
+                $("select[data-cat='"+noconnected+"']").attr("name", "subreddits_id");
+            }
+            if(noconnected == "pinterest"){
+                $("select[data-cat='"+noconnected+"']").attr("name", "boards_id");
             }
             $("div[data-network-name='"+noconnected+"']").css({"display":"block"});
         });
@@ -136,6 +192,12 @@ jQuery(document).ready(function($)
             $("input[data-link='"+connected+"']").attr("name", "asd[]");
             if( connected == "linkedin" || connected == "reddit" ){
                 $("input[data-link='"+connected+"']").attr('required', false);
+            }
+            if(connected == "reddit"){
+                $("select[data-cat='"+connected+"']").attr("name", "asd[]");
+            }
+            if(connected == "pinterest"){
+                $("select[data-cat='"+connected+"']").attr("name", "asd[]");
             }
             $("div[data-network-name='"+connected+"']").css({"display":"none"});
         });
@@ -228,7 +290,6 @@ jQuery(document).ready(function($)
                 $(".ins-error").html("<p>Error! Try again</p>");
             }
         });
-
         return false;
     });
 
@@ -265,7 +326,6 @@ jQuery(document).ready(function($)
                     $(".ins-error").html("<p>Error! Try again</p>");
                 }
             });
-
             return false;
         }
     });
@@ -329,23 +389,18 @@ jQuery(document).ready(function($)
             }
         });
     });
+
     $(document).on("click","#myBtn_schedule",function(e)
     {
         e.preventDefault();
     });
+
     $(document).on("click",".disable_schedule",function(e)
     {
         e.preventDefault();
         $("#myModalSchedule").css({"display":"none"});
     });
-    $(document).on("click",".schedule_send_button",function(){
 
-    });
-    var current_date = new Date();
-    var timezone = -current_date.getTimezoneOffset() / 60;
-    if($("#timezone")){
-        $("#timezone").val(timezone);
-    }
 }); // end ready function
 
 

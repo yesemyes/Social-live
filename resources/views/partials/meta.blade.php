@@ -20,6 +20,8 @@
 {{--<link href="{{ url('bower_components/metisMenu/dist/metisMenu.min.css') }}" rel="stylesheet">--}}
 <!-- jQuery -->
 <script src="{{ url('bower_components/jquery/dist/jquery.min.js') }}"></script>
+<script src="{{ url('dist/js/moment.min.js') }}"></script>
+<script src="{{ url('dist/js/bootstrap-datetimepicker.min.js') }}"></script>
 <!-- Custom CSS -->
 {{--<link href="{{ url('dist/css/sb-admin-2.css') }}" rel="stylesheet">--}}
 <link href="{{ url('dist/css/custom.css') }}" rel="stylesheet">
@@ -27,3 +29,4 @@
 <link href="https://fonts.googleapis.com/css?family=Montserrat:500" rel="stylesheet">
 <!-- Custom Fonts -->
 <link href="{{ url('bower_components/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.css">

@@ -64,6 +64,7 @@ class Kernel extends ConsoleKernel
 								$request->username = $v->first_name;
 								$request->password = $v->access_token;
 								$request->boards_id = $item->boards_id;
+								$request->subreddits_id = $item->subreddits_id;
 								$socialClass->$soc($request);
 							}
 						}

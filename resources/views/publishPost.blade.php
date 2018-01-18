@@ -105,7 +105,7 @@
                                     @if( $value['provider'] == "pinterest" )
                                         <div class="mt5">
                                             @if( isset($boards) && count($boards) > 0 && $boards != null )
-                                                <select class="input-select" name="boards_id">
+                                                <select class="input-select" name="boards_id" data-cat="pinterest">
                                                     @foreach($boards as $key => $item)
                                                         <option value="{{$item->id}}">{{ $item->name }}</option>
                                                     @endforeach
@@ -118,7 +118,7 @@
                                     @if( $value['provider'] == "reddit" )
                                         <div class="mt5">
                                             @if( isset($subreddits) && count($subreddits->data->children) > 0 && $subreddits != null )
-                                                <select class="input-select" name="subreddits_id">
+                                                <select class="input-select" name="subreddits_id" data-cat="reddit">
                                                     @foreach($subreddits->data->children as $key => $item)
                                                         <option value="{{$item->data->display_name}}">{{$item->data->display_name}}</option>
                                                     @endforeach
@@ -173,16 +173,10 @@
                     <div class="schedule-content">
                         <div class="f14px">Select a date and time in the future for when you want your post to publish.</div>
                         <div class="flex-container mt10">
-                            <div class='input-group date datetimepicker1 maxW200'>
+                            <div class='input-group date datetimepicker1 mAuto'>
                                 <input type='text' name="calendar" id="calendar" />
                                 <span class="input-group-addon">
                                     <span class="fa fa-calendar"></span>
-                                </span>
-                            </div>
-                            <div class='input-group date datetimepicker2 maxW200 mLAuto'>
-                                <input type='text' name="time" id="time" />
-                                <span class="input-group-addon">
-                                    <span class="fa fa-clock-o"></span>
                                 </span>
                             </div>
                             <input type="hidden" name="timezone" id="timezone">
@@ -214,11 +208,12 @@
     <div class="loader"></div>
 @endsection
 @section('myjsfile')
+
     {{--<link href="{{ url('bower_components/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">--}}
-    <script src="{{ url('dist/js/moment.min.js') }}"></script>
-    <script src="{{ url('dist/js/bootstrap-datetimepicker.min.js') }}"></script>
+    {{--<script src="{{ url('dist/js/moment.min.js') }}"></script>
+    <script src="{{ url('dist/js/bootstrap-datetimepicker.min.js') }}"></script>--}}
     <script type="text/javascript">
-        var hours = new Date().getHours();
+        /*var hours = new Date().getHours();
         var hours = (hours+24)%24;
         var mid='AM';
         if(hours==0){hours=12;}
@@ -227,9 +222,9 @@
             hours=hours%12;
             mid='PM';
         }
-        var time = hours + ":" + new Date().getMinutes() + " " + mid;
+        var time = hours + ":" + new Date().getMinutes() + " " + mid;*/
         $(function () {
-            $('.datetimepicker1').datetimepicker({
+            /*$('.datetimepicker1').datetimepicker({
                 defaultDate: new Date(),
                 format: 'MM/DD/YYYY'
             });
@@ -239,8 +234,15 @@
                     up: "fa fa-arrow-up",
                     down: "fa fa-arrow-down"
                 }
+            });*/
+            $('.datetimepicker1').datetimepicker({
+                inline: true,
+                sideBySide: true,
+                icons: {
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down"
+                }
             });
-            $("#time").val(time);
         });
     </script>
 @endsection

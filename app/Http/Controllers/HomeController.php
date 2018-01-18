@@ -117,6 +117,8 @@ class HomeController extends Controller
 					              'title'  => $title,
 					              'text'   => $content,
 					              'img'    => $filename,
+					              'schedule_date' => $request->calendar,
+					              'updated_at' => $updated_at,
 				              ]);
 			}else{
 				if($status==1 || $status==0){
@@ -135,6 +137,10 @@ class HomeController extends Controller
 			if( $post == 1 ){
 				if( isset($request->postImgOldUrl) ){
 					File::delete(storage_path($request->postImgOldUrl));
+				}
+				if( isset($request->schedule) ){
+					Session::flash('message_success', 'Success! your schedule post updated');
+					return redirect()->back();
 				}
 				Session::flash('message_success', 'Success! your post updated');
 				return redirect()->back();
@@ -461,9 +467,9 @@ class HomeController extends Controller
 	{
 		return view('policy');
 	}
-	public function Account()
+	public function settings()
 	{
-		return view('account');
+		return view('settings');
 	}
 	public function accountUpdate($id, Request $request)
 	{

@@ -3,7 +3,7 @@
     {{ $post['title'] }}
 @endsection
 @section('page-content')
-    <p class="border_bottom">Author {{ $user->name }} | @if($post['status']==1) published on:@else drafted on: @endif {{ $post->updated_at }}</p>
+    <p class="border_bottom">Author {{ $user->name }} | @if($post['status']==1) published on:@else drafted on: @endif {{date('M d, Y', strtotime($post->updated_at))}} {{date('h:i a', strtotime($post->updated_at))}}</p>
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )

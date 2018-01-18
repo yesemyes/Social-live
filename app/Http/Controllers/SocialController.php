@@ -310,13 +310,22 @@ class SocialController extends Controller
 		}
 	} // not working invalid access token
 
-	public function reddit(Request $request)
+	public function reddit($req = null,Request $request = null)
 	{
-		if($request->img_upload_link != null) {
+		if($req!=null){
+			$request = collect();
+			$request->img_link = $req->img_link;
+			$request->token_soc = $req->token_soc;
+			$request->message = $req->message;
+			$request->content_text = $req->content_text;
+			$request->link = $req->link;
+			$request->subreddits = $req->subreddits_id;
+		}
+		if(isset($request->img_upload_link) && $request->img_upload_link != null) {
 			$request->img_upload_link = str_replace( 'https://', 'http://', $request->img_upload_link );
 			$img                      = $request->img_upload_link;
 		}
-		elseif($request->img_link != null) {
+		elseif(isset($request->img_link) && $request->img_link != null) {
 			$request->img_link = str_replace( 'https://', 'http://', $request->img_link );
 			$img               = $request->img_link;
 		}
@@ -328,7 +337,9 @@ class SocialController extends Controller
 		$subreddit = $request->subreddits;
 		$urlSubmit = "https://oauth.reddit.com/api/submit";
 		//data checks and pre-setup
-		if ($title == null || $subreddit == null){ return null; }
+		if ($title == null || $subreddit == null){
+			return null;
+		}
 		$kind = ($link == null) ? "self" : "link";
 		$postData = sprintf("kind=%s&sr=%s&title=%s&r=%s",
 			$kind,
@@ -336,7 +347,9 @@ class SocialController extends Controller
 			urlencode($title),
 			$subreddit);
 		//if link was present, add to POST data
-		if ($link != null){ $postData .= "&url=" . urlencode($link); }
+		if ($link != null){
+			$postData .= "&url=" . urlencode($link);
+		}
 		$postVals = $postData;
 		$url = $urlSubmit;
 		$ch = curl_init($url);
@@ -365,21 +378,31 @@ class SocialController extends Controller
 			$response = $apiResponse;
 		}
 		curl_close($ch);
-		if( isset($response->success) && $response->success == false ) return response()->json(['result'=>'ERROR!']);
+		if( isset($response->success) && $response->success == false ) {
+			return response()->json(['result'=>'ERROR!']);
+		}
 		else {
 			if($img!=null){
 				$img = explode("/",$img);
 				$img = $img[4].'/'.$img[5].'/'.$img[6];
 			}
-			Posted::create([
-				'user_id'   => $this->userAuth['id'],
-				'provider'  => 'reddit',
-				'title'     => $request->message,
-				'text'      => $request->content_text,
-				'img'       => $img,
-				'link'      => $request->link,
-			]);
-			return response()->json(['result'=>'SUCCESS! your post in Reddit now shared']);
+			if($req!=null){
+				Posted::where('id',$req->id)->update(['status'=>1]);
+			}else{
+				Posted::create([
+					'user_id'   => $this->userAuth['id'],
+					'provider'  => 'reddit',
+					'title'     => $request->message,
+					'text'      => $request->content_text,
+					'img'       => $img,
+					'link'      => $request->link,
+					'status'    => 1,
+					'timezone'  => $request->timezone,
+					'created_at'=> $request->updated_at,
+					'updated_at'=> $request->updated_at,
+				]);
+				return response()->json(['result'=>'SUCCESS! your post in Reddit now shared']);
+			}
 		}
 	}
 

@@ -17,6 +17,7 @@ class Posted extends Model
 		'link',
 		'status',
 		'boards_id',
+		'subreddits_id',
 		'schedule_date',
 		'timezone',
 		'created_at',

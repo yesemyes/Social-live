@@ -42,14 +42,14 @@
                 <p class="created">Shared {{date('M d, Y', strtotime($post->updated_at))}}</p>
             </div>
             <div class="flex-grow-1 created_time">
-                <p class="time"> {{date('H:i a', strtotime($post->updated_at))}} </p>
+                <p class="time"> {{date('h:i a', strtotime($post->updated_at))}} </p>
             </div>
         @elseif($post->status==0)
             <div class="created">
                 <p class="created">Planning {{date("M d, Y", strtotime($post->schedule_date))}}</p>
             </div>
             <div class="flex-grow-1 created_time">
-                <p class="time"> {{date('H:i a', strtotime($post->schedule_date))}} </p>
+                <p class="time"> {{date('h:i a', strtotime($post->schedule_date))}} </p>
             </div>
         @endif
         <div class="flex-grow-1 created_user">

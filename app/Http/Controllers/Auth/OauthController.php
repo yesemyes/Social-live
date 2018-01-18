@@ -11,6 +11,7 @@ use instagram_post;
 use App\User;
 use App\Social;
 use App\Oauth;
+use App\Posted;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -366,9 +367,27 @@ class OauthController extends Controller
 	public function destroy( $id, Request $request )
 	{
 	    if ( $request->ajax() ) {
-	    	$account = Oauth::where('id',$id)->delete();
-
-	        return response(['message_success' => 'Product deleted', 'status' => 'success']);
+		    $user_id = Oauth::select('user_id')->where('id',$id)
+		                                       ->where('provider',$request->provider)
+		                                       ->first();
+	    	$postedCheck = Posted::select('id')->where('user_id',$user_id->user_id)
+	                                         ->where('provider',$request->provider)
+	                                         ->where('status',0)
+	                                         ->get();
+		   if(isset($request->schedule) && $request->schedule == "schedule"){
+			   Posted::where('user_id',$user_id->user_id)
+			         ->where('provider',$request->provider)
+			         ->where('status',0)
+			         ->delete();
+			   Oauth::where('id',$id)->delete();
+			   return response(['message_success' => 'Product deleted', 'status' => 'success']);
+		   }
+	    	if(isset($postedCheck) && count($postedCheck)>0){
+	    		return response(['status'=>'schedule']);
+	      }else{
+		      Oauth::where('id',$id)->delete();
+		      return response(['message_success' => 'Product deleted', 'status' => 'success']);
+	      }
 	    }
 	    return response(['message_error' => 'Failed deleting the product', 'status' => 'failed']);
 	}

@@ -656,6 +656,7 @@ i.fa.fa-sign-out.fa-3 {
     border: 1px solid #F7F2C5;
     border-radius: 4px;
 }
+.jconfirm-box{width: 60%;}
 /* media */
 @media only screen and (min-width: 813px) and (max-width: 1024px) {
     .top_social_button{
@@ -973,6 +974,7 @@ i.fa.fa-sign-out.fa-3 {
     margin: auto;
     display: none;
 }
+
 .input-group{
     position: relative;
 }

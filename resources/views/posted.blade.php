@@ -4,7 +4,7 @@
 @endsection
 @section('page-content')
 
-    <p class="border_bottom">Author {{$user->name}} | published on: {{$post->updated_at}}
+    <p class="border_bottom">Author {{$user->name}} | @if($post['status']==1) Shared :@else Planning :@endif @if($post->schedule_date!=null) {{date('M d, Y', strtotime($post->schedule_date))}} {{date('h:i a', strtotime($post->schedule_date))}} @else {{date('M d, Y', strtotime($post->updated_at))}} {{date('h:i a', strtotime($post->updated_at))}} @endif
         @if($post->provider == 'instagram')
             <i class="f2em posRel t5 fa fa-{{$post->provider}}" aria-hidden="true" style="color: {{$post->icon}}"></i>
         @elseif($post->provider == 'facebook')
@@ -52,6 +52,18 @@
                             <input type="file" id="imgInp" name="image" class="none">
                             <label class="choose_img" for="imgInp">Choose image</label>
                         </p>
+                        @if($post['status']==0)
+                            <div class="flex-container-wrap maxW200 mt10">
+                                <div class='input-group date datetimepicker1'>
+                                    <input type='text' name="calendar" id="calendar" value="{{$post['schedule_date']}}" />
+                                    <span class="input-group-addon">
+                                    <span class="fa fa-calendar"></span>
+                                </span>
+                                </div>
+                                <input type="hidden" name="timezone" id="timezone">
+                                <input type="hidden" name="schedule">
+                            </div>
+                        @endif
                     </div>
                 </div>
             </form>
