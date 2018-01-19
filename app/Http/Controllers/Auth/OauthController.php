@@ -39,8 +39,12 @@ class OauthController extends Controller
 		if( $this->userAuth == null ){
 			$user_id = $request->get('user_id');
 			$user_name = $request->get('user_name');
-			if( isset($user_id) ) Session::put('api_user_id', $user_id);
-			if( isset($user_name) ) Session::put('api_user_name', $user_name);
+			if( isset($user_id) ) {
+				Session::put('api_user_id', $user_id);
+			}
+			if( isset($user_name) ) {
+				Session::put('api_user_name', $user_name);
+			}
 		}
 		$fb = \OAuth::consumer('Facebook', 'https://ipisocial.iimagine.one/facebook/login');
 
@@ -49,11 +53,15 @@ class OauthController extends Controller
 			$result = json_decode($fb->request('/me?fields=id,first_name,last_name,name,email,gender,locale,picture'), true);
 			$result['access_token'] = $token->getAccessToken();
 			$result['access_token_secret'] = '';
-			if( isset($result['access_token']) ) return $this->regApi($result,'facebook');
+			if( isset($result['access_token']) ) {
+				return $this->regApi($result,'facebook');
+			}
 		}
 		else{
 			$error = $request->get('error');
-			if( isset($error) && $error == "access_denied" && $this->userAuth != null ) return redirect('/networks');
+			if( isset($error) && $error == "access_denied" && $this->userAuth != null ) {
+				return redirect('/networks');
+			}
 			elseif( isset($error) && $error == "access_denied" && $this->userAuth == null ){
 				if( Session::has('api_user_id') ){
 					$api_user_id = Session::get('api_user_id');
@@ -73,8 +81,12 @@ class OauthController extends Controller
 		if( $this->userAuth == null ){
 			$user_id = $request->get('user_id');
 			$user_name = $request->get('user_name');
-			if( isset($user_id) ) Session::put('api_user_id', $user_id);
-			if( isset($user_name) ) Session::put('api_user_name', $user_name);
+			if( isset($user_id) ) {
+				Session::put('api_user_id', $user_id);
+			}
+			if( isset($user_name) ) {
+				Session::put('api_user_name', $user_name);
+			}
 		}
 		$googleService = \OAuth::consumer('Google','https://ipisocial.iimagine.one/google/login');
 		if ( ! is_null($code)) {
@@ -84,7 +96,9 @@ class OauthController extends Controller
 			$result['access_token_secret'] = '';
 			$result['first_name'] = $result['given_name'];
 			$result['last_name'] = $result['family_name'];
-			if(isset($result['access_token'])) return $this->regApi($result,'google');
+			if(isset($result['access_token'])) {
+				return $this->regApi($result,'google');
+			}
 		}
 		else {
 			$url = $googleService->getAuthorizationUri();
@@ -99,8 +113,12 @@ class OauthController extends Controller
 		if( $this->userAuth == null ){
 			$user_id = $request->get('user_id');
 			$user_name = $request->get('user_name');
-			if( isset($user_id) ) Session::put('api_user_id', $user_id);
-			if( isset($user_name) ) Session::put('api_user_name', $user_name);
+			if( isset($user_id) ) {
+				Session::put('api_user_id', $user_id);
+			}
+			if( isset($user_name) ) {
+				Session::put('api_user_name', $user_name);
+			}
 		}
 		$tw = \OAuth::consumer('Twitter', 'https://ipisocial.iimagine.one/twitter/login');
 
@@ -111,10 +129,14 @@ class OauthController extends Controller
 			$result['access_token_secret'] = $token->getAccessTokenSecret();
 			$result['first_name'] = $result['name'];
 			$result['last_name'] = '';
-			if( isset($result['access_token']) ) return $this->regApi( $result, 'twitter' );
+			if( isset($result['access_token']) ) {
+				return $this->regApi( $result, 'twitter' );
+			}
 		}else{
 			$error = $request->get('denied');
-			if( isset($error) && $error != null && $this->userAuth != null ) return redirect('/networks');
+			if( isset($error) && $error != null && $this->userAuth != null ) {
+				return redirect('/networks');
+			}
 			elseif( isset($error) && $error != null && $this->userAuth == null ){
 				if( Session::has('api_user_id') ){
 					$api_user_id = Session::get('api_user_id');
@@ -136,8 +158,12 @@ class OauthController extends Controller
 		if( $userAuth == null ){
 			$user_id = $request->get('user_id');
 			$user_name = $request->get('user_name');
-			if( isset($user_id) ) Session::put('api_user_id', $user_id);
-			if( isset($user_name) ) Session::put('api_user_name', $user_name);
+			if( isset($user_id) ) {
+				Session::put('api_user_id', $user_id);
+			}
+			if( isset($user_name) ) {
+				Session::put('api_user_name', $user_name);
+			}
 		}
 		$linkedinService = \OAuth::consumer('Linkedin','https://ipisocial.iimagine.one/linkedin/login');
 
@@ -149,10 +175,14 @@ class OauthController extends Controller
 			$result['first_name'] = $result['firstName'];
 			$result['last_name'] = $result['lastName'];
 
-			if( isset($result['access_token']) ) return $this->regApi( $result, 'linkedin' );
+			if( isset($result['access_token']) ) {
+				return $this->regApi( $result, 'linkedin' );
+			}
 		}else{
 			$error = $request->get('error');
-			if( isset($error) && $error == "access_denied" && $this->userAuth != null ) return redirect('/networks');
+			if( isset($error) && $error == "access_denied" && $this->userAuth != null ) {
+				return redirect('/networks');
+			}
 			elseif( isset($error) && $error == "access_denied" && $this->userAuth == null ){
 				if( Session::has('api_user_id') ){
 					$api_user_id = Session::get('api_user_id');
@@ -182,8 +212,7 @@ class OauthController extends Controller
 		$obj = new InstagramUpload();
 		$obj->Login($request->username, $password);
 
-		if(isset($obj->upload_id) && $obj->upload_id!=null)
-		{
+		if(isset($obj->upload_id) && $obj->upload_id!=null) {
 			$result['id'] = $obj->uid;
 			$result['access_token'] = $encoded;
 			$result['access_token_secret'] = '';
@@ -219,8 +248,12 @@ class OauthController extends Controller
 		if( $this->userAuth == null ){
 			$user_id = $request->get('user_id');
 			$user_name = $request->get('user_name');
-			if( isset($user_id) ) Session::put('api_user_id', $user_id);
-			if( isset($user_name) ) Session::put('api_user_name', $user_name);
+			if( isset($user_id) ) {
+				Session::put('api_user_id', $user_id);
+			}
+			if( isset($user_name) ) {
+				Session::put('api_user_name', $user_name);
+			}
 		}
 		$reddit = \OAuth::consumer('Reddit','https://ipisocial.iimagine.one/reddit/login');
 
@@ -232,10 +265,14 @@ class OauthController extends Controller
 			$result['access_token_secret'] = '';
 			$result['first_name'] = $result['name'];
 			$result['last_name'] = '';
-			if( isset($result['access_token']) ) return $this->regApi( $result,'reddit' );
+			if( isset($result['access_token']) ) {
+				return $this->regApi( $result,'reddit' );
+			}
 		}else{
-			if (strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false && $this->userAuth != null) return redirect('/networks');
-			elseif( strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false && $this->userAuth == null ){
+			if (isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false && $this->userAuth != null) {
+				return redirect('/networks');
+			}
+			elseif(isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HTTP_REFERER"], 'https://ssl.reddit.com/') !== false && $this->userAuth == null ){
 				if( Session::has('api_user_id') ){
 					$api_user_id = Session::get('api_user_id');
 					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();
@@ -269,10 +306,14 @@ class OauthController extends Controller
 			$result['first_name'] = $result['data']['first_name'];
 			$result['last_name'] = $result['data']['last_name'];
 			$result['id'] = $result['data']['id'];
-			if( isset($result['access_token']) ) return $this->regApi( $result,'pinterest' );
+			if( isset($result['access_token']) ) {
+				return $this->regApi( $result,'pinterest' );
+			}
 		}else{
-			if (strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false && $this->userAuth != null) return redirect('/networks');
-			elseif( strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false && $this->userAuth == null ){
+			if (isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false && $this->userAuth != null) {
+				return redirect('/networks');
+			}
+			elseif(isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HTTP_REFERER"], 'https://api.pinterest.com') !== false && $this->userAuth == null ){
 				if( Session::has('api_user_id') ){
 					$api_user_id = Session::get('api_user_id');
 					$api_user_url = User::select('user_url')->where('id',$api_user_id)->first();

@@ -3,7 +3,8 @@
     {{ $post['title'] }}
 @endsection
 @section('page-content')
-    <p class="border_bottom">Author {{ $user->name }} | @if($post['status']==1) published on:@else drafted on: @endif {{date('M d, Y', strtotime($post->updated_at))}} {{date('h:i a', strtotime($post->updated_at))}}</p>
+    <p class="border_bottom">Author {{ $user->name }} | @if($post['status']==1) published on:@else drafted
+        on: @endif {{date('M d, Y', strtotime($post->updated_at))}} {{date('h:i a', strtotime($post->updated_at))}}</p>
     @if( Session::has('message_success') )
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
@@ -21,11 +22,13 @@
                     <div class="flex-grow-2">
                         <label for="postTitle">Post Title</label>
                         <p class="postTitleWrapper">
-                            <input type="text" id="postTitle" required="required" name="postTitle" class="postTitle" value="{{$post['title']}}" placeholder="Title">
+                            <input type="text" id="postTitle" required="required" name="postTitle" class="postTitle"
+                                   value="{{$post['title']}}" placeholder="Title">
                         </p>
                         <label for="postContent">Post Content</label>
                         <p class="postContentWrapper">
-                            <textarea name="postContent" id="postContent" class="postContent" rows="10" required="required" placeholder="Content Goes Here">{{$post['text']}}</textarea>
+                            <textarea name="postContent" id="postContent" class="postContent" rows="10"
+                                      required="required" placeholder="Content Goes Here">{{$post['text']}}</textarea>
                         </p>
                         <div class="actions flex-container">
                             @if($post['status']==1)
@@ -33,14 +36,18 @@
                             @else
                                 <button name="publish" class="save_draft">Publish</button>
                             @endif
-                            <button class="publish_button">Update</button>
+                            <button @if($post['status']==1) name="publish" @else name="draft"
+                                    @endif class="publish_button">Update
+                            </button>
                             <button id="delete_post" class="delete_button">Delete</button>
                         </div>
                     </div>
                     <div class="flex-grow-1">
                         <label for="imgInp">Featured Image</label>
                         <p class="mt10">
-                            <img id="blah" src="@if($post['img']!=null){{ Storage::url($post['img']) }}@else{{url('/img/file-image.png')}}@endif" style="border-radius: 4px;" alt="your image" width="150" height="auto" />
+                            <img id="blah"
+                                 src="@if($post['img']!=null){{ Storage::url($post['img']) }}@else{{url('/img/file-image.png')}}@endif"
+                                 style="border-radius: 4px;" alt="your image" width="150" height="auto"/>
                         </p>
                         <p class="mt20">
                             <input type="file" id="imgInp" name="image" class="none">

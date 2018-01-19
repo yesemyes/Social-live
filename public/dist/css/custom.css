@@ -324,9 +324,39 @@ header
     display: inline-block;
     background: #F6F5F4;
 }
+.circle-red{
+    border: 1px solid #ef4232;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background: #ef4232;
+}
+.circle-yellow{
+    border: 1px solid #efe711;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background: #efe711;
+}
 .grayText{color: #888580;}
 .success_text_green{
     color:#3F932C;
+    font-size: 11pt;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+}
+.success_text_red{
+    color: #ef4232;
+    font-size: 11pt;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+}
+.success_text_yellow{
+    color: #efe711;
     font-size: 11pt;
     font-weight: bold;
     display: inline-flex;
