@@ -11,6 +11,11 @@
     @elseif( Session::has('message_error') )
         <p class="msg_error">{{ Session::get('message_error') }}</p>
     @endif
+    @if( Session::has('message_success_invite') )
+        <p class="msg_success">{{ Session::get('message_success_invite') }}</p>
+    @elseif( Session::has('message_error_invite') )
+        <p class="msg_error">{{ Session::get('message_error_invite') }}</p>
+    @endif
     <p class="border_bottom">Account Settings</p>
     @if (count($errors) > 0)
         <ul>

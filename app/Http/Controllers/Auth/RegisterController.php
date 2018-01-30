@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Invite;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -66,7 +67,12 @@ class RegisterController extends Controller{
 			'password' => bcrypt($data['password']),
 		]);
 		if(isset($data['invite_token'])){
-			$user->attachRole('2');
+			$invite = Invite::where('token',$data['invite_token'])
+			                    ->where('email',$data['email'])
+			                    ->first();
+			if($invite!=null) {
+				$user->attachRole('2');
+			}
 		}else{
 			$user->attachRole('1');
 		}

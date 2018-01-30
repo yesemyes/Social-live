@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ScheduleController;
 use App\User;
+use App\Invite;
 use App\Social;
 use App\Oauth;
 use DB;
@@ -27,9 +28,15 @@ class HomeController extends Controller{
 
 	public function index() {
 		$user  = Auth::user();
+		if($user->hasRole('guest')) {
+			$ownerUserID = Invite::select('user_id')->where('email',$user->email)->first();
+			$userID = $ownerUserID->user_id;
+		} elseif ($user->hasRole('owner')) {
+			$userID = $user->id;
+		}
 		$posts = Posted::select( "social.icon", "posted.*" )
 		               ->leftJoin( 'social', 'social.provider', '=', 'posted.provider' )
-		               ->where( 'posted.user_id', $user->id )
+		               ->where( 'posted.user_id', $userID )
 		               ->orderBy( 'posted.id', 'desc' )
 		               ->get();
 		if ( count( $posts ) > 0 ) {
@@ -88,14 +95,27 @@ class HomeController extends Controller{
 	}
 
 	public function managePosts() {
-		$user                       = Auth::user();
-		$userConnectedAccounts      = Oauth::select( 'oauth.user_id' )
-		                                   ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-		                                   ->where( 'oauth.user_name', $user->name )
-		                                   ->where( 'oauth.user_id', $user->id )
-		                                   ->get()->keyBy( 'social_id' );
+		$user = Auth::user();
+		if($user->hasRole('guest')) {
+			$ownerUserID = Invite::select('user_id')->where('email',$user->email)->first();
+			$userConnectedAccounts      = Oauth::select( 'oauth.user_id' )
+			                                   ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
+			                                   //->where( 'oauth.user_name', $user->name )
+			                                   ->where( 'oauth.user_id', $ownerUserID->user_id )
+			                                   ->get()->keyBy( 'social_id' );
+			$posts = Post::where( 'user_id', $ownerUserID->user_id )->orderBy( 'id', 'desc' )->get();
+
+		}else if ($user->hasRole('owner')) {
+			$userConnectedAccounts      = Oauth::select( 'oauth.user_id' )
+			                                   ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
+			                                   ->where( 'oauth.user_name', $user->name )
+			                                   ->where( 'oauth.user_id', $user->id )
+			                                   ->get()->keyBy( 'social_id' );
+			$posts = Post::where( 'user_id', $user->id )->orderBy( 'id', 'desc' )->get();
+		}
 		$userConnectedAccountsCount = count( $userConnectedAccounts );
-		$posts                      = Post::where( 'user_id', $user->id )->orderBy( 'id', 'desc' )->get();
+
+		//
 		if ( count( $posts ) > 0 ) {
 			return view( 'posts', [
 				'userConnectedAccountsCount' => $userConnectedAccountsCount,
@@ -182,23 +202,30 @@ class HomeController extends Controller{
 
 	public function publishPost( $postID, $posted = null ) {
 		$user = Auth::user();
+
 		if ( $user != null ) {
 			$socials = Social::get();
+
+			if($user->hasRole('guest')) {
+				$ownerUserID = Invite::select( 'user_id' )->where( 'email', $user->email )->first();
+				$userID = $ownerUserID->user_id;
+			} elseif ($user->hasRole('owner')) {
+				$userID = $user->id;
+			}
 			if ( isset( $posted ) && $posted != null && $posted == "posted" ) {
-				$post = Posted::where( 'user_id', $user->id )->where( 'id', $postID )->first();
+				$post = Posted::where( 'user_id', $userID )->where( 'id', $postID )->first();
 			} else {
-				$post = Post::where( 'user_id', $user->id )->where( 'id', $postID )->where( 'status', 1 )->first();
+				$post = Post::where( 'user_id', $userID )->where( 'id', $postID )->where( 'status', 1 )->first();
 			}
 			if ( $post == null ) {
 				Session::flash( 'message_error', 'Warning! your post not published' );
-
 				return redirect( '/edit-post/' . $postID );
 			}
-			$userConnectedAccounts      = Oauth::select( 'oauth.*' )
-			                                   ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-			                                   ->where( 'oauth.user_name', $user->name )
-			                                   ->where( 'oauth.user_id', $user->id )
-			                                   ->get()->keyBy( 'social_id' );
+			$userConnectedAccounts = Oauth::select( 'oauth.*' )
+			                              ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
+			                              //->where( 'oauth.user_name', $user->name )
+			                              ->where( 'oauth.user_id', $userID )
+			                              ->get()->keyBy( 'social_id' );
 			$userConnectedAccountsCount = count( $userConnectedAccounts );
 			$userAccounts               = array();
 			$socialClass                = new SocialController();
@@ -268,6 +295,12 @@ class HomeController extends Controller{
 			$socialClass               = new SocialController();
 			$scheduleClass             = new ScheduleController();
 			$user                      = Auth::user();
+			if($user->hasRole('guest')) {
+				$ownerUserID = Invite::select( 'user_id' )->where( 'email', $user->email )->first();
+				$userID = $ownerUserID->user_id;
+			} elseif ($user->hasRole('owner')) {
+				$userID = $user->id;
+			}
 			$check_connected_instagram = array_search( 'instagram', $connected );
 			if ( isset( $request->postImage ) ) {
 				$request->img_link = url( $request->postImage );
@@ -361,7 +394,7 @@ class HomeController extends Controller{
 					$request->link = null;
 				}
 				if ( isset( $request->images[ $key ] ) && $request->images[ $key ] != null ) {
-					$filename                     = 'app/' . $request->images[ $key ]->store( $user->id );
+					$filename                     = 'app/' . $request->images[ $key ]->store( $userID );
 					$img                          = url( Storage::url( $filename ) );
 					$img_ins                      = Storage::url( $filename );
 					$request->img_upload_link     = $img;
@@ -373,7 +406,7 @@ class HomeController extends Controller{
 					$request->img_upload          = null;
 				}
 				if ( isset( $request->schedule_posts ) ) {
-					$schedule = $scheduleClass->index( $user->id, $request );
+					$schedule = $scheduleClass->index( $userID, $request );
 					array_push( $suc_schedule, $schedule );
 				} else {
 					$socials = $socialClass->$item( $req = null, $request );
@@ -481,31 +514,35 @@ class HomeController extends Controller{
 
 	public function network() {
 		$user                  = Auth::user();
-		$socials               = Social::get();
-		$userConnectedAccounts = Oauth::select( 'oauth.*' )
-		                              ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-			//->where('oauth.user_name',$user->name)
-			                           ->where( 'oauth.user_id', $user->id )
-		                              ->get()->keyBy( 'social_id' );
-		$userAccounts          = array();
-		foreach ( $socials as $key => $item ) {
-			if ( isset( $userConnectedAccounts[ $item->id ] ) ) {
-				$userAccounts[ $key ] = [
-					'provider'            => $item->provider,
-					'userId'              => $userConnectedAccounts[ $item->id ]->id,
-					'provUserId'          => $userConnectedAccounts[ $item->id ]->provider_user_id,
-					'icon'                => $item['icon'],
-					'access_token'        => $userConnectedAccounts[ $item->id ]->access_token,
-					'access_token_secret' => $userConnectedAccounts[ $item->id ]->access_token_secret,
-					'first_name'          => $userConnectedAccounts[ $item->id ]->first_name,
-					'last_name'           => $userConnectedAccounts[ $item->id ]->last_name,
-				];
-			} else {
-				$userAccounts[ $key ] = [ 'provider' => $item->provider, 'icon' => $item['icon'] ];
+		if($user->hasRole('owner')) {
+			$socials               = Social::get();
+			$userConnectedAccounts = Oauth::select( 'oauth.*' )
+			                              ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
+											//->where('oauth.user_name',$user->name)
+				                           ->where( 'oauth.user_id', $user->id )
+			                              ->get()->keyBy( 'social_id' );
+			$userAccounts          = array();
+			foreach ( $socials as $key => $item ) {
+				if ( isset( $userConnectedAccounts[ $item->id ] ) ) {
+					$userAccounts[ $key ] = [
+						'provider'            => $item->provider,
+						'userId'              => $userConnectedAccounts[ $item->id ]->id,
+						'provUserId'          => $userConnectedAccounts[ $item->id ]->provider_user_id,
+						'icon'                => $item['icon'],
+						'access_token'        => $userConnectedAccounts[ $item->id ]->access_token,
+						'access_token_secret' => $userConnectedAccounts[ $item->id ]->access_token_secret,
+						'first_name'          => $userConnectedAccounts[ $item->id ]->first_name,
+						'last_name'           => $userConnectedAccounts[ $item->id ]->last_name,
+					];
+				} else {
+					$userAccounts[ $key ] = [ 'provider' => $item->provider, 'icon' => $item['icon'] ];
+				}
 			}
-		}
 
-		return view( 'network', [ 'user' => $user, 'userAccounts' => $userAccounts ] );
+			return view( 'network', [ 'user' => $user, 'userAccounts' => $userAccounts ] );
+		} else {
+			return redirect()->back();
+		}
 	}
 
 	public function policy() {
@@ -559,23 +596,34 @@ class HomeController extends Controller{
 
 	public function accountInvite($id, Request $request)
 	{
-		dd($id);
 		if ( $request && $request->invite == "invite" && is_numeric($id) && $id > 0 ) {
 			$subject = $request->invite_subject;
 			$email   = $request->invite_email;
 			$message = $request->invite_message;
 			$token = str_random(64);
-			$data = [
-				'subject' => $subject,
-				'email' => $email,
-				'message' => $message,
-				'token' => $token,
-			];
+			$invite = App\Invite::create([
+				'email'     => $email,
+				'token'     => $token,
+				'user_id'   => $id,
+			]);
+			if($invite) {
+				$data = [
+					'subject' => $subject,
+					'email' => $email,
+					'message' => $message,
+					'token' => $token,
+				];
 
-			Mail::send('emails.send-invite', $data, function($msg) use($data)
-			{
-				$msg->to($data['email'])->subject($data['subject']);
-			});
+				Mail::send('emails.send-invite', $data, function($msg) use($data)
+				{
+					$msg->to($data['email'])->subject($data['subject']);
+				});
+				Session::flash( 'message_success_invite', 'Your invites sended' );
+				return redirect()->back();
+			} else {
+				Session::flash( 'message_error_invite', 'Your invites not sending' );
+				return redirect()->back();
+			}
 		}
 	}
 }

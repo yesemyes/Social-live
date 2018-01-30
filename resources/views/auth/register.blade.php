@@ -17,8 +17,8 @@
 
                     @if ($errors->has('name'))
                         <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
-                                    </span>
+                            <strong>{{ $errors->first('name') }}</strong>
+                        </span>
                     @endif
                 </div>
             </div>
@@ -27,7 +27,7 @@
                 <label for="email" class="col-md-4 control-label">E-Mail Address</label>
 
                 <div class="col-md-6">
-                    <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+                    <input id="email" type="email" class="form-control" name="email" value="@if(isset($_GET['token']) && $inviteEmail != null){{ $inviteEmail->email }}@else{{ old('email') }}@endif" required>
 
                     @if ($errors->has('email'))
                         <span class="help-block">

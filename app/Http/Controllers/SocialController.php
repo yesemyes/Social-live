@@ -38,6 +38,7 @@ use Google_Service_Plus;
 use Aws\S3\S3Client;
 
 use App\Posted;
+use App\Invite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -49,9 +50,16 @@ class SocialController extends Controller{
 	public $reddit;
 	public $pin;
 	protected $userAuth;
+	protected $userID;
 
 	public function __construct() {
 		$this->userAuth = Auth::user();
+		if($this->userAuth->hasRole('guest')) {
+			$ownerUserID = Invite::select( 'user_id' )->where( 'email', $this->userAuth->email )->first();
+			$this->userID['id'] = $ownerUserID->user_id;
+		} else {
+			$this->userID['id'] = $this->userAuth->id;
+		}
 	}
 
 	public function facebook( $req = null, Request $request = null ) {
@@ -112,7 +120,7 @@ class SocialController extends Controller{
 				Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 			} else {
 				Posted::create( [
-					'user_id'    => $this->userAuth['id'],
+					'user_id'    => $this->userID['id'],
 					'provider'   => 'facebook',
 					'title'      => $request->message,
 					'text'       => $request->content_text,
@@ -226,7 +234,7 @@ class SocialController extends Controller{
 				Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 			} else {
 				Posted::create( [
-					'user_id'    => $this->userAuth['id'],
+					'user_id'    => $this->userID['id'],
 					'provider'   => 'twitter',
 					'title'      => $request->message,
 					'text'       => $request->content_text,
@@ -393,7 +401,7 @@ class SocialController extends Controller{
 				Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 			} else {
 				Posted::create( [
-					'user_id'    => $this->userAuth['id'],
+					'user_id'    => $this->userID['id'],
 					'provider'   => 'reddit',
 					'title'      => $request->message,
 					'text'       => $request->content_text,
@@ -527,7 +535,7 @@ class SocialController extends Controller{
 					Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 				} else {
 					Posted::create( [
-						'user_id'    => $this->userAuth['id'],
+						'user_id'    => $this->userID['id'],
 						'provider'   => 'pinterest',
 						'title'      => $request->message,
 						'text'       => $request->content_text,
@@ -622,7 +630,7 @@ class SocialController extends Controller{
 						] );
 					} else {
 						Posted::create( [
-							'user_id'    => $this->userAuth['id'],
+							'user_id'    => $this->userID['id'],
 							'provider'   => 'instagram',
 							'title'      => $request->message,
 							'text'       => $request->content_text,

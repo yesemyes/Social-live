@@ -46,21 +46,22 @@
                                 @endif
                             @endif
                         @endforeach
-                        @foreach($userAccounts as $value)
-                            @if( !isset($value['userId']) )
-                                <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" disabled>
-                                @if($value['provider'] == 'instagram')
-                                    <a href="#" id="myBtn"><i class="fa fa-{{ $value['provider'] }}" aria-hidden="true" style="color: #9A9691"></i></a>
-                                @elseif($value['provider'] == 'facebook')
-                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-official" aria-hidden="true" style="color: #9A9691"></i></a>
-                                @elseif($value['provider'] == 'google')
-                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-plus-square" aria-hidden="true" style="color: #9A9691"></i></a>
-                                @else
-                                    <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-square" aria-hidden="true" style="color: #9A9691"></i></a>
+                        @role('owner')
+                            @foreach($userAccounts as $value)
+                                @if( !isset($value['userId']) )
+                                    <input type="checkbox" id="{{ $value['provider'] }}" name="connected[]" value="{{ $value['provider'] }}" disabled>
+                                    @if($value['provider'] == 'instagram')
+                                        <a href="#" id="myBtn"><i class="fa fa-{{ $value['provider'] }}" aria-hidden="true" style="color: #9A9691"></i></a>
+                                    @elseif($value['provider'] == 'facebook')
+                                        <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-official" aria-hidden="true" style="color: #9A9691"></i></a>
+                                    @elseif($value['provider'] == 'google')
+                                        <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-plus-square" aria-hidden="true" style="color: #9A9691"></i></a>
+                                    @else
+                                        <a href="{{url('/'.$value['provider'].'/login')}}"><i class="fa fa-{{ $value['provider'] }}-square" aria-hidden="true" style="color: #9A9691"></i></a>
+                                    @endif
                                 @endif
-                            @endif
-
-                        @endforeach
+                            @endforeach
+                        @endrole
                     </div>
                 </div>
                 @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount > 0 )
