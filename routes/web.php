@@ -34,9 +34,11 @@ Route::post( '/editPostAction/{id}', 'HomeController@editPostAction' );
 Route::post( '/publish-post', 'HomeController@publishPostsAction' );
 Route::post( '/deletePost/{id?}', 'HomeController@deletePost' );
 Route::post( '/account/delete/{id}', 'Auth\OauthController@destroy' );
-//Route::post('/account/update/{id}', 'HomeController@accountUpdate');
+Route::post('/account/update/{id}', 'HomeController@accountUpdate');
+Route::post('/account/invite/{id}', 'HomeController@accountInvite');
 //Route::get('check/email/{id}/{url}', 'Auth\OauthController@checkEmail');
 //Route::post('/setPass/{id}', 'Auth\OauthController@setPass');
+
 /* Networks */
 Route::get( 'facebook/login/{wp?}', 'Auth\OauthController@loginWithFacebook' );
 Route::get( 'google/login/{wp?}', 'Auth\OauthController@loginWithGoogle' );
@@ -65,6 +67,7 @@ Route::group( [ 'middleware' => 'api', 'prefix' => 'api' ], function() {
 	} );
 } );
 
+/* Storage check/set access */
 Route::get( 'storage/app/{postImage}/{filename}', function( $postImage, $filename ) {
 	$path = storage_path( 'app/' . $postImage . '/' . $filename );
 	if ( ! File::exists( $path ) ) {

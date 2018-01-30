@@ -3,8 +3,12 @@
 @section('page-content')
     <div class="login-card">
         <h1>Register</h1><br>
+
         <form class="form-horizontal" role="form" method="POST" action="{{ url('/register') }}">
             {{ csrf_field() }}
+            @if(isset($_GET['token']))
+                <input type="hidden" name="invite_token" value="{{$_GET['token']}}">
+            @endif
             <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                 <label for="name" class="col-md-4 control-label">Name</label>
 

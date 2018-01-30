@@ -132,17 +132,17 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="mt10 f11pt"><label for="title{{$key}}">Title</label></div>
-                            <div class="mt5"><input type="text" class="input-title" id="title{{$key}}" data-post-title="{{$value['provider']}}" name="postTitle[]" value="{{$post->title}}"></div>
-                            <div class="mt10 f11pt"><label for="content{{$key}}">Content</label></div>
-                            <div class="mt5"><textarea data-post-content="{{ $value['provider'] }}" rows="6" id="content{{$key}}" class="input-content" placeholder="Write something about your post..." name="postContent[]" required="required">{{$post->text}}</textarea></div>
-                            <div class="mt10 f11pt"><label for="link{{$key}}">Link ( url )</label></div>
-                            <div class="mt5"><input type="text" class="input-title" id="link{{$key}}" data-link="{{$value['provider']}}" name="url[]" @if($value['provider']=="linkedin" || $value['provider']=="reddit") required @endif placeholder="http(s)://"></div>
+                            <div class="mt10 f11pt"><label for="title{{ $value['provider'] }}">Title</label></div>
+                            <div class="mt5"><input type="text" class="input-title" id="title{{ $value['provider'] }}" data-post-title="{{$value['provider']}}" name="postTitle[]" value="{{$post->title}}"></div>
+                            <div class="mt10 f11pt"><label for="content{{ $value['provider'] }}">Content</label></div>
+                            <div class="mt5"><textarea data-post-content="{{ $value['provider'] }}" rows="6" id="content{{ $value['provider'] }}" class="input-content" placeholder="Write something about your post..." name="postContent[]" required="required">{{$post->text}}</textarea></div>
+                            <div class="mt10 f11pt"><label for="link{{ $value['provider'] }}">Link ( url )</label></div>
+                            <div class="mt5"><input type="text" class="input-title" id="link{{ $value['provider'] }}" data-link="{{$value['provider']}}" name="url[]" @if($value['provider']=="linkedin" || $value['provider']=="reddit") required @endif placeholder="http(s)://"></div>
                             <div class="mt10">
                                 <div class="flex-container">
                                     <div class="fb35">
-                                        <input type="file" data-img="{{ $value['provider'] }}" id="imgInp{{$key}}" name="images[]" class="none">
-                                        <label class="dIBlock choose_img f10pt" id="ablah-{{$key}}" for="imgInp{{$key}}">Choose image</label>
+                                        <input type="file" data-img="{{ $value['provider'] }}" id="imgInp{{$value['provider']}}" name="images[]" class="none">
+                                        <label class="dIBlock choose_img f10pt" id="ablah-{{$value['provider']}}" for="imgInp{{$value['provider']}}">Choose image</label>
                                     </div>
                                     <div class="fb65 f8pt">
                                         <p class="pl10">Featured Image</p>
@@ -151,7 +151,7 @@
                                 </div>
                             </div>
                             <div class="mt10 tCenter">
-                                <img id="blah-{{$key}}" src="#" class="none" style="border-radius: 4px;" alt="your image" width="200" height="auto" />
+                                <img id="blah-{{$value['provider']}}" src="#" class="none" style="border-radius: 4px;" alt="your image" width="200" height="auto" />
                             </div>
                         </div>
                     </div>

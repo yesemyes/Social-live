@@ -10,12 +10,15 @@ a{text-decoration: none;}
 .fb200{flex-basis: 200px;}
 .fb150{flex-basis: 150px;}
 .w100{width: 100%}
+.w90{width: 90% !important;}
 .fb100p{flex-basis: 100%;}
+.fb50p{flex-basis: 50%;}
 .mCenter{margin: 0 auto}
 .tCenter{text-align:center;}
 .p10{padding: 10px !important;}
 .pl5{padding-left: 5px}
 .pl10{padding-left: 10px}
+.pl15{padding-left: 15px}
 .pl20{padding-left: 20px}
 .mAuto{margin: auto}
 .mLAuto{margin-left: auto}
@@ -472,7 +475,13 @@ header
 
 
 /* login form */
-
+.inputPswdStyle{
+    height: 35px;
+    width: 70%;
+    border: 1px solid #D6D3CE;
+    border-radius: 2px;
+    padding: 0 10px;
+}
 .login-card {
     padding: 40px;
     width: 274px;
@@ -493,10 +502,11 @@ header
     width: 100%;
     display: block;
     margin-bottom: 10px;
+    margin-top: 10px;
     position: relative;
 }
 
-.login-card input[type=text], input[type=email], input[type=password] {
+.login-card input[type=text], .login-card input[type=email], .login-card input[type=password] {
     height: 44px;
     font-size: 16px;
     width: 100%;
@@ -610,8 +620,8 @@ i.fa.fa-sign-out.fa-3 {
 .schedule_button_color{
     color: #FFFFFF;
     padding: 5px;
-    background-color: #3A83D6E6;
-    border: 1px solid #3A83D6E6;
+    background-color: #3A83D6;
+    border: 1px solid #3A83D6;
     border-radius: 4px;
     cursor: pointer;
     margin-bottom: 5px;
@@ -686,7 +696,14 @@ i.fa.fa-sign-out.fa-3 {
     border: 1px solid #F7F2C5;
     border-radius: 4px;
 }
+.show_pass{cursor: pointer;}
 .jconfirm-box{width: 60%;}
+#invite_message{
+    width: 90%;
+    border: 1px solid #D6D3CE;
+    border-radius: 2px;
+    padding: 10px;
+}
 /* media */
 @media only screen and (min-width: 813px) and (max-width: 1024px) {
     .top_social_button{
@@ -812,6 +829,13 @@ i.fa.fa-sign-out.fa-3 {
     .status,.success,.created_time,.created,.created_user{display: none}
     .name{text-align: right}
     .share,.action{text-align: center}
+    .account_form{
+        display: -webkit-flex; /* Safari */
+        -webkit-flex-wrap: wrap; /* Safari 6.1+ */
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+    }
     .create_post{
         display: -webkit-flex; /* Safari */
         -webkit-flex-wrap: wrap; /* Safari 6.1+ */
@@ -823,6 +847,12 @@ i.fa.fa-sign-out.fa-3 {
     .create_post .flex-grow-2{margin-bottom: 30px;}
     .item_accounts{flex-basis: 50%;}
     .login-card{width: auto;}
+    .account_form div{
+    	flex-basis: 100%;
+    }
+    .inputPswdStyle{
+    	width: 85%;
+    }
 }
 
 @media only screen and (max-width: 664px){

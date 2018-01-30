@@ -12,11 +12,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App;
+use Hash;
 use App\Post;
 use App\Posted;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Mail;
 
 class HomeController extends Controller{
 	public function __construct() {
@@ -514,16 +516,66 @@ class HomeController extends Controller{
 		return view( 'settings' );
 	}
 
-	public function accountUpdate( $id, Request $request ) {
-		if ( $request && $request->change_account == "change" ) {
+	public function accountUpdate($id, Request $request) {
+		if ( $request && $request->change_account == "change" && is_numeric($id) && $id > 0 ) {
 			$name     = $request->name;
 			$email    = $request->email;
-			$password = $request->password;
-			dd( $id );
+			$old_password = $request->old_password;
+			$new_password = $request->new_password;
+			$confirm_password = $request->confirm_password;
+			if($new_password===$confirm_password){
+				$user = Auth::user();
+				$check_email = User::where('email',$email)->where('id','<>',$user->id)->first();
+				if($check_email==null){
+					$check_user = User::where('id',$user->id)->first();
+					if($check_user!=null && Hash::check($old_password,$check_user->password)){
+						$password = Hash::make($new_password);
+						$change_pass = User::where('id',$user->id)
+											->update([
+												'name'=>$name,
+												'email'=>$email,
+												'password'=>$password
+											]);
+						if($change_pass==1){
+							Auth::logout();
+							Session::flash( 'message_success_chenge_account', 'Success account changed' );
+							return redirect('/login');
+						}
+					}
+				}else{
+					Session::flash( 'message_error', 'This Email exists' );
+					return redirect()->back();
+				}
+				
+			}else{
+				Session::flash( 'message_error', 'New Password and Confirm Password not equal' );
+				return redirect()->back();
+			}
 		} else {
-			Session::flash( 'msg', 'Error!' );
-
+			Session::flash( 'message_error', 'Error!' );
 			return redirect()->back();
+		}
+	}
+
+	public function accountInvite($id, Request $request)
+	{
+		dd($id);
+		if ( $request && $request->invite == "invite" && is_numeric($id) && $id > 0 ) {
+			$subject = $request->invite_subject;
+			$email   = $request->invite_email;
+			$message = $request->invite_message;
+			$token = str_random(64);
+			$data = [
+				'subject' => $subject,
+				'email' => $email,
+				'message' => $message,
+				'token' => $token,
+			];
+
+			Mail::send('emails.send-invite', $data, function($msg) use($data)
+			{
+				$msg->to($data['email'])->subject($data['subject']);
+			});
 		}
 	}
 }

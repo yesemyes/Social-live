@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+  <div class="instagram"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="dist/instagram.min.js"></script>
+<script>
+jQuery(function($) {
+  $('.instagram').on('willLoadInstagram', function(event, options) {
+    console.log(options);
+  });
+  $('.instagram').on('didLoadInstagram', function(event, response) {
+    console.log(response);
+  });
+  $('.instagram').instagram({
+    clientId: '7502c314346d4f2fac1d02cbe9074c71',
+    accessToken: '2568395090.7502c31.afbd21a149294bb098b32f439e3c9d56',
+    userId: '2568395090'
+  });
+});
+</script>
+</body>
+</html>

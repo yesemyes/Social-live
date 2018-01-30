@@ -12,6 +12,7 @@
         <p class="msg_error">{{ Session::get('message_error') }}</p>
     @endif
     <p class="border_bottom">Create New Post</p>
+    
     @if (count($errors) > 0)
         <ul>
             @foreach ($errors->all() as $error)

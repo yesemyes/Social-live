@@ -1,7 +1,11 @@
 @extends('layouts.master')
 
 @section('page-content')
+   
     <div class="login-card">
+         @if( Session::has('message_success_chenge_account') )
+            <p class="msg_success tcenter">{{ Session::get('message_success_chenge_account') }}</p>
+        @endif
         <h1>Log-in</h1><br>
         <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">
             {{ csrf_field() }}

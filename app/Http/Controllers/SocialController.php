@@ -245,7 +245,15 @@ class SocialController extends Controller{
 		}
 	}
 
-	public function linkedin( Request $request ) {
+	public function linkedin( $req = null, Request $request = null ) {
+		if ( $req != null ) {
+			$request                = collect();
+			$request->img_link      = $req->img_link;
+			$request->token_soc     = $req->token_soc;
+			$request->message       = $req->message;
+			$request->content_text  = $req->content_text;
+			$request->link          = $req->link;
+		}
 		$this->li = new LinkedIn(
 			array(
 				'api_key'      => '77bxo3m22s83c2',
@@ -255,7 +263,7 @@ class SocialController extends Controller{
 		);
 		$this->li->setAccessToken( $request->token_soc );
 
-		if ( $request->img_upload_link != null ) {
+		if ( isset($request->img_upload_link) && $request->img_upload_link != null ) {
 			$request->img_upload_link = str_replace( 'https://', 'http://', $request->img_upload_link );
 			$postParams               = array(
 				"content"    => array(
@@ -268,7 +276,7 @@ class SocialController extends Controller{
 					"code" => "anyone"
 				)
 			);
-		} elseif ( $request->img_link != null ) {
+		} elseif ( isset($request->img_link) && $request->img_link != null ) {
 			$request->img_link = str_replace( 'https://', 'http://', $request->img_link );
 			$postParams        = array(
 				"content"    => array(

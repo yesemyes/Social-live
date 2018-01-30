@@ -233,6 +233,7 @@ jQuery(document).ready(function($)
 
     $(document).on("click", "label[id^='ablah-']", function(){
         var a = this.id.split('-')[1];
+        console.log(a);
         function readURLnew(input)
         {
             if (input.files && input.files[0]) {
@@ -469,5 +470,30 @@ function PopupCenter(url, title, w, h) {
     // Puts focus on the newWindow
     if (window.focus) {
         newWindow.focus();
+    }
+}
+
+function oldPassword() {
+    var x_old = document.getElementById("old_password");
+    if (x_old.type === "password") {
+        x_old.type = "text";
+    } else {
+        x_old.type = "password";
+    }
+}
+function newPassword() {
+    var x_new = document.getElementById("new_password");
+    if (x_new.type === "password") {
+        x_new.type = "text";
+    } else {
+        x_new.type = "password";
+    }
+}
+function confirmPassword() {
+    var x_confirm = document.getElementById("confirm_password");
+    if (x_confirm.type === "password") {
+        x_confirm.type = "text";
+    } else {
+        x_confirm.type = "password";
     }
 }
