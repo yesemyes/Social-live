@@ -22,8 +22,15 @@ use Illuminate\Http\Request;
 use Mail;
 
 class HomeController extends Controller{
-	public function __construct() {
-		$this->middleware( 'auth' );
+
+	protected $userAuth;
+
+	public function __construct()
+	{
+		$this->middleware(function ($request, $next) {
+			$this->userAuth = Auth::user();
+			return $next($request);
+		});
 	}
 
 	public function index() {
@@ -34,15 +41,18 @@ class HomeController extends Controller{
 		} elseif ($user->hasRole('owner')) {
 			$userID = $user->id;
 		}
-		$posts = Posted::select( "social.icon", "posted.*" )
-		               ->leftJoin( 'social', 'social.provider', '=', 'posted.provider' )
-		               ->where( 'posted.user_id', $userID )
-		               ->orderBy( 'posted.id', 'desc' )
-		               ->get();
-		if ( count( $posts ) > 0 ) {
+		$posts = $user->posteds()->select( "social.icon", "posted.*" )
+		             ->leftJoin('social','social.provider','=','posted.provider')
+		             ->orderBy( 'posted.id', 'desc' )
+		             ->get();
+		if(count($posts)>0) {
 			return view( 'home', [ 'posts' => $posts, 'user' => $user ] );
 		} else {
-			return redirect( '/create-post' );
+			if ($user->hasRole('owner')) {
+				return redirect( '/create-post' );
+			} elseif($user->hasRole('guest')) {
+				return redirect( '/posts' );
+			}
 		}
 	}
 
@@ -95,28 +105,19 @@ class HomeController extends Controller{
 	}
 
 	public function managePosts() {
-		$user = Auth::user();
+		$user  = Auth::user();
 		if($user->hasRole('guest')) {
 			$ownerUserID = Invite::select('user_id')->where('email',$user->email)->first();
-			$userConnectedAccounts      = Oauth::select( 'oauth.user_id' )
-			                                   ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-			                                   //->where( 'oauth.user_name', $user->name )
-			                                   ->where( 'oauth.user_id', $ownerUserID->user_id )
-			                                   ->get()->keyBy( 'social_id' );
-			$posts = Post::where( 'user_id', $ownerUserID->user_id )->orderBy( 'id', 'desc' )->get();
-
-		}else if ($user->hasRole('owner')) {
-			$userConnectedAccounts      = Oauth::select( 'oauth.user_id' )
-			                                   ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-			                                   ->where( 'oauth.user_name', $user->name )
-			                                   ->where( 'oauth.user_id', $user->id )
-			                                   ->get()->keyBy( 'social_id' );
-			$posts = Post::where( 'user_id', $user->id )->orderBy( 'id', 'desc' )->get();
+			$userID = $ownerUserID->user_id;
+		} elseif ($user->hasRole('owner')) {
+			$userID = $user->id;
 		}
-		$userConnectedAccountsCount = count( $userConnectedAccounts );
-
-		//
-		if ( count( $posts ) > 0 ) {
+		$userConnectedAccountsCount = Oauth::select( 'oauth.user_id' )
+		                                   ->join( 'users', 'users.id', '=', 'oauth.user_id' )
+			                               ->where( 'oauth.user_id', $userID )
+		                                   ->count();
+		$posts = Post::where('user_id',$userID)->orderBy('id','desc')->get();
+		if ( !is_null($posts) ) {
 			return view( 'posts', [
 				'userConnectedAccountsCount' => $userConnectedAccountsCount,
 				'posts'                      => $posts,
@@ -596,7 +597,7 @@ class HomeController extends Controller{
 
 	public function accountInvite($id, Request $request)
 	{
-		if ( $request && $request->invite == "invite" && is_numeric($id) && $id > 0 ) {
+		if ( $request && $request->invite == "invite" && is_numeric($id) && $id > 0 && $this->userAuth->hasRole('owner') ) {
 			$subject = $request->invite_subject;
 			$email   = $request->invite_email;
 			$message = $request->invite_message;
@@ -624,6 +625,8 @@ class HomeController extends Controller{
 				Session::flash( 'message_error_invite', 'Your invites not sending' );
 				return redirect()->back();
 			}
+		} else {
+			return redirect()->back();
 		}
 	}
 }

@@ -24,7 +24,7 @@
             @endforeach
         </ul>
     @endif
-
+    @role('owner')
     <form action="/account/invite/{{ Auth::user()->id }}" method="post" autocomplete="asdasd">
         {{ csrf_field() }}
         <div class="flex-container-wrap mt20 pl20 account_form">
@@ -45,6 +45,7 @@
             </div>
         </div>
     </form>
+    @endrole
 
     <form action="/account/update/{{ Auth::user()->id }}" method="post" autocomplete="asdasd">
         {{ csrf_field() }}

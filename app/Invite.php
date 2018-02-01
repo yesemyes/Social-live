@@ -9,4 +9,9 @@ class Invite extends Model
 	protected $fillable = [
 		'email', 'token','user_id',
 	];
+
+	/*public function getEmail()
+	{
+		return $this->where('email','toghramajyan@inbox.ru');
+	}*/
 }

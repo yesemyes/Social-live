@@ -20,6 +20,8 @@ class User extends Authenticatable
      */
 	//protected $table = 'users';
 
+	protected $guarded = false;
+
 	 protected $fillable = [
         'name', 'email', 'password','user_url',
     ];
@@ -34,24 +36,18 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    public function posteds()
+    {
+    	return $this->hasMany('App\Posted');
+    }
+
+	public function posts()
+	{
+		return $this->hasMany('App\Post');
+	}
+
 	public function connectedAccounts()
 	{
 		return $this->hasMany('App\Oauth');
 	}
-
-	/*static function byOauth($id, $provider)
-	{
-
-		$user = DB::table('oauth')
-		          ->join('users', 'oauth.user_id', '=', 'users.id')
-		          ->select('users.*')
-		          ->where('provider', $provider)
-		          ->where('provider_user_id', $id)
-		          ->orderBy('id', 'ASC')
-		          ->first();
-
-		$user = $user ? self::find($user->id) : false;
-
-		return $user;
-	}*/
 }

@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Posted extends Model
 {
+	protected $guarded = false;
     //
 	protected $table = "posted";
+	//protected $primaryKey = "provider";
 	protected $fillable = [
 		'user_id',
 		'provider',
@@ -23,4 +25,14 @@ class Posted extends Model
 		'created_at',
 		'updated_at'
 	];
+
+	public function socialIcon()
+	{
+		return $this->hasOne('App\Social','provider','provider');
+	}
+
+	public function user()
+	{
+		return $this->belongsTo('App\User');
+	}
 }

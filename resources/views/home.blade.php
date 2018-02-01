@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    <p class="border_bottom">Welcome <b>{{ Auth::user()->name }} !</b></p>
+    <p class="border_bottom">Welcome <b>{{ Auth::user()->name }} !</b> @if(!$user->hasRole('owner')) (guest user) @endif</p>
 
     <h3 class="mt20 f16">All post</h3>
 
