@@ -4,20 +4,12 @@
 
 @section('page-content')
 
-    @if( Session::has('message') )
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <p>{{ Session::get('message') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
     <p class="border_bottom">Welcome <b>{{ Auth::user()->name }} !</b> @if(!$user->hasRole('owner')) (guest user) @endif</p>
-
+    @if( Session::has('message') )
+        <p class="msg_error">{{ Session::get('message') }}</p>
+    @elseif( Session::has('message_role') )
+        <p class="msg_error">{{ Session::get('message_role') }}</p>
+    @endif
     <h3 class="mt20 f16">All post</h3>
 
     <div class="flex-container mt20 pl20 border_bottom all_post_title">

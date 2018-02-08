@@ -24,40 +24,52 @@ use Mail;
 class HomeController extends Controller{
 
 	protected $userAuth;
+	protected $userID;
 
 	public function __construct()
 	{
+		$this->middleware('auth');
 		$this->middleware(function ($request, $next) {
 			$this->userAuth = Auth::user();
+			if(!is_null($this->userAuth) && $this->userAuth->hasRole('guest')) {
+				$ownerUserID = Invite::select('user_id')->where('email',$this->userAuth->email)->first();
+				$this->userID = $ownerUserID->user_id;
+			} elseif (!is_null($this->userAuth) && $this->userAuth->hasRole('owner')) {
+				$this->userID = $this->userAuth->id;
+			}
 			return $next($request);
 		});
+
 	}
 
 	public function index() {
-		$user  = Auth::user();
-		if($user->hasRole('guest')) {
-			$ownerUserID = Invite::select('user_id')->where('email',$user->email)->first();
-			$userID = $ownerUserID->user_id;
-		} elseif ($user->hasRole('owner')) {
-			$userID = $user->id;
-		}
-		$posts = $user->posteds()->select( "social.icon", "posted.*" )
+		/*$posts = $this->userAuth->posted()->select( "social.icon", "posted.*" )
 		             ->leftJoin('social','social.provider','=','posted.provider')
 		             ->orderBy( 'posted.id', 'desc' )
-		             ->get();
+		             ->get();*/
+		$posts = Posted::select( "social.icon", "posted.*" )
+						->leftJoin('social','social.provider','=','posted.provider')
+		               ->where('user_id',$this->userID)
+		               ->orderBy('posted.id','desc')
+		               ->get();
 		if(count($posts)>0) {
-			return view( 'home', [ 'posts' => $posts, 'user' => $user ] );
+			return view( 'home', [ 'posts' => $posts, 'user' => $this->userAuth ] );
 		} else {
-			if ($user->hasRole('owner')) {
+			if ($this->userAuth->hasRole('owner')) {
 				return redirect( '/create-post' );
-			} elseif($user->hasRole('guest')) {
+			} elseif($this->userAuth->hasRole('guest')) {
 				return redirect( '/posts' );
 			}
 		}
 	}
 
 	public function createPost() {
-		return view( 'createPost' );
+		if($this->userAuth->hasRole('owner')) {
+			return view( 'createPost' );
+		} elseif($this->userAuth->hasRole('guest')) {
+			return redirect( '/posts' );
+		}
+
 	}
 
 	public function createPostAction( Request $request ) {
@@ -105,23 +117,16 @@ class HomeController extends Controller{
 	}
 
 	public function managePosts() {
-		$user  = Auth::user();
-		if($user->hasRole('guest')) {
-			$ownerUserID = Invite::select('user_id')->where('email',$user->email)->first();
-			$userID = $ownerUserID->user_id;
-		} elseif ($user->hasRole('owner')) {
-			$userID = $user->id;
-		}
 		$userConnectedAccountsCount = Oauth::select( 'oauth.user_id' )
 		                                   ->join( 'users', 'users.id', '=', 'oauth.user_id' )
-			                               ->where( 'oauth.user_id', $userID )
+			                               ->where( 'oauth.user_id', $this->userID )
 		                                   ->count();
-		$posts = Post::where('user_id',$userID)->orderBy('id','desc')->get();
+		$posts = Post::where('user_id',$this->userID)->orderBy('id','desc')->get();
 		if ( !is_null($posts) ) {
 			return view( 'posts', [
 				'userConnectedAccountsCount' => $userConnectedAccountsCount,
 				'posts'                      => $posts,
-				'user'                       => $user
+				'user'                       => $this->userAuth
 			] );
 		} else {
 			return redirect( '/create-post' );
@@ -202,86 +207,74 @@ class HomeController extends Controller{
 	}
 
 	public function publishPost( $postID, $posted = null ) {
-		$user = Auth::user();
-
-		if ( $user != null ) {
-			$socials = Social::get();
-
-			if($user->hasRole('guest')) {
-				$ownerUserID = Invite::select( 'user_id' )->where( 'email', $user->email )->first();
-				$userID = $ownerUserID->user_id;
-			} elseif ($user->hasRole('owner')) {
-				$userID = $user->id;
-			}
-			if ( isset( $posted ) && $posted != null && $posted == "posted" ) {
-				$post = Posted::where( 'user_id', $userID )->where( 'id', $postID )->first();
-			} else {
-				$post = Post::where( 'user_id', $userID )->where( 'id', $postID )->where( 'status', 1 )->first();
-			}
-			if ( $post == null ) {
-				Session::flash( 'message_error', 'Warning! your post not published' );
-				return redirect( '/edit-post/' . $postID );
-			}
-			$userConnectedAccounts = Oauth::select( 'oauth.*' )
-			                              ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-			                              //->where( 'oauth.user_name', $user->name )
-			                              ->where( 'oauth.user_id', $userID )
-			                              ->get()->keyBy( 'social_id' );
-			$userConnectedAccountsCount = count( $userConnectedAccounts );
-			$userAccounts               = array();
-			$socialClass                = new SocialController();
-			$subreddits                 = "";
-			$boards                     = "";
-			foreach ( $socials as $key => $item ) {
-				if ( isset( $userConnectedAccounts[ $item->id ] ) ) {
-					$userAccounts[ $key ] = [
-						'provider'            => $item->provider,
-						'userId'              => $userConnectedAccounts[ $item->id ]->id,
-						'provUserId'          => $userConnectedAccounts[ $item->id ]->provider_user_id,
-						'icon'                => $item['icon'],
-						'access_token'        => $userConnectedAccounts[ $item->id ]->access_token,
-						'access_token_secret' => $userConnectedAccounts[ $item->id ]->access_token_secret,
-						'first_name'          => $userConnectedAccounts[ $item->id ]->first_name,
-						'last_name'           => $userConnectedAccounts[ $item->id ]->last_name,
-					];
-					if ( isset( $userConnectedAccounts[ $item->id ]->access_token ) && $userConnectedAccounts[ $item->id ]->access_token != "" ) {
-						$token = $userConnectedAccounts[ $item->id ]->access_token;
-					} else {
-						$token = null;
-					}
-					if ( isset( $item->provider ) && $item->provider == "reddit" ) {
-						$get_subreddits = $socialClass->get_subreddits_web( $token );
-						if ( isset( $get_subreddits->message ) && $get_subreddits->message == "Unauthorized" ) {
-							$subreddits = null;
-						} else {
-							$subreddits = $socialClass->get_subreddits_web( $token );
-						}
-					}
-					if ( isset( $item->provider ) && $item->provider == "pinterest" ) {
-						$get_boards = $socialClass->get_boards_web( $token );
-						if ( $get_boards == [] ) {
-							$boards = null;
-						} else {
-							$boards = $socialClass->get_boards_web( $token );
-						}
-					}
-				} else {
-					$userAccounts[ $key ] = [ 'provider' => $item->provider, 'icon' => $item['icon'] ];
-				}
-			}
-
-			return view( 'publishPost', [
-				'userAccounts'               => $userAccounts,
-				'user'                       => $user,
-				'post'                       => $post,
-				'posted'                     => $posted,
-				'subreddits'                 => $subreddits,
-				'boards'                     => $boards,
-				'userConnectedAccountsCount' => $userConnectedAccountsCount
-			] );
+		$socials = Social::get();
+		if ($posted != null && $posted == "posted") {
+			$post = Posted::where('user_id', $this->userID)->where('id', $postID)->first();
 		} else {
-			return redirect( '/login' );
+			$post = Post::where('user_id', $this->userID)->where('id', $postID)->where('status', 1)->first();
 		}
+		if ($post == null) {
+			Session::flash( 'message_error', 'Warning! your post not published' );
+			return redirect( '/edit-post/' . $postID );
+		}
+		$userConnectedAccounts = Oauth::select( 'oauth.*' )
+		                              ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
+		                              //->where( 'oauth.user_name', $user->name )
+		                              ->where( 'oauth.user_id', $this->userID )
+		                              ->get()->keyBy( 'social_id' );
+		$userConnectedAccountsCount = count( $userConnectedAccounts );
+		$userAccounts               = array();
+		$socialClass                = new SocialController();
+		$subreddits                 = "";
+		$boards                     = "";
+		foreach ( $socials as $key => $item ) {
+			if ( isset( $userConnectedAccounts[ $item->id ] ) ) {
+				$userAccounts[ $key ] = [
+					'provider'            => $item->provider,
+					'userId'              => $userConnectedAccounts[ $item->id ]->id,
+					'provUserId'          => $userConnectedAccounts[ $item->id ]->provider_user_id,
+					'icon'                => $item['icon'],
+					'access_token'        => $userConnectedAccounts[ $item->id ]->access_token,
+					'access_token_secret' => $userConnectedAccounts[ $item->id ]->access_token_secret,
+					'first_name'          => $userConnectedAccounts[ $item->id ]->first_name,
+					'last_name'           => $userConnectedAccounts[ $item->id ]->last_name,
+				];
+				if ( isset( $userConnectedAccounts[ $item->id ]->access_token ) && $userConnectedAccounts[ $item->id ]->access_token != "" ) {
+					$token = $userConnectedAccounts[ $item->id ]->access_token;
+				} else {
+					$token = null;
+				}
+				if ( isset( $item->provider ) && $item->provider == "reddit" ) {
+					$get_subreddits = $socialClass->get_subreddits_web( $token );
+					if ( isset( $get_subreddits->message ) && $get_subreddits->message == "Unauthorized" ) {
+						$subreddits = null;
+					} else {
+						$subreddits = $socialClass->get_subreddits_web( $token );
+					}
+				}
+				if ( isset( $item->provider ) && $item->provider == "pinterest" ) {
+					$get_boards = $socialClass->get_boards_web( $token );
+					if ( $get_boards == [] ) {
+						$boards = null;
+					} else {
+						$boards = $socialClass->get_boards_web( $token );
+					}
+				}
+			} else {
+				$userAccounts[ $key ] = [ 'provider' => $item->provider, 'icon' => $item['icon'] ];
+			}
+		}
+
+		return view( 'publishPost', [
+			'userAccounts'               => $userAccounts,
+			'user'                       => $this->userAuth,
+			'post'                       => $post,
+			'posted'                     => $posted,
+			'subreddits'                 => $subreddits,
+			'boards'                     => $boards,
+			'userConnectedAccountsCount' => $userConnectedAccountsCount
+		] );
+
 	}
 
 	public function publishPostsAction( Request $request ) {
@@ -295,14 +288,9 @@ class HomeController extends Controller{
 			}
 			$socialClass               = new SocialController();
 			$scheduleClass             = new ScheduleController();
-			$user                      = Auth::user();
-			if($user->hasRole('guest')) {
-				$ownerUserID = Invite::select( 'user_id' )->where( 'email', $user->email )->first();
-				$userID = $ownerUserID->user_id;
-			} elseif ($user->hasRole('owner')) {
-				$userID = $user->id;
-			}
+
 			$check_connected_instagram = array_search( 'instagram', $connected );
+
 			if ( isset( $request->postImage ) ) {
 				$request->img_link = url( $request->postImage );
 				$request->img      = $request->postImage;
@@ -395,7 +383,7 @@ class HomeController extends Controller{
 					$request->link = null;
 				}
 				if ( isset( $request->images[ $key ] ) && $request->images[ $key ] != null ) {
-					$filename                     = 'app/' . $request->images[ $key ]->store( $userID );
+					$filename                     = 'app/' . $request->images[ $key ]->store( $this->userID );
 					$img                          = url( Storage::url( $filename ) );
 					$img_ins                      = Storage::url( $filename );
 					$request->img_upload_link     = $img;
@@ -407,7 +395,7 @@ class HomeController extends Controller{
 					$request->img_upload          = null;
 				}
 				if ( isset( $request->schedule_posts ) ) {
-					$schedule = $scheduleClass->index( $userID, $request );
+					$schedule = $scheduleClass->index( $this->userID, $request );
 					array_push( $suc_schedule, $schedule );
 				} else {
 					$socials = $socialClass->$item( $req = null, $request );
@@ -425,25 +413,29 @@ class HomeController extends Controller{
 	}
 
 	public function editPost( $id ) {
-		$user = Auth::user();
-		$post = Post::where( 'user_id', $user->id )->where( 'id', $id )->first();
-		if ( $post != null ) {
-			return view( 'post', [ 'post' => $post, 'user' => $user ] );
+		$post = $this->userAuth->posts()->where('id', $id)->first();
+		if ($post != null && $this->userAuth->hasRole('owner')) {
+			return view( 'post', [ 'post' => $post, 'user' => $this->userAuth ] );
 		} else {
+			if($this->userAuth->hasRole('guest')) {
+				Session::flash( 'message_role', 'You have not access to edit post' );
+			}
 			return redirect( '/posts' );
 		}
 	}
 
 	public function editPosted( $id ) {
-		$user = Auth::user();
 		$post = Posted::select( "social.icon", "posted.*" )
 		              ->leftJoin( 'social', 'social.provider', '=', 'posted.provider' )
-		              ->where( 'posted.user_id', $user->id )
+		              ->where( 'posted.user_id', $this->userID )
 		              ->where( 'posted.id', $id )
 		              ->first();
-		if ( $post != null ) {
-			return view( 'posted', [ 'post' => $post, 'user' => $user ] );
+		if ($post != null && $this->userAuth->hasRole('owner') ) {
+			return view( 'posted', [ 'post' => $post, 'user' => $this->userAuth ] );
 		} else {
+			if($this->userAuth->hasRole('guest')) {
+				Session::flash( 'message_role', 'You have not access to edit post' );
+			}
 			return redirect( '/' );
 		}
 	}
@@ -486,23 +478,7 @@ class HomeController extends Controller{
 					return 'faild';
 				}
 			} elseif ( $request->post == 1 ) {
-				$post = Posted::where( 'id', $id )->first();
-				/*
-				$userID = $post->user_id;
-				if( $post->img != null ){
-					File::delete(storage_path($post->img));
-					$del_post = Posted::where('id',$id)->delete();
-					$posts = Posted::where('user_id',$userID)->get();
-					if(count($posts) == 0){
-						File::deleteDirectory(storage_path('/app/'.$userID));
-					}else{
-						foreach ($posts as $item){
-							if($item['img'] == null){
-								File::deleteDirectory(storage_path('/app/'.$userID));
-							}
-						}
-					}
-				}else */
+
 				$del_post = Posted::where( 'id', $id )->delete();
 				if ( $del_post == 1 ) {
 					return 'success';
@@ -514,13 +490,12 @@ class HomeController extends Controller{
 	}
 
 	public function network() {
-		$user                  = Auth::user();
-		if($user->hasRole('owner')) {
+		if($this->userAuth->hasRole('owner')) {
 			$socials               = Social::get();
 			$userConnectedAccounts = Oauth::select( 'oauth.*' )
 			                              ->leftJoin( 'users', 'users.id', '=', 'oauth.user_id' )
-											//->where('oauth.user_name',$user->name)
-				                           ->where( 'oauth.user_id', $user->id )
+											//->where('oauth.user_name',$this->userAuth->name)
+				                           ->where( 'oauth.user_id', $this->userID )
 			                              ->get()->keyBy( 'social_id' );
 			$userAccounts          = array();
 			foreach ( $socials as $key => $item ) {
@@ -539,9 +514,9 @@ class HomeController extends Controller{
 					$userAccounts[ $key ] = [ 'provider' => $item->provider, 'icon' => $item['icon'] ];
 				}
 			}
-
-			return view( 'network', [ 'user' => $user, 'userAccounts' => $userAccounts ] );
+			return view( 'network', [ 'user' => $this->userAuth, 'userAccounts' => $userAccounts ] );
 		} else {
+			Session::flash( 'message_role', 'You have not access to add or delete account' );
 			return redirect()->back();
 		}
 	}
@@ -562,13 +537,12 @@ class HomeController extends Controller{
 			$new_password = $request->new_password;
 			$confirm_password = $request->confirm_password;
 			if($new_password===$confirm_password){
-				$user = Auth::user();
-				$check_email = User::where('email',$email)->where('id','<>',$user->id)->first();
+				$check_email = User::where('email',$email)->where('id','<>',$this->userAuth->id)->first();
 				if($check_email==null){
-					$check_user = User::where('id',$user->id)->first();
+					$check_user = User::where('id',$this->userAuth->id)->first();
 					if($check_user!=null && Hash::check($old_password,$check_user->password)){
 						$password = Hash::make($new_password);
-						$change_pass = User::where('id',$user->id)
+						$change_pass = User::where('id',$this->userAuth->id)
 											->update([
 												'name'=>$name,
 												'email'=>$email,

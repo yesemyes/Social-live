@@ -204,9 +204,9 @@ class LinkedIn
 	 */
 	public function fetch($endpoint, array $payload = array(), $method = 'GET', array $headers = array(), array $curl_options = array())
 	{
-		//dd( $this->getAccessToken() );
+
 		$concat = (stristr($endpoint,'?') ? '&' : '?');
-		$endpoint = self::API_BASE . '/' . trim($endpoint, '/\\') . $concat;
+		$endpoint = self::API_BASE . '/' . trim($endpoint, '/\\'). $concat;
 		$headers[] = 'x-li-format: json';
 		$headers[] = 'Authorization: Bearer ' . $this->getAccessToken();
 
@@ -254,6 +254,7 @@ class LinkedIn
 				$options[CURLOPT_URL] .= '&' . http_build_query($payload, '&');
 			}
 		}
+
 		if (!empty($curl_options)) {
 			$options = array_replace($options, $curl_options);
 		}
@@ -268,7 +269,6 @@ class LinkedIn
 			throw new \RuntimeException('Request Error: ' . curl_error($ch));
 		}
 		$response = json_decode($response, true);
-
 		if (isset($response['status']) && ($response['status'] < 200 || $response['status'] > 300)) {
 			throw new \RuntimeException('Request Error: ' . $response['message'] . '. Raw Response: ' . print_r($response, true));
 		}

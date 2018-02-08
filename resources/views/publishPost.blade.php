@@ -21,6 +21,8 @@
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
         <p class="msg_error">{{ Session::get('message_error') }}</p>
+    @elseif( Session::has('message_error_ins') )
+        <p class="msg_error">{{ Session::get('message_error_ins') }}</p>
     @elseif( isset($userConnectedAccountsCount) && $userConnectedAccountsCount == 0 )
         <p class="accounts_check">You are not connected to any social account. <a href="{{url('/networks')}}" style="color: #0051F8;"><i class="fa fa-plus" aria-hidden="true"></i> Add Account</a></p>
     @endif

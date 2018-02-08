@@ -147,8 +147,9 @@ class InstagramUpload
 		if($arrResult['status'] == "ok"){
 			return true;
 		}else{
-			print $result;
-			//return $arrResult['status'];
+			//dd($result);
+			//print $result;
+			return $arrResult['status'];
 			exit;
 		}
 	}

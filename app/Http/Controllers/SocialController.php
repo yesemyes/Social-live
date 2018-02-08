@@ -49,17 +49,31 @@ class SocialController extends Controller{
 	public $li;
 	public $reddit;
 	public $pin;
-	protected $userAuth;
-	protected $userID;
+	public $userAuth;
+	public $userID;
 
 	public function __construct() {
+		/*$this->middleware(function ($request, $next) {
+			$this->userAuth = Auth::user();
+
+			if(!is_null($this->userAuth) && $this->userAuth->hasRole('guest')) {
+				$ownerUserID = Invite::select('user_id')->where('email',$this->userAuth->email)->first();
+				$this->userID = $ownerUserID->user_id;
+			} elseif (!is_null($this->userAuth) && $this->userAuth->hasRole('owner')) {
+				$this->userID = $this->userAuth->id;
+			}
+			dd(Auth::user());
+			return $next($request);
+		});*/
 		$this->userAuth = Auth::user();
-		if($this->userAuth->hasRole('guest')) {
-			$ownerUserID = Invite::select( 'user_id' )->where( 'email', $this->userAuth->email )->first();
-			$this->userID['id'] = $ownerUserID->user_id;
-		} else {
-			$this->userID['id'] = $this->userAuth->id;
+
+		if(!is_null($this->userAuth) && $this->userAuth->hasRole('guest')) {
+			$ownerUserID = Invite::select('user_id')->where('email',$this->userAuth->email)->first();
+			$this->userID = $ownerUserID->user_id;
+		} elseif (!is_null($this->userAuth) && $this->userAuth->hasRole('owner')) {
+			$this->userID = $this->userAuth->id;
 		}
+
 	}
 
 	public function facebook( $req = null, Request $request = null ) {
@@ -120,7 +134,7 @@ class SocialController extends Controller{
 				Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 			} else {
 				Posted::create( [
-					'user_id'    => $this->userID['id'],
+					'user_id'    => $this->userID,
 					'provider'   => 'facebook',
 					'title'      => $request->message,
 					'text'       => $request->content_text,
@@ -140,6 +154,7 @@ class SocialController extends Controller{
 	}
 
 	public function twitter( $req = null, Request $request = null ) {
+		//dd( $this->userAuth );
 		if ( $req != null ) {
 			$request                = collect();
 			$request->img_link      = $req->img_link;
@@ -148,6 +163,10 @@ class SocialController extends Controller{
 			$request->message       = $req->message;
 			$request->content_text  = $req->content_text;
 			$request->link          = $req->link;
+			$countSlash = explode('/',$request->img_link);
+			if(!isset($countSlash[4])) {
+				$request->img_link = null;
+			}
 		}
 		$settings      = array(
 			'oauth_access_token'        => $request->token_soc,
@@ -234,7 +253,7 @@ class SocialController extends Controller{
 				Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 			} else {
 				Posted::create( [
-					'user_id'    => $this->userID['id'],
+					'user_id'    => $this->userID,
 					'provider'   => 'twitter',
 					'title'      => $request->message,
 					'text'       => $request->content_text,
@@ -270,7 +289,6 @@ class SocialController extends Controller{
 			)
 		);
 		$this->li->setAccessToken( $request->token_soc );
-
 		if ( isset($request->img_upload_link) && $request->img_upload_link != null ) {
 			$request->img_upload_link = str_replace( 'https://', 'http://', $request->img_upload_link );
 			$postParams               = array(
@@ -309,9 +327,7 @@ class SocialController extends Controller{
 				)
 			);
 		}
-
 		$response = $this->li->post( 'people/~/shares?format=json', $postParams );
-
 		if ( $response != null ) {
 			return response()->json( [ 'result' => 'SUCCESS! your post in Linkedin now shared' ] );
 		} else {
@@ -401,7 +417,7 @@ class SocialController extends Controller{
 				Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 			} else {
 				Posted::create( [
-					'user_id'    => $this->userID['id'],
+					'user_id'    => $this->userID,
 					'provider'   => 'reddit',
 					'title'      => $request->message,
 					'text'       => $request->content_text,
@@ -535,7 +551,7 @@ class SocialController extends Controller{
 					Posted::where( 'id', $req->id )->update( [ 'status' => 1 ] );
 				} else {
 					Posted::create( [
-						'user_id'    => $this->userID['id'],
+						'user_id'    => $this->userID,
 						'provider'   => 'pinterest',
 						'title'      => $request->message,
 						'text'       => $request->content_text,
@@ -587,6 +603,7 @@ class SocialController extends Controller{
 	}
 
 	public function instagram( $req = null, Request $request = null ) {
+
 		if ( $req != null ) {
 			$request               = collect();
 			$request->img_link_ins = $req->img_link_ins;
@@ -600,15 +617,16 @@ class SocialController extends Controller{
 			$pathToFile = $request->img_upload_link_ins;
 		} else if ( isset( $request->img_link_ins ) && $request->img_link_ins != null ) {
 			$pathToFile = $request->img_link_ins;
+
 		} else {
 			$pathToFile = null;
 		}
 		if ( $pathToFile != null ) {
-			$resize         = new Resize();
+			/*$resize         = new Resize();
 			$new_           = $resize->check( base_path( substr( $pathToFile, 1 ) ) );
 			$new_resize_img = substr( $new_, strrpos( $new_, '/' ) + 1 );
 			$path           = substr( $pathToFile, 0, strrpos( $pathToFile, '/' ) );
-			$new_upload_pic = $path . "/" . $new_resize_img;
+			$new_upload_pic = $path."/".$new_resize_img;*/
 
 			$oa        = new Oa;
 			$encoded   = $oa->sonDecode( $request->password );
@@ -617,11 +635,11 @@ class SocialController extends Controller{
 			$password  = $encoded[1];
 			$this->ins = new InstagramUpload();
 			$this->ins->Login( $request->username, $password );
-			$this->ins->UploadPhoto( ".." . $new_upload_pic, $request->message );
+			$this->ins->UploadPhoto( ".." . $pathToFile, $request->message ); // $new_upload_pic
 
 			if ( isset( $this->ins->upload_id ) && $this->ins->upload_id != null ) {
 				if ( $this->ins->ConfigPhotoApi( $request->message ) == true ) {
-					$img = explode( "/", $new_upload_pic );
+					$img = explode( "/", $pathToFile ); // $new_upload_pic
 					$img = $img[2] . '/' . $img[3] . '/' . $img[4];
 					if ( $req != null ) {
 						Posted::where( 'id', $req->id )->update( [
@@ -630,7 +648,7 @@ class SocialController extends Controller{
 						] );
 					} else {
 						Posted::create( [
-							'user_id'    => $this->userID['id'],
+							'user_id'    => $this->userID,
 							'provider'   => 'instagram',
 							'title'      => $request->message,
 							'text'       => $request->content_text,
@@ -652,7 +670,7 @@ class SocialController extends Controller{
 				return response()->json( [ 'result' => 'ERROR! Instagram share' ] );
 			}
 		} else {
-			return response()->json( [ 'result' => 'ERROR! Instagram share' ] );
+			return response()->json( [ 'result' => 'ERROR! for Instagram share required image' ] );
 		}
 	}
 

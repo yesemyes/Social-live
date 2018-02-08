@@ -21,7 +21,7 @@ Auth::routes();
 Route::get( '/', 'HomeController@index' );
 Route::get( '/dashboard', 'HomeController@index' );
 Route::get( '/networks', 'HomeController@network' );
-Route::get( '/create-post', 'HomeController@createPost' );
+Route::get( '/create-post',['uses' => 'HomeController@createPost']);
 Route::get( '/posts', 'HomeController@managePosts' );
 Route::get( '/edit-post/{id}', 'HomeController@editPost' );
 Route::get( '/edit-posted/{id}', 'HomeController@editPosted' );

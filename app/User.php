@@ -18,7 +18,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-	//protected $table = 'users';
+	protected $table = 'users';
 
 	protected $guarded = false;
 
@@ -36,7 +36,7 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function posteds()
+    public function posted()
     {
     	return $this->hasMany('App\Posted');
     }

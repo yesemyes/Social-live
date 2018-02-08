@@ -14,8 +14,10 @@
         <p class="msg_success">{{ Session::get('message_success') }}</p>
     @elseif( Session::has('message_error') )
         <p class="msg_error">{{ Session::get('message_error') }}</p>
+    @elseif( Session::has('message_role') )
+        <p class="msg_error">{{ Session::get('message_role') }}</p>
     @endif
-    @if( isset($userConnectedAccountsCount) && $userConnectedAccountsCount == 0)
+    @if( isset($posts) && count($posts) == 0)
         <h3 class="mt20 f16 border_bottom">Empty</h3>
     @else
         <h3 class="mt20 f16">PUBLISH POST(s)</h3>
