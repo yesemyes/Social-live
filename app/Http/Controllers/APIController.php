@@ -18,6 +18,52 @@ use Illuminate\Support\Facades\Session;
 //use Session;
 
 class APIController extends Controller{
+	static function sonDecode($encoded)
+	{
+		$key = "~b9TLrFAeY@#$%^&";
+		return rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($key), base64_decode(strtr($encoded, '-_~', '+/=')), MCRYPT_MODE_CBC, md5(md5($key))), "");
+	}
+
+
+	public function checkWPUsersAndLoginOrReg(Request $request) {
+		if(!isset($request->t) || empty($request->t)){
+			session_destroy();
+			echo 'INCORRECT TOKEN OR IT HAS BEEN EXPIRED!';
+		}
+		$data = explode('}', self::sonDecode($request->t));
+		$data = json_decode($data[0].'}');
+		if(!(time() - $data->date < 600)){
+			$request->session()->flush();
+			$data = null;
+			echo 'INCORRECT TOKEN OR IT HAS BEEN EXPIRED!';
+		}
+		if(!isset($data->email)){
+			$request->session()->flush();
+			$data = null;
+			echo 'INCORRECT TOKEN OR IT HAS BEEN EXPIRED!';
+		}
+		if(!is_null($data)) {
+			$user = User::where('email',$data->email)->first();
+			if(!is_null($user)) {
+				Auth::loginUsingId($user->id);
+				return redirect('/');
+			} else {
+				$user = User::create([
+					'name' => $data->name,
+					'email' => $data->email,
+					'password' => $data->password,
+					'user_url' => $_SERVER["HTTP_REFERER"],
+				]);
+				if($user) {
+					Auth::loginUsingId($user->id);
+					$user->attachRole('1');
+					return redirect('/');
+				}
+			}
+		}
+	}
+
+
 	public function register( Request $request ) {
 		$input             = $request->all();
 		$input['password'] = Hash::make( $input['password'] );

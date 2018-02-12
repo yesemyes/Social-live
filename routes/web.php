@@ -17,6 +17,11 @@ if ( env( 'APP_ENV' ) === 'local' ) {
 
 Auth::routes();
 
+
+/* iimagine.life query */
+
+Route::get( '/wp_user/{t?}', 'APIController@checkWPUsersAndLoginOrReg' );
+
 /* Default */
 Route::get( '/', 'HomeController@index' );
 Route::get( '/dashboard', 'HomeController@index' );
