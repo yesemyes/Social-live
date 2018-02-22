@@ -24,8 +24,8 @@ return [
 			'scope'         => ['email','publish_actions'],
 		],
 		'Google' => [
-			'client_id'     => '24418481962-52f7vpeofhhpdlgl16rmefuhudionjj2.apps.googleusercontent.com',
-			'client_secret' => 'tfSbrFKlJ1pvaAAohNrfm4La',
+			'client_id'     => '258124084901-b4ul34a62g8jn8vapk1u27l85l6gpvf3.apps.googleusercontent.com',
+			'client_secret' => 'DcM0EfllN4M26qh72dd2xNFe',
 			'scope'         => ['userinfo_email', 'userinfo_profile',
 									'https://www.googleapis.com/auth/plus.me',
 									'https://www.googleapis.com/auth/plus.circles.read',

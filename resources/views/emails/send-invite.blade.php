@@ -88,7 +88,7 @@ $style = [
                                     <table style="{{ $style['body_sub'] }}">
                                         <tr>
                                             <td style="{{ $fontFamily }}">
-                                                <p style="{{ $style['paragraph-sub'] }}">{{ $token }}</p>
+                                                <p style="{{ $style['paragraph-sub'] }}">Content Promotion</p>
 
                                                 <p style="{{ $style['paragraph-sub'] }}">
                                                     <a style="{{ $style['anchor'] }}" href="{{ url('/register?token='.$token) }}" target="_blank">Registration</a>

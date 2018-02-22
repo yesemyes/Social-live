@@ -29,18 +29,21 @@ class APIController extends Controller{
 		if(!isset($request->t) || empty($request->t)){
 			session_destroy();
 			echo 'INCORRECT TOKEN OR IT HAS BEEN EXPIRED!';
+			die;
 		}
 		$data = explode('}', self::sonDecode($request->t));
 		$data = json_decode($data[0].'}');
-		if(!(time() - $data->date < 600)){
-			$request->session()->flush();
+		if(!is_null($data)&&!(time() - $data->date < 600)){
+			session_destroy();
 			$data = null;
 			echo 'INCORRECT TOKEN OR IT HAS BEEN EXPIRED!';
+			die;
 		}
 		if(!isset($data->email)){
-			$request->session()->flush();
+			session_destroy();
 			$data = null;
 			echo 'INCORRECT TOKEN OR IT HAS BEEN EXPIRED!';
+			die;
 		}
 		if(!is_null($data)) {
 			$user = User::where('email',$data->email)->first();

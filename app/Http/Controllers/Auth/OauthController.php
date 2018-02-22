@@ -46,7 +46,7 @@ class OauthController extends Controller
 				Session::put('api_user_name', $user_name);
 			}
 		}
-		$fb = \OAuth::consumer('Facebook', 'https://ipisocial.iimagine.one/facebook/login');
+		$fb = \OAuth::consumer('Facebook', url('/facebook/login'));
 
 		if ( ! is_null($code) ){
 			$token = $fb->requestAccessToken($code);
@@ -88,7 +88,7 @@ class OauthController extends Controller
 				Session::put('api_user_name', $user_name);
 			}
 		}
-		$googleService = \OAuth::consumer('Google','https://ipisocial.iimagine.one/google/login');
+		$googleService = \OAuth::consumer('Google', url('/google/login'));
 		if ( ! is_null($code)) {
 			$token = $googleService->requestAccessToken($code);
 			$result = json_decode($googleService->request('https://www.googleapis.com/oauth2/v1/userinfo'), true);
@@ -120,7 +120,7 @@ class OauthController extends Controller
 				Session::put('api_user_name', $user_name);
 			}
 		}
-		$tw = \OAuth::consumer('Twitter', 'https://ipisocial.iimagine.one/twitter/login');
+		$tw = \OAuth::consumer('Twitter', url('/twitter/login'));
 
 		if ( ! is_null($token) && ! is_null($verify) ){
 			$token = $tw->requestAccessToken($token, $verify);
@@ -165,7 +165,7 @@ class OauthController extends Controller
 				Session::put('api_user_name', $user_name);
 			}
 		}
-		$linkedinService = \OAuth::consumer('Linkedin','https://ipisocial.iimagine.one/linkedin/login');
+		$linkedinService = \OAuth::consumer('Linkedin', url('/linkedin/login'));
 
 		if ( ! is_null($code) ){
 			$token = $linkedinService->requestAccessToken($code);
@@ -255,7 +255,7 @@ class OauthController extends Controller
 				Session::put('api_user_name', $user_name);
 			}
 		}
-		$reddit = \OAuth::consumer('Reddit','https://ipisocial.iimagine.one/reddit/login');
+		$reddit = \OAuth::consumer('Reddit',url('/reddit/login'));
 
 		if ( ! is_null($code)){
 			$state = isset($_GET['state']) ? $_GET['state'] : null;
@@ -295,7 +295,7 @@ class OauthController extends Controller
 			if( isset($user_id) ) Session::put('api_user_id', $user_id);
 			if( isset($user_name) ) Session::put('api_user_name', $user_name);
 		}
-		$pinterestService = \OAuth::consumer('Pinterest','https://ipisocial.iimagine.one/pinterest/login');
+		$pinterestService = \OAuth::consumer('Pinterest', url('/pinterest/login'));
 
 		if ( ! is_null($code)){
 			$state = isset($_GET['state']) ? $_GET['state'] : null;
